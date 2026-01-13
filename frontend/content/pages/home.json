@@ -1,0 +1,24 @@
+{
+  "title": "Home",
+  "slug": "home",
+  "published": true,
+  "sections": [
+    {
+      "_block": "hero",
+      "title": "Defining Data Strategy for High-Growth Organizations.",
+      "subtitle": "I help organizations transform complex data ecosystems into strategic assets that drive growth, clarity, and innovation."
+    },
+    {
+      "_block": "latest-posts",
+      "title": "Latest Articles",
+      "limit": 3,
+      "showViewAll": true
+    },
+    {
+      "_block": "newsletter",
+      "title": "Deep Dives on Data Leadership",
+      "description": "Join 7,000+ leaders receiving advice on data architecture and team management.",
+      "placeholder": "Your email address"
+    }
+  ]
+}

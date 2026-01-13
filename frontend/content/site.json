@@ -1,0 +1,57 @@
+{
+  "name": "Yordan Ivanov",
+  "tagline": "Head of Data Engineering",
+  "description": "I help Data Engineers handle the side of the job that isn't code. I write about how to actually own a project, navigate the market, and get promoted without becoming a corporate politician.",
+  "siteUrl": "https://www.ivanovyordan.com",
+  "email": "hi@ivanovyordan.com",
+  "bookingUrl": "https://tidycal.com/ivanovyordan/discovery-call",
+  "social": [
+    {
+      "label": "LinkedIn",
+      "url": "https://www.linkedin.com/in/ivanovyordan/",
+      "platform": "linkedin"
+    },
+    {
+      "label": "Substack",
+      "url": "https://substack.com/@ivanovyordan",
+      "platform": "substack"
+    },
+    {
+      "label": "Twitter",
+      "url": "https://x.com/heyivanovyordan",
+      "platform": "twitter"
+    }
+  ],
+  "analytics": {
+    "googleAnalyticsId": "",
+    "facebookPixelId": ""
+  },
+  "newsletter": {
+    "service": "listmonk",
+    "url": "https://newsletter.ivanovyordan.com",
+    "listmonk": {
+      "baseUrl": "https://newsletter.ivanovyordan.com",
+      "lists": [
+        {
+          "id": "fd3b8a08-a51f-40fc-b255-3ce353d07c41",
+          "label": "Everybody",
+          "checked": true
+        }
+      ]
+    }
+  },
+  "errorTracking": {
+    "sentryDsn": "",
+    "environment": "production"
+  },
+  "seo": {
+    "defaultTitle": "Yordan Ivanov - Head of Data Engineering",
+    "defaultDescription": "Data engineering leadership, architecture, and coaching."
+  },
+  "blog": {
+    "title": "Blog",
+    "description": "Thinking out loud about data engineering, leadership, and systems.",
+    "initialPosts": 12,
+    "postsPerLoad": 6
+  }
+}

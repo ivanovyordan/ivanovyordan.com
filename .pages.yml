@@ -1,0 +1,954 @@
+# Pages CMS Configuration
+media:
+  input: frontend/public/images
+  output: /images
+
+content:
+  - name: posts
+    label: Blog Posts
+    type: collection
+    path: frontend/content/posts
+    format: yaml-frontmatter
+    filename: "{slug}.md"
+    view:
+      fields: [title, date, category]
+      primary: title
+      sort: [date, title]
+      default:
+        sort: date
+        order: desc
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+      - name: slug
+        label: Slug
+        type: string
+        description: URL-friendly identifier (auto-generated from title if empty)
+      - name: date
+        label: Date
+        type: date
+        required: true
+        default: "{{today}}"
+      - name: category
+        label: Category
+        type: select
+        required: true
+        options:
+          creatable: true
+          values:
+            - Engineering
+            - Leadership
+            - Data
+            - Career
+            - Technical
+      - name: body
+        label: Content
+        type: rich-text
+        options:
+          path: images/posts
+          extensions: [jpg, jpeg, png, webp, gif]
+
+  - name: pages
+    label: Pages
+    type: collection
+    path: frontend/content/pages
+    format: json
+    filename: "{slug}.json"
+    view:
+      fields: [title, slug]
+      primary: title
+      sort: [title]
+    fields:
+      - name: title
+        label: Page Title
+        type: string
+        required: true
+      - name: slug
+        label: Slug
+        type: string
+        required: true
+        description: "URL path identifier (e.g., home, about, coaching)"
+      - name: published
+        label: Published
+        type: boolean
+        default: true
+        description: "Unpublished pages will return 404"
+      - name: seo
+        label: SEO Metadata
+        type: object
+        fields:
+          - name: title
+            label: Meta Title
+            type: string
+            description: "Page title for search engines (defaults to page title)"
+          - name: description
+            label: Meta Description
+            type: text
+            description: "Page description for search engines"
+          - name: ogImage
+            label: Open Graph Image
+            type: image
+            description: "Social sharing image (1200x630px recommended)"
+      - name: sections
+        label: Page Sections
+        type: block
+        list: true
+        blocks:
+          - name: hero
+            label: Hero Section
+            fields:
+              - name: title
+                label: Title
+                type: text
+                required: true
+              - name: subtitle
+                label: Subtitle
+                type: text
+              - name: badge
+                label: Badge
+                type: string
+                description: "Optional badge text above title"
+          - name: about-hero
+            label: About Hero
+            fields:
+              - name: title
+                label: Title
+                type: string
+                required: true
+              - name: headshot
+                label: Headshot Image
+                type: image
+              - name: location
+                label: Location
+                type: string
+              - name: expertise
+                label: Expertise
+                type: text
+              - name: currently
+                label: Currently
+                type: string
+          - name: text
+            label: Text Block
+            fields:
+              - name: content
+                label: Content
+                type: rich-text
+                required: true
+                options:
+                  path: images
+                  extensions: [jpg, jpeg, png, webp, gif]
+          - name: heading
+            label: Heading
+            fields:
+              - name: text
+                label: Heading Text
+                type: string
+                required: true
+              - name: level
+                label: Heading Level
+                type: number
+                default: 2
+                description: "1-6 (h1 to h6)"
+          - name: highlight-box
+            label: Highlight Box
+            fields:
+              - name: title
+                label: Title
+                type: string
+                required: true
+              - name: content
+                label: Content
+                type: rich-text
+                required: true
+                options:
+                  path: images
+                  extensions: [jpg, jpeg, png, webp, gif]
+          - name: features-grid
+            label: Features Grid
+            fields:
+              - name: title
+                label: Title
+                type: string
+                required: true
+              - name: items
+                label: Features
+                type: object
+                list: true
+                fields:
+                  - name: title
+                    label: Feature Title
+                    type: string
+                    required: true
+                  - name: description
+                    label: Description
+                    type: text
+                    required: true
+          - name: cta-section
+            label: Call to Action Section
+            fields:
+              - name: title
+                label: Title
+                type: string
+                required: true
+              - name: description
+                label: Description
+                type: text
+              - name: buttonText
+                label: Button Text
+                type: string
+                required: true
+              - name: buttonUrl
+                label: Button URL
+                type: string
+              - name: pricing
+                label: Pricing
+                type: object
+                fields:
+                  - name: label
+                    label: Pricing Label
+                    type: string
+                  - name: price
+                    label: Price
+                    type: string
+          - name: newsletter
+            label: Newsletter Signup
+            fields:
+              - name: title
+                label: Title
+                type: string
+                required: true
+              - name: description
+                label: Description
+                type: text
+                required: true
+              - name: placeholder
+                label: Email Placeholder
+                type: string
+                default: "Your email address"
+          - name: testimonial
+            label: Testimonial
+            fields:
+              - name: quote
+                label: Quote
+                type: text
+                required: true
+              - name: author
+                label: Author
+                type: string
+                required: true
+          - name: contact-info
+            label: Contact Information
+            fields:
+              - name: officeHours
+                label: Office Hours
+                type: object
+                fields:
+                  - name: description
+                    label: Description
+                    type: text
+                    description: "Description text for the booking section"
+                  - name: buttonText
+                    label: Button Text
+                    type: string
+                    description: "Text for the booking button (URL comes from Site Settings)"
+          - name: gemini-assistant
+            label: AI Assistant
+            view:
+              fields: [_block]
+              primary: _block
+            fields:
+              - name: label
+                label: Label (for CMS display only)
+                type: string
+                default: "AI Assistant"
+                description: "Optional label for CMS display. This doesn't affect the rendered component."
+          - name: video
+            label: Video Player
+            fields:
+              - name: videoId
+                label: YouTube Video ID
+                type: string
+                required: true
+              - name: title
+                label: Video Title
+                type: string
+              - name: buttonText
+                label: Button Text
+                type: string
+                default: "Watch Trailer"
+              - name: duration
+                label: Duration
+                type: string
+              - name: badge
+                label: Badge
+                type: object
+                fields:
+                  - name: value
+                    label: Badge Value
+                    type: string
+                  - name: label
+                    label: Badge Label
+                    type: string
+          - name: course-modules
+            label: Course Modules
+            fields:
+              - name: title
+                label: Section Title
+                type: string
+              - name: modules
+                label: Modules
+                type: object
+                list: true
+                fields:
+                  - name: title
+                    label: Module Title
+                    type: string
+                    required: true
+                  - name: lessons
+                    label: Lessons
+                    type: string
+                    list: true
+          - name: hero-with-video
+            label: Hero with Video
+            fields:
+              - name: badge
+                label: Badge
+                type: string
+              - name: title
+                label: Title
+                type: string
+                required: true
+              - name: subtitle
+                label: Subtitle
+                type: text
+              - name: video
+                label: Video
+                type: object
+                fields:
+                  - name: videoId
+                    label: YouTube Video ID
+                    type: string
+                    required: true
+                  - name: title
+                    label: Video Title
+                    type: string
+                  - name: buttonText
+                    label: Button Text
+                    type: string
+                    default: "Watch Trailer"
+                  - name: duration
+                    label: Duration
+                    type: string
+                  - name: badge
+                    label: Badge
+                    type: object
+                    fields:
+                      - name: value
+                        label: Badge Value
+                        type: string
+                      - name: label
+                        label: Badge Label
+                        type: string
+              - name: buttons
+                label: Buttons
+                type: object
+                list: true
+                fields:
+                  - name: text
+                    label: Button Text
+                    type: string
+                    required: true
+                  - name: style
+                    label: Button Style
+                    type: select
+                    options:
+                      values: [primary, secondary]
+                    default: primary
+          - name: latest-posts
+            label: Latest Blog Posts
+            fields:
+              - name: title
+                label: Section Title
+                type: string
+                default: "Latest Articles"
+              - name: limit
+                label: Number of Posts
+                type: number
+                default: 3
+              - name: showViewAll
+                label: Show View All Link
+                type: boolean
+                default: true
+          - name: image
+            label: Image
+            fields:
+              - name: src
+                label: Image Source
+                type: image
+                required: true
+              - name: alt
+                label: Alt Text
+                type: string
+                description: "Accessibility description"
+              - name: caption
+                label: Caption
+                type: string
+              - name: width
+                label: Width
+                type: select
+                options:
+                  values: [narrow, medium, full]
+                default: full
+              - name: fullWidth
+                label: Full Width
+                type: boolean
+                default: false
+              - name: rounded
+                label: Rounded Corners
+                type: boolean
+                default: false
+              - name: shadow
+                label: Drop Shadow
+                type: boolean
+                default: false
+          - name: columns
+            label: Columns Layout
+            fields:
+              - name: columns
+                label: Number of Columns
+                type: select
+                options:
+                  values: [2, 3]
+                required: true
+              - name: gap
+                label: Gap Size
+                type: select
+                options:
+                  values: [sm, md, lg]
+                default: md
+              - name: items
+                label: Column Items
+                type: block
+                list: true
+                blocks:
+                  - name: text
+                    label: Text Block
+                    fields:
+                      - name: content
+                        label: Content
+                        type: rich-text
+                        required: true
+                        options:
+                          path: images
+                          extensions: [jpg, jpeg, png, webp, gif]
+                  - name: heading
+                    label: Heading
+                    fields:
+                      - name: text
+                        label: Heading Text
+                        type: string
+                        required: true
+                      - name: level
+                        label: Heading Level
+                        type: number
+                        default: 2
+                  - name: image
+                    label: Image
+                    fields:
+                      - name: src
+                        label: Image Source
+                        type: image
+                        required: true
+                      - name: alt
+                        label: Alt Text
+                        type: string
+                      - name: caption
+                        label: Caption
+                        type: string
+                      - name: width
+                        label: Width
+                        type: select
+                        options:
+                          values: [narrow, medium, full]
+                        default: full
+                  - name: highlight-box
+                    label: Highlight Box
+                    fields:
+                      - name: title
+                        label: Title
+                        type: string
+                        required: true
+                      - name: content
+                        label: Content
+                        type: rich-text
+                        required: true
+                        options:
+                          path: images
+                          extensions: [jpg, jpeg, png, webp, gif]
+                  - name: features-grid
+                    label: Features Grid
+                    fields:
+                      - name: title
+                        label: Title
+                        type: string
+                        required: true
+                      - name: items
+                        label: Features
+                        type: object
+                        list: true
+                        fields:
+                          - name: title
+                            label: Feature Title
+                            type: string
+                            required: true
+                          - name: description
+                            label: Description
+                            type: text
+                            required: true
+          - name: sidebar
+            label: Sidebar Layout
+            fields:
+              - name: sidebar
+                label: Sidebar Content
+                type: block
+                blocks:
+                  - name: about-hero
+                    label: About Hero
+                    fields:
+                      - name: title
+                        label: Title
+                        type: string
+                        required: true
+                      - name: headshot
+                        label: Headshot Image
+                        type: image
+                      - name: location
+                        label: Location
+                        type: string
+                      - name: expertise
+                        label: Expertise
+                        type: text
+                      - name: currently
+                        label: Currently
+                        type: string
+                  - name: text
+                    label: Text Block
+                    fields:
+                      - name: content
+                        label: Content
+                        type: rich-text
+                        required: true
+                        options:
+                          path: images
+                          extensions: [jpg, jpeg, png, webp, gif]
+                  - name: image
+                    label: Image
+                    fields:
+                      - name: src
+                        label: Image Source
+                        type: image
+                        required: true
+                      - name: alt
+                        label: Alt Text
+                        type: string
+                      - name: caption
+                        label: Caption
+                        type: string
+                      - name: width
+                        label: Width
+                        type: select
+                        options:
+                          values: [narrow, medium, full]
+                        default: full
+                  - name: highlight-box
+                    label: Highlight Box
+                    fields:
+                      - name: title
+                        label: Title
+                        type: string
+                        required: true
+                      - name: content
+                        label: Content
+                        type: rich-text
+                        required: true
+                        options:
+                          path: images
+                          extensions: [jpg, jpeg, png, webp, gif]
+              - name: content
+                label: Main Content
+                type: block
+                list: true
+                blocks:
+                  - name: text
+                    label: Text Block
+                    fields:
+                      - name: content
+                        label: Content
+                        type: rich-text
+                        required: true
+                        options:
+                          path: images
+                          extensions: [jpg, jpeg, png, webp, gif]
+                  - name: heading
+                    label: Heading
+                    fields:
+                      - name: text
+                        label: Heading Text
+                        type: string
+                        required: true
+                      - name: level
+                        label: Heading Level
+                        type: number
+                        default: 2
+                        description: "1-6 (h1 to h6)"
+                  - name: image
+                    label: Image
+                    fields:
+                      - name: src
+                        label: Image Source
+                        type: image
+                        required: true
+                      - name: alt
+                        label: Alt Text
+                        type: string
+                      - name: caption
+                        label: Caption
+                        type: string
+                      - name: width
+                        label: Width
+                        type: select
+                        options:
+                          values: [narrow, medium, full]
+                        default: full
+                  - name: highlight-box
+                    label: Highlight Box
+                    fields:
+                      - name: title
+                        label: Title
+                        type: string
+                        required: true
+                      - name: content
+                        label: Content
+                        type: rich-text
+                        required: true
+                        options:
+                          path: images
+                          extensions: [jpg, jpeg, png, webp, gif]
+                  - name: features-grid
+                    label: Features Grid
+                    fields:
+                      - name: title
+                        label: Title
+                        type: string
+                        required: true
+                      - name: items
+                        label: Features
+                        type: object
+                        list: true
+                        fields:
+                          - name: title
+                            label: Feature Title
+                            type: string
+                            required: true
+                          - name: description
+                            label: Description
+                            type: text
+                            required: true
+                  - name: cta-section
+                    label: CTA Section
+                    fields:
+                      - name: title
+                        label: Title
+                        type: string
+                        required: true
+                      - name: description
+                        label: Description
+                        type: text
+                      - name: buttonText
+                        label: Button Text
+                        type: string
+                      - name: buttonUrl
+                        label: Button URL
+                        type: string
+                      - name: pricing
+                        label: Pricing
+                        type: object
+                        fields:
+                          - name: label
+                            label: Label
+                            type: string
+                          - name: price
+                            label: Price
+                            type: string
+                  - name: testimonial
+                    label: Testimonial
+                    fields:
+                      - name: quote
+                        label: Quote
+                        type: text
+                        required: true
+                      - name: author
+                        label: Author
+                        type: string
+                        required: true
+          - name: accordion
+            label: Accordion / FAQ
+            fields:
+              - name: title
+                label: Section Title
+                type: string
+                description: "Optional title above the accordion"
+              - name: items
+                label: Accordion Items
+                type: object
+                list: true
+                required: true
+                fields:
+                  - name: question
+                    label: Question
+                    type: string
+                    required: true
+                  - name: answer
+                    label: Answer
+                    type: rich-text
+                    required: true
+                    options:
+                      path: images
+                      extensions: [jpg, jpeg, png, webp, gif]
+              - name: defaultOpen
+                label: Default Open Item
+                type: number
+                description: "Index of item to open by default (0-based, leave empty for all closed)"
+
+  - name: navigation
+    label: Navigation
+    type: file
+    path: frontend/content/navigation.json
+    format: json
+    fields:
+      - name: items
+        label: Navigation Items
+        type: object
+        list: true
+        fields:
+          - name: label
+            label: Label
+            type: string
+            required: true
+          - name: path
+            label: Path
+            type: string
+            required: true
+            description: "URL path (e.g., /about)"
+
+  - name: header
+    label: Header
+    type: file
+    path: frontend/content/header.json
+    format: json
+    fields:
+      - name: branding
+        label: Branding
+        type: object
+        fields:
+          - name: text
+            label: Brand Text
+            type: string
+            required: true
+            description: "Main brand text (e.g., ALEX)"
+          - name: suffix
+            label: Brand Suffix
+            type: string
+            required: true
+            description: "Secondary brand text (e.g., WOODS)"
+          - name: link
+            label: Home Link
+            type: string
+            required: true
+            default: "/"
+            description: "URL for the brand logo/text"
+
+  - name: footer
+    label: Footer
+    type: file
+    path: frontend/content/footer.json
+    format: json
+    fields:
+      - name: copyright
+        label: Copyright
+        type: object
+        fields:
+          - name: name
+            label: Name
+            type: string
+            required: true
+            description: "Copyright holder name"
+          - name: tagline
+            label: Tagline
+            type: string
+            description: "Optional tagline after copyright"
+
+  - name: site
+    label: Site Settings
+    type: file
+    path: frontend/content/site.json
+    format: json
+    fields:
+      - name: name
+        label: Site Name
+        type: string
+        required: true
+        description: "Main site name"
+      - name: tagline
+        label: Tagline
+        type: string
+        description: "Optional tagline or subtitle"
+      - name: description
+        label: Site Description
+        type: text
+        description: "Overall site description"
+      - name: siteUrl
+        label: Site URL
+        type: string
+        description: "Base URL of the site (e.g., https://ivanovyordan.com)"
+      - name: email
+        label: Contact Email
+        type: string
+        description: "Primary contact email address"
+      - name: bookingUrl
+        label: Booking URL
+        type: string
+        description: "URL for booking strategy sessions (used in AI assistant and contact blocks)"
+      - name: analytics
+        label: Analytics & Tracking
+        type: object
+        fields:
+          - name: googleAnalyticsId
+            label: Google Analytics ID
+            type: string
+            description: "Google Analytics 4 Measurement ID (e.g., G-XXXXXXXXXX)"
+          - name: facebookPixelId
+            label: Facebook Pixel ID
+            type: string
+            description: "Facebook Pixel ID (e.g., 123456789012345)"
+      - name: newsletter
+        label: Newsletter Integration
+        type: object
+        fields:
+          - name: service
+            label: Service
+            type: string
+            options:
+              - listmonk
+              - mailchimp
+              - convertkit
+              - custom
+            description: "Newsletter service provider"
+          - name: url
+            label: Subscribe URL
+            type: string
+            description: "Base URL for the newsletter service (e.g., https://newsletter.ivanovyordan.com)"
+          - name: apiKey
+            label: API Key (Optional)
+            type: string
+            description: "API key for services requiring authentication (keep private)"
+          - name: listmonk
+            label: Listmonk Settings
+            type: object
+            fields:
+              - name: baseUrl
+                label: Listmonk Base URL
+                type: string
+                description: "Base URL of your Listmonk instance (e.g., https://newsletter.ivanovyordan.com)"
+              - name: lists
+                label: Mailing Lists
+                type: object
+                list: true
+                fields:
+                  - name: id
+                    label: List ID
+                    type: string
+                    required: true
+                    description: "Listmonk list UUID (e.g., fd3b8a08-a51f-40fc-b255-3ce353d07c41)"
+                  - name: label
+                    label: List Label
+                    type: string
+                    required: true
+                    description: "Display name for the list (e.g., Everybody)"
+                  - name: checked
+                    label: Checked by Default
+                    type: boolean
+                    default: true
+                    description: "Whether this list should be pre-selected"
+      - name: errorTracking
+        label: Error Tracking
+        type: object
+        fields:
+          - name: sentryDsn
+            label: Sentry DSN
+            type: string
+            description: "Sentry Data Source Name for error tracking"
+          - name: environment
+            label: Environment
+            type: string
+            default: "production"
+            description: "Environment name (production, staging, development)"
+      - name: social
+        label: Social Media Links
+        type: object
+        list: true
+        fields:
+          - name: label
+            label: Label
+            type: string
+            required: true
+            description: "Display text (e.g., LinkedIn, Twitter)"
+          - name: url
+            label: URL
+            type: string
+            required: true
+            description: "Full URL to social media profile"
+          - name: platform
+            label: Platform
+            type: string
+            description: "Optional platform identifier"
+      - name: seo
+        label: Default SEO Settings
+        type: object
+        fields:
+          - name: defaultTitle
+            label: Default Meta Title
+            type: string
+            required: true
+            description: "Default title for pages without custom SEO"
+          - name: defaultDescription
+            label: Default Meta Description
+            type: text
+            required: true
+            description: "Default description for pages without custom SEO"
+      - name: blog
+        label: Blog Settings
+        type: object
+        fields:
+          - name: title
+            label: Blog Page Title
+            type: string
+            required: true
+          - name: description
+            label: Blog Page Description
+            type: text
+            required: true
+          - name: initialPosts
+            label: Initial Posts to Load
+            type: number
+            required: true
+            default: 12
+            description: "Number of posts to show initially on the blog page (homepage uses Latest Posts block limit)"
+          - name: postsPerLoad
+            label: Posts Per Load More
+            type: number
+            required: true
+            default: 6
+            description: "Number of additional posts to load when clicking 'Load More'"

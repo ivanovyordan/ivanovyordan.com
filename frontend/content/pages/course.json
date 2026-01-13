@@ -1,0 +1,80 @@
+{
+  "title": "Course",
+  "slug": "course",
+  "published": false,
+  "sections": [
+    {
+      "_block": "hero-with-video",
+      "badge": "Enrolling Now",
+      "title": "Data Engineering Leadership Academy",
+      "subtitle": "Master the architectural patterns, team dynamics, and business strategies required to lead modern data teams.",
+      "video": {
+        "videoId": "dQw4w9WgXcQ",
+        "buttonText": "Watch Trailer",
+        "duration": "3:32 • 4K Quality",
+        "badge": {
+          "value": "12+",
+          "label": "Hours of Content"
+        }
+      },
+      "buttons": [
+        {
+          "text": "Buy Course — $499",
+          "style": "primary"
+        },
+        {
+          "text": "Download Syllabus",
+          "style": "secondary"
+        }
+      ]
+    },
+    {
+      "_block": "course-modules",
+      "title": "Curriculum Overview",
+      "modules": [
+        {
+          "title": "Module 1: Foundations of Technical Leadership",
+          "lessons": [
+            "Transitioning from IC to Lead",
+            "The 3 Pillars of Engineering Strategy",
+            "Building Trust with Stakeholders"
+          ]
+        },
+        {
+          "title": "Module 2: Data Platform Architecture",
+          "lessons": [
+            "Scalable Data Architecture Design",
+            "Cost-Efficient Storage Strategies",
+            "Orchestration and Reliability"
+          ]
+        },
+        {
+          "title": "Module 3: Operations and Reliability",
+          "lessons": [
+            "Implementing Data Quality Frameworks",
+            "SLA/SLO for Data Products",
+            "Incident Response for Data Pipelines"
+          ]
+        },
+        {
+          "title": "Module 4: Team Building & Growth",
+          "lessons": [
+            "Hiring High-Impact Data Engineers",
+            "Coaching and Career Development",
+            "Scaling Engineering Culture"
+          ]
+        }
+      ]
+    },
+    {
+      "_block": "cta-section",
+      "title": "Invest in your career.",
+      "description": "Get lifetime access to the curriculum, private community Discord, and monthly live Q&A sessions with Alex.",
+      "buttonText": "Enroll Today",
+      "pricing": {
+        "label": "Complete Certification",
+        "price": "$499"
+      }
+    }
+  ]
+}

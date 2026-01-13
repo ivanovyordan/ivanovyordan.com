@@ -1,0 +1,19 @@
+{
+  "title": "Contact",
+  "slug": "contact",
+  "published": true,
+  "sections": [
+    {
+      "_block": "hero",
+      "title": "Let's talk.",
+      "subtitle": "I provide executive advisory, leadership coaching, and organizational data strategy. Reach out to discuss scaling your data function and navigating corporate acquisitions using the experience I gained at three unicorns."
+    },
+    {
+      "_block": "contact-info",
+      "officeHours": {
+        "description": "Scale your data organization using leadership frameworks from my tenure at three unicorns and four corporate acquisitions. We align your technical roadmap with business objectives to build resilient structures for growth and M&A. This session maximizes the efficiency and strategic impact of your data function.",
+        "buttonText": "Book a Session"
+      }
+    }
+  ]
+}

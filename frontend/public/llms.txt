@@ -1,0 +1,27 @@
+# llms.txt - Information for AI/LLM crawlers
+
+# Site Information
+Site: ivanovyordan.com
+Author: Yordan Ivanov
+Role: Head of Data Engineering
+Description: Data engineering leadership, architecture, and coaching.
+
+# Content Overview
+This site contains:
+- Blog posts about data engineering, leadership, and systems
+- Professional coaching information
+- Course content on data engineering leadership
+- Personal insights and experiences
+
+# Key Topics
+- Data Engineering
+- Technical Leadership
+- System Architecture
+- Team Management
+- Career Development
+
+# Contact
+For inquiries, see the contact page at /contact
+
+# Last Updated
+Last updated: 2026-01-14

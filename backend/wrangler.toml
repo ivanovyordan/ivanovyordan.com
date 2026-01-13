@@ -1,0 +1,25 @@
+name = "ivanovyordan-digital-twin-backend"
+compatibility_date = "2026-01-11"
+main = "functions/worker.ts"
+
+[vars]
+PROFILE_NAME = "Yordan Ivanov"
+PROFILE_ROLE = "Head of Data Engineering"
+PROFILE_STYLE = "Pragmatic, experienced, direct, business-focused."
+GEMINI_MODEL = "gemini-3-flash-preview"
+GEMINI_EMBEDDING_MODEL = "text-embedding-004"
+PINECONE_INDEX_NAME = "digital-twin"
+MAX_QUESTIONS_PER_IP = "10"
+RATE_LIMIT_WINDOW_HOURS = "24"
+
+# For production, create a KV namespace for distributed rate limiting:
+# 1. Run: wrangler kv:namespace create "RATE_LIMIT_KV"
+# 2. Add the binding below (uncomment and use the ID from step 1):
+# [[kv_namespaces]]
+# binding = "RATE_LIMIT_KV"
+# id = "your-kv-namespace-id"
+
+[[rules]]
+type = "Text"
+globs = ["**/*.md", "**/*.txt"]
+fallthrough = true

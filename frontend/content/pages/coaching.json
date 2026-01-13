@@ -1,0 +1,56 @@
+{
+  "title": "Coaching",
+  "slug": "coaching",
+  "published": true,
+  "sections": [
+    {
+      "_block": "hero",
+      "title": "Lead with Strategic Authority",
+      "subtitle": "High-impact advisory for technical leaders transitioning to full-scale organizational ownership.",
+      "badge": "1:1 Mentorship & Advisory"
+    },
+    {
+      "_block": "highlight-box",
+      "title": "The Challenge",
+      "content": "Strategic data leadership requires bridging the gap between technical complexity and business ROI. Your role involves building a data-driven organization. Success depends on alignment, culture, and measurable impact."
+    },
+    {
+      "_block": "features-grid",
+      "title": "What we'll work on:",
+      "items": [
+        {
+          "title": "Strategic Roadmapping",
+          "description": "Design long-term data visions that harmonize technical roadmaps with executive business goals. We create plans that provide stakeholders with absolute clarity on the future of the data organization."
+        },
+        {
+          "title": "Leadership at Scale",
+          "description": "Develop elite, multi-disciplinary teams across data engineering, analytics, and data science. We implement leadership frameworks that maximize collective output and foster a culture of high performance."
+        },
+        {
+          "title": "Executive Presence",
+          "description": "Articulate data success through the lens of revenue, efficiency, and company-wide strategic advantage. We focus on mastering the language of business to secure consistent buy-in from the C-suite."
+        },
+        {
+          "title": "Operational Maturity",
+          "description": "Optimize the complete data lifecycle to ensure high-quality insights reach decision-makers with speed. We build resilient ecosystems that sustain growth and establish the data function as a primary profit center."
+        }
+      ]
+    },
+    {
+      "_block": "gemini-assistant",
+      "label": "AI Assistant"
+    },
+    {
+      "_block": "cta-section",
+      "title": "Ready to lead with confidence?",
+      "description": "Transform your data function into a high-impact engine for business growth. You receive proven frameworks to scale your capabilities , optimize costs , and lead your team through complex organizational transitions with absolute clarity.",
+      "buttonText": "Book Your Discovery Session",
+      "buttonUrl": "https://tidycal.com/ivanovyordan/discovery-call"
+    },
+    {
+      "_block": "testimonial",
+      "quote": "I highly recommend Yordan, he is an absolute pleasure to work with and I've not yet seen a problem that he can't solve. Yordan is also so generous with his knowledge, always taking the time to explain the best way of doing something or the merits of a range of options. ",
+      "author": "Katy Beckett, Analytics Manager"
+    }
+  ]
+}

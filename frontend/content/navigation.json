@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "label": "Home",
+      "path": "/"
+    },
+    {
+      "label": "Blog",
+      "path": "/blog"
+    },
+    {
+      "label": "About",
+      "path": "/about"
+    },
+    {
+      "label": "Coaching",
+      "path": "/coaching"
+    },
+    {
+      "label": "Newsletter",
+      "path": "https://www.datagibberish.com/"
+    },
+    {
+      "label": "Contact",
+      "path": "/contact"
+    }
+  ]
+}
