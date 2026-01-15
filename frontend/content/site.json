@@ -5,6 +5,28 @@
   "siteUrl": "https://www.ivanovyordan.com",
   "email": "hi@ivanovyordan.com",
   "bookingUrl": "https://tidycal.com/ivanovyordan/discovery-call",
+  "analytics": {
+    "googleAnalyticsId": "G-ZBQYHRPLK1",
+    "facebookPixelId": "1177345760364341"
+  },
+  "newsletter": {
+    "service": "listmonk",
+    "url": "https://newsletter.ivanovyordan.com/subscription/form",
+    "listmonk": {
+      "baseUrl": "https://newsletter.ivanovyordan.com",
+      "lists": [
+        {
+          "id": "fd3b8a08-a51f-40fc-b255-3ce353d07c41",
+          "label": "Everybody",
+          "checked": true
+        }
+      ]
+    }
+  },
+  "errorTracking": {
+    "sentryDsn": "https://474338cee218a42288f937ad2ac363a5@o133364.ingest.us.sentry.io/4510716479864832",
+    "environment": "production"
+  },
   "social": [
     {
       "label": "LinkedIn",
@@ -22,28 +44,6 @@
       "platform": "twitter"
     }
   ],
-  "analytics": {
-    "googleAnalyticsId": "",
-    "facebookPixelId": ""
-  },
-  "newsletter": {
-    "service": "listmonk",
-    "url": "https://newsletter.ivanovyordan.com",
-    "listmonk": {
-      "baseUrl": "https://newsletter.ivanovyordan.com",
-      "lists": [
-        {
-          "id": "fd3b8a08-a51f-40fc-b255-3ce353d07c41",
-          "label": "Everybody",
-          "checked": true
-        }
-      ]
-    }
-  },
-  "errorTracking": {
-    "sentryDsn": "",
-    "environment": "production"
-  },
   "seo": {
     "defaultTitle": "Yordan Ivanov - Head of Data Engineering",
     "defaultDescription": "Data engineering leadership, architecture, and coaching."
