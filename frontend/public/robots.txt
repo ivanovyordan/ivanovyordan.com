@@ -2,8 +2,12 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://ivanovyordan.com/sitemap.xml
+Sitemap: https://www.ivanovyordan.com/sitemap.xml
 
 # Disallow admin and private areas if any
 Disallow: /admin/
 Disallow: /api/
+
+Disallow: /harming/humans
+Disallow: /ignoring/human/orders
+Disallow: /harm/to/self

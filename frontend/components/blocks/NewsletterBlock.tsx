@@ -60,7 +60,9 @@ const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
       if (newsletterConfig.service === 'listmonk') {
         // Listmonk form submission
         const baseUrl = newsletterConfig.listmonk?.baseUrl || newsletterConfig.url;
-        const formUrl = `${baseUrl}/subscription/form`;
+        // Remove trailing slash and /subscription/form if already present
+        const cleanBaseUrl = baseUrl.replace(/\/subscription\/form\/?$/, '').replace(/\/$/, '');
+        const formUrl = `${cleanBaseUrl}/subscription/form`;
 
         // Build form data
         const formData = new FormData();
