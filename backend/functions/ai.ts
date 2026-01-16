@@ -283,14 +283,12 @@ async function saveQuestionToDatabase(
   data: QuestionData
 ): Promise<void> {
   if (!db) {
-    // Database not configured, skip silently
     return;
   }
 
-  try {
-    await db
-      .prepare(
-        `INSERT INTO questions (
+  await db
+    .prepare(
+      `INSERT INTO questions (
         query,
         knowledge_found,
         article_url,
@@ -299,21 +297,17 @@ async function saveQuestionToDatabase(
         client_ip,
         country_code
       ) VALUES (?, ?, ?, ?, ?, ?, ?)`
-      )
-      .bind(
-        data.query,
-        data.knowledgeFound ? 1 : 0,
-        data.articleUrl || null,
-        data.articleSection || null,
-        data.responseText,
-        data.clientIp || null,
-        data.countryCode || null
-      )
-      .run();
-  } catch (error) {
-    // Log error but don't fail the request
-    console.error("Error saving question to database:", error);
-  }
+    )
+    .bind(
+      data.query,
+      data.knowledgeFound ? 1 : 0,
+      data.articleUrl || null,
+      data.articleSection || null,
+      data.responseText,
+      data.clientIp || null,
+      data.countryCode || null
+    )
+    .run();
 }
 
 /**
@@ -367,9 +361,9 @@ function handleAIError(
 export async function handleAIRequest(
   request: Request,
   env: Env,
-  corsHeaders: Record<string, string>
+  corsHeaders: Record<string, string>,
+  ctx: ExecutionContext
 ): Promise<Response> {
-  // Validate request method
   const methodCheck = validateRequest(request);
   if (methodCheck instanceof Response) {
     return new Response(methodCheck.body, {
@@ -379,7 +373,6 @@ export async function handleAIRequest(
   }
 
   try {
-    // Extract and validate query
     const query = await extractQuery(request);
     if (!query) {
       return new Response(JSON.stringify({ error: "Query is required" }), {
@@ -388,17 +381,14 @@ export async function handleAIRequest(
       });
     }
 
-    // Get profile information
     const profile = getProfile(env);
 
-    // Generate embedding
     const embedding = await generateEmbedding(
       query,
       env.GEMINI_EMBEDDING_MODEL,
       env.GEMINI_API_KEY
     );
 
-    // Query Pinecone for knowledge (non-blocking)
     let knowledgeContent = "";
     let queryData: PineconeQueryData | null = null;
     try {
@@ -411,15 +401,12 @@ export async function handleAIRequest(
       knowledgeContent = getKnowledgeContent(extractedKnowledge);
     } catch (err) {
       console.error("Error querying Pinecone:", err);
-      // Continue without knowledge content - don't block the response
       knowledgeContent = getKnowledgeContent("");
     }
 
-    // Prepare prompts
     const basePrompt = prepareBasePrompt(profile);
     const systemPrompt = prepareSystemPrompt(basePrompt, knowledgeContent);
 
-    // Generate AI response
     const responseText = await generateAIResponse(
       query,
       systemPrompt,
@@ -427,24 +414,25 @@ export async function handleAIRequest(
       env.GEMINI_API_KEY
     );
 
-    // Save question to database (non-blocking, don't await)
+    // Save question to database (background, non-blocking)
     const articleInfo = extractArticleInfoFromMatches(queryData);
-    const knowledgeFound = Boolean(queryData?.matches && queryData.matches.length > 0);
-    const clientIp = getClientIP(request);
-    const countryCode = getCountryCode(request);
+    const knowledgeFound = Boolean(
+      queryData?.matches && queryData.matches.length > 0
+    );
 
-    saveQuestionToDatabase(env.DB, {
-      query,
-      knowledgeFound,
-      articleUrl: articleInfo.url,
-      articleSection: articleInfo.section,
-      responseText,
-      clientIp,
-      countryCode,
-    }).catch((err) => {
-      // Already logged in saveQuestionToDatabase, just prevent unhandled rejection
-      console.error("Failed to save question:", err);
-    });
+    ctx.waitUntil(
+      saveQuestionToDatabase(env.DB, {
+        query,
+        knowledgeFound,
+        articleUrl: articleInfo.url,
+        articleSection: articleInfo.section,
+        responseText,
+        clientIp: getClientIP(request),
+        countryCode: getCountryCode(request),
+      }).catch((err) => {
+        console.error("Database save failed:", err);
+      })
+    );
 
     return new Response(
       JSON.stringify({
@@ -455,6 +443,7 @@ export async function handleAIRequest(
       }
     );
   } catch (error: any) {
+    console.error("Error in handleAIRequest:", error);
     return handleAIError(error, corsHeaders);
   }
 }

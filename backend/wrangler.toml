@@ -2,6 +2,11 @@ name = "ivanovyordan-com-backend"
 compatibility_date = "2026-01-11"
 main = "functions/worker.ts"
 
+[observability]
+[observability.logs]
+enabled = true
+invocation_logs = true
+
 [vars]
 PROFILE_NAME = "Yordan Ivanov"
 PROFILE_ROLE = "Head of Data Engineering"
@@ -17,5 +22,5 @@ database_id = "c53a0381-251f-43de-80e0-dccecb6e9a40"
 
 [[rules]]
 type = "Text"
-globs = [ "**/*.md", "**/*.txt" ]
+globs = ["**/*.md", "**/*.txt"]
 fallthrough = true

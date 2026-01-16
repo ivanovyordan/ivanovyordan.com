@@ -305,18 +305,15 @@ async function handleSubscriptionRequest(
     const { formData, listmonkUrl, templateId, email } =
       await extractSubscriptionData(request, url);
 
-    // Validate listmonk URL
     const validationError = validateListmonkUrl(listmonkUrl, corsHeaders);
     if (validationError) {
       return validationError;
     }
 
     if (!listmonkUrl) {
-      // This shouldn't happen due to validation, but TypeScript needs it
       return createSubscriptionResponse(false, 400, corsHeaders);
     }
 
-    // Forward subscription to Listmonk
     const listmonkResponse = await forwardSubscriptionToListmonk(
       listmonkUrl,
       formData
@@ -325,7 +322,6 @@ async function handleSubscriptionRequest(
     const responseText = await listmonkResponse.text();
     const isSuccess = isSubscriptionSuccessful(listmonkResponse, responseText);
 
-    // Attempt to send welcome email (non-blocking)
     await attemptWelcomeEmail(isSuccess, email, templateId, listmonkUrl, env);
 
     return createSubscriptionResponse(
@@ -358,12 +354,10 @@ export async function handleNewsletterRequest(
 ): Promise<Response> {
   const url = new URL(request.url);
 
-  // Handle subscription request
   if (request.method === "POST" && url.pathname === "/email-list") {
     return handleSubscriptionRequest(request, url, env, corsHeaders);
   }
 
-  // Method not allowed
   return new Response("Method Not Allowed", {
     status: 405,
     headers: corsHeaders,

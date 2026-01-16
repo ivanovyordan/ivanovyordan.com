@@ -182,13 +182,13 @@ database_id = "your-database-id-here"
 
 ```bash
 npx wrangler d1 execute app-database --local --file=./migrations/0001_create_questions_table.sql
-npx wrangler d1 execute app-database --file=./migrations/0001_create_questions_table.sql
+npx wrangler d1 execute app-database --remote --file=./migrations/0001_create_questions_table.sql
 ```
 
 ### Step 4: Verify
 
 ```bash
-npx wrangler d1 execute app-database --command="SELECT name FROM sqlite_master WHERE type='table' AND name='questions';"
+npx wrangler d1 execute app-database --remote --command="SELECT name FROM sqlite_master WHERE type='table' AND name='questions';"
 ```
 
 ### Step 5: Deploy
