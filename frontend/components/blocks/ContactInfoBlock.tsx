@@ -1,6 +1,7 @@
 import React from 'react';
 import type { ContactInfoBlock as ContactInfoBlockType } from '../../types';
 import { getSiteConfig } from '../../utils/site';
+import { trackBookingClick, handleExternalLinkClick } from '../../utils/analytics';
 
 interface ContactInfoBlockProps {
   block: ContactInfoBlockType;
@@ -39,6 +40,7 @@ const ContactInfoBlock: React.FC<ContactInfoBlockProps> = ({ block }) => {
                 <li key={idx}>
                   <a
                     href={item.url}
+                    onClick={() => handleExternalLinkClick(item.url, item.label)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-lg font-bold hover:underline dark:text-white focus:outline-none focus:ring-1 focus:ring-white"
@@ -66,6 +68,7 @@ const ContactInfoBlock: React.FC<ContactInfoBlockProps> = ({ block }) => {
                 href={siteConfig.bookingUrl || block.officeHours.url || '#'}
                 target={siteConfig.bookingUrl || block.officeHours.url ? "_blank" : undefined}
                 rel={siteConfig.bookingUrl || block.officeHours.url ? "noopener noreferrer" : undefined}
+                onClick={() => trackBookingClick('contact_info')}
                 className="inline-block bg-black dark:bg-white text-white dark:text-black px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black dark:focus:ring-offset-zinc-950"
               >
                 {block.officeHours.buttonText}

@@ -1,6 +1,7 @@
 import React from 'react';
 import type { CTASectionBlock as CTASectionBlockType } from '../../types';
 import { getSiteConfig } from '../../utils/site';
+import { trackBookingClick } from '../../utils/analytics';
 
 interface CTASectionBlockProps {
   block: CTASectionBlockType;
@@ -34,6 +35,7 @@ const CTASectionBlock: React.FC<CTASectionBlockProps> = ({ block }) => {
             href={siteConfig.bookingUrl || block.buttonUrl || '#'}
             target={siteConfig.bookingUrl || block.buttonUrl ? "_blank" : undefined}
             rel={siteConfig.bookingUrl || block.buttonUrl ? "noopener noreferrer" : undefined}
+            onClick={() => trackBookingClick('cta_section')}
             className={`${
               block.pricing
                 ? 'w-full bg-black dark:bg-white text-white dark:text-black py-4 font-bold hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors uppercase tracking-widest text-xs focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black dark:focus:ring-white cursor-pointer inline-block max-w-xs'

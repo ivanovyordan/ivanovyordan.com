@@ -6,6 +6,7 @@ import SocialShare from '../components/SocialShare';
 import { getPostById } from '../utils/posts';
 import { getSiteConfig } from '../utils/site';
 import { getCanonicalUrl } from '../utils/routes';
+import { trackBlogPostView } from '../utils/analytics';
 
 interface BlogPostingSchema {
   '@context': string;
@@ -102,6 +103,7 @@ const PostDetail: React.FC = () => {
   useEffect(() => {
     if (!post) return;
     updateBlogPostStructuredData(post, siteConfig.name);
+    trackBlogPostView(post.id, post.title);
   }, [post, siteConfig.name]);
 
   if (!post) {

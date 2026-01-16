@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { navigation } from '../collections';
 import { getHeaderConfig } from '../utils/site';
 import Container from './Container';
+import { handleExternalLinkClick } from '../utils/analytics';
 
 const Header: React.FC = () => {
   const location = useLocation();
@@ -20,19 +21,39 @@ const Header: React.FC = () => {
           <span className="text-gray-500 dark:text-zinc-400">{headerConfig.branding.suffix}</span>
         </Link>
         <nav className="flex gap-6 items-center">
-          {navigation.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`text-sm font-medium transition-colors focus:outline-none focus:underline ${
-                location.pathname === item.path
-                  ? 'text-black dark:text-white'
-                  : 'text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white'
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navigation.map((item) => {
+            const isExternal = item.path.startsWith('http://') || item.path.startsWith('https://');
+            const isActive = !isExternal && location.pathname === item.path;
+
+            if (isExternal) {
+              return (
+                <a
+                  key={item.path}
+                  href={item.path}
+                  onClick={() => handleExternalLinkClick(item.path, item.label)}
+                  className="text-sm font-medium transition-colors focus:outline-none focus:underline text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {item.label}
+                </a>
+              );
+            }
+
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`text-sm font-medium transition-colors focus:outline-none focus:underline ${
+                  isActive
+                    ? 'text-black dark:text-white'
+                    : 'text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white'
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
       </Container>
     </header>

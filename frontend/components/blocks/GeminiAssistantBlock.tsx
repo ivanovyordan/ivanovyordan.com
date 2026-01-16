@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { config } from '../../config';
 import { getSiteConfig } from '../../utils/site';
 import type { GeminiAssistantBlock as GeminiAssistantBlockType } from '../../types';
+import { trackAIQuestionAsked } from '../../utils/analytics';
 
 interface GeminiAssistantBlockProps {
   block: GeminiAssistantBlockType;
@@ -146,6 +147,9 @@ async function handleAIQuestion(
     const newCount = incrementQuestionsAsked(currentQuestionsAsked);
     setQuestionsAsked(newCount);
     saveQuestionsAsked(storageKey, newCount);
+
+    // Track successful question
+    trackAIQuestionAsked();
   } catch (err) {
     const errorMessage =
       err instanceof Error

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { NewsletterBlock as NewsletterBlockType, SiteConfig } from '../../types';
 import { getSiteConfig } from '../../utils/site';
 import config from '../../config';
+import { trackNewsletterSubscribe } from '../../utils/analytics';
 
 interface NewsletterBlockProps {
   block: NewsletterBlockType;
@@ -232,6 +233,7 @@ const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
 
       if (result.success) {
         setEmail('');
+        trackNewsletterSubscribe();
       }
     } catch (error) {
       setStatus('error');

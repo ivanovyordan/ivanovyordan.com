@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { getFooterConfig, getSiteConfig } from '../utils/site';
 import Container from './Container';
+import { handleExternalLinkClick } from '../utils/analytics';
 
 const Footer: React.FC = () => {
   const footerConfig = getFooterConfig();
@@ -25,6 +26,7 @@ const Footer: React.FC = () => {
               <a
                 key={idx}
                 href={item.url}
+                onClick={() => handleExternalLinkClick(item.url, item.label)}
                 className="text-xs text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white uppercase tracking-widest font-bold focus:outline-none focus:underline"
                 target="_blank"
                 rel="noopener noreferrer"
