@@ -10,4 +10,5 @@ export interface Env {
   PROFILE_STYLE: string;
   LISTMONK_USERNAME?: string; // Listmonk username for API authentication
   LISTMONK_API_KEY?: string; // Listmonk API key for transactional emails
+  DB?: D1Database; // D1 database for storing AI questions
 }

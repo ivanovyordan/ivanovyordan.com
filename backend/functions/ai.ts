@@ -22,6 +22,21 @@ interface PineconeQueryData {
   matches?: PineconeMatch[];
 }
 
+interface ArticleInfo {
+  url?: string;
+  section?: string;
+}
+
+interface QuestionData {
+  query: string;
+  knowledgeFound: boolean;
+  articleUrl?: string;
+  articleSection?: string;
+  responseText: string;
+  clientIp?: string;
+  countryCode?: string;
+}
+
 /**
  * Validate the request method and extract the query
  */
@@ -136,6 +151,31 @@ async function queryPinecone(
 }
 
 /**
+ * Extract article information from Pinecone match metadata
+ */
+function extractArticleInfo(match: PineconeMatch): ArticleInfo {
+  const metadata = match.metadata || {};
+  return {
+    url: metadata.url as string | undefined,
+    section: metadata.section as string | undefined,
+  };
+}
+
+/**
+ * Extract article information from the first Pinecone match
+ */
+function extractArticleInfoFromMatches(
+  queryData: PineconeQueryData | null
+): ArticleInfo {
+  if (!queryData?.matches || queryData.matches.length === 0) {
+    return {};
+  }
+
+  // Get the first (most relevant) match
+  return extractArticleInfo(queryData.matches[0]);
+}
+
+/**
  * Extract knowledge content from Pinecone matches
  */
 function extractKnowledgeFromMatches(
@@ -203,6 +243,77 @@ async function generateAIResponse(
 
   const result = await model.generateContent(query);
   return result.response.text();
+}
+
+/**
+ * Get client IP address from request headers
+ */
+function getClientIP(request: Request): string | undefined {
+  // Try CF-Connecting-IP first (Cloudflare)
+  const cfIP = request.headers.get("CF-Connecting-IP");
+  if (cfIP) return cfIP;
+
+  // Try X-Forwarded-For
+  const xForwardedFor = request.headers.get("X-Forwarded-For");
+  if (xForwardedFor) {
+    // X-Forwarded-For can contain multiple IPs, take the first one
+    return xForwardedFor.split(",")[0].trim();
+  }
+
+  // Fallback to X-Real-IP
+  const xRealIP = request.headers.get("X-Real-IP");
+  if (xRealIP) return xRealIP;
+
+  return undefined;
+}
+
+/**
+ * Get country code from Cloudflare request headers
+ */
+function getCountryCode(request: Request): string | undefined {
+  // Cloudflare provides country code in CF-IPCountry header
+  return request.headers.get("CF-IPCountry") || undefined;
+}
+
+/**
+ * Save question to D1 database (non-blocking)
+ */
+async function saveQuestionToDatabase(
+  db: D1Database | undefined,
+  data: QuestionData
+): Promise<void> {
+  if (!db) {
+    // Database not configured, skip silently
+    return;
+  }
+
+  try {
+    await db
+      .prepare(
+        `INSERT INTO questions (
+        query,
+        knowledge_found,
+        article_url,
+        article_section,
+        response_text,
+        client_ip,
+        country_code
+      ) VALUES (?, ?, ?, ?, ?, ?, ?)`
+      )
+      .bind(
+        data.query,
+        data.knowledgeFound ? 1 : 0,
+        data.articleUrl || null,
+        data.articleSection || null,
+        data.responseText,
+        data.clientIp || null,
+        data.countryCode || null
+      )
+      .run();
+  } catch (error) {
+    // Log error but don't fail the request
+    console.error("Error saving question to database:", error);
+  }
 }
 
 /**
@@ -289,8 +400,9 @@ export async function handleAIRequest(
 
     // Query Pinecone for knowledge (non-blocking)
     let knowledgeContent = "";
+    let queryData: PineconeQueryData | null = null;
     try {
-      const queryData = await queryPinecone(
+      queryData = await queryPinecone(
         embedding,
         env.PINECONE_BASE_URL,
         env.PINECONE_API_KEY
@@ -314,6 +426,25 @@ export async function handleAIRequest(
       env.GEMINI_MODEL,
       env.GEMINI_API_KEY
     );
+
+    // Save question to database (non-blocking, don't await)
+    const articleInfo = extractArticleInfoFromMatches(queryData);
+    const knowledgeFound = Boolean(queryData?.matches && queryData.matches.length > 0);
+    const clientIp = getClientIP(request);
+    const countryCode = getCountryCode(request);
+
+    saveQuestionToDatabase(env.DB, {
+      query,
+      knowledgeFound,
+      articleUrl: articleInfo.url,
+      articleSection: articleInfo.section,
+      responseText,
+      clientIp,
+      countryCode,
+    }).catch((err) => {
+      // Already logged in saveQuestionToDatabase, just prevent unhandled rejection
+      console.error("Failed to save question:", err);
+    });
 
     return new Response(
       JSON.stringify({

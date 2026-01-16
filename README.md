@@ -16,7 +16,7 @@ Personal website and blog for Yordan Ivanov, Head of Data Engineering. Built wit
 - **Cloudflare Workers** - Serverless runtime
 - **Google Gemini AI** - AI assistant and embeddings
 - **Pinecone** - Vector database for knowledge retrieval
-- **Cloudflare KV** - Rate limiting storage
+- **Cloudflare D1** - Database for analytics
 
 ### Features
 - 📝 Blog with markdown posts

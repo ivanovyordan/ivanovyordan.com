@@ -39,11 +39,11 @@ Go to: **GitHub Repo** → **Settings** → **Secrets and variables** → **Acti
 
 Add these secrets:
 
-| Secret Name             | Description                | Example                        |
-| ----------------------- | -------------------------- | ------------------------------ |
-| `CLOUDFLARE_API_TOKEN`  | Your Cloudflare API token  | From Step 1                    |
-| `CLOUDFLARE_ACCOUNT_ID` | Your Cloudflare account ID | From Step 2                    |
-| `SITE_URL`              | Your production site URL   | `https://www.ivanovyordan.com` |
+| Secret Name             | Description                |
+| ----------------------- | -------------------------- |
+| `CLOUDFLARE_API_TOKEN`  | Your Cloudflare API token  |
+| `CLOUDFLARE_ACCOUNT_ID` | Your Cloudflare account ID |
+| `SITE_URL`              | Your production site URL   |
 
 **Note**: `CLOUDFLARE_WORKER_URL` will be added after Step 4.
 
@@ -58,13 +58,11 @@ npx wrangler login
 npx wrangler deploy
 ```
 
-After deployment, note the Worker URL (e.g., `https://ivanovyordan-digital-twin-backend.xxx.workers.dev`)
+After deployment, note the Worker URL (e.g., `https://backend.your-account.workers.dev`)
 
 ### Step 5: Set Backend Secrets (5 min)
 
 Backend secrets must be set in Cloudflare Workers (not GitHub Secrets). The GitHub Actions workflow deploys code, but secrets are managed separately.
-
-**Option 1: Using Wrangler CLI (Recommended)**
 
 ```bash
 cd backend
@@ -79,18 +77,6 @@ npx wrangler secret put LISTMONK_USERNAME
 npx wrangler secret put LISTMONK_API_KEY
 # Enter your Listmonk API key when prompted
 ```
-
-**Option 2: Using Cloudflare Dashboard**
-
-1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com) → **Workers & Pages**
-2. Select your worker (`ivanovyordan-digital-twin-backend`)
-3. Go to **Settings** → **Variables and Secrets**
-4. Click **Add variable** for each secret:
-   - `GEMINI_API_KEY` → Your Google Gemini API key
-   - `PINECONE_BASE_URL` → Your Pinecone API base URL
-   - `PINECONE_API_KEY` → Your Pinecone API key
-   - `LISTMONK_USERNAME` → Your Listmonk username (for welcome emails)
-   - `LISTMONK_API_KEY` → Your Listmonk API key (for welcome emails)
 
 **Note**: These secrets persist across deployments. You only need to set them once.
 
@@ -110,18 +96,17 @@ Go back to GitHub Secrets and add:
 1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com) → **Pages** (NOT Workers & Pages → Builds)
 2. Click **Create a project**
 3. Connect your GitHub repository
-4. Project name: `ivanovyordan-com`
-5. Configure build settings:
+4. Configure build settings:
    - **Framework preset**: None (or Vite)
    - **Build command**: `npm ci && npm run build:frontend`
    - **Build output directory**: `frontend/dist`
    - **Root directory**: Leave empty (or `/`)
    - **Deploy command**: Leave empty (Pages doesn't need this - if you see it, you might be in Workers Builds)
-6. **Disable automatic deployments** (recommended):
+5. **Disable automatic deployments** (recommended):
    - Go to **Settings** → **Builds & deployments**
    - Disable "Automatic deployments" or "Deploy on git push"
    - This ensures GitHub Actions handles all deployments (prevents conflicts)
-7. Add environment variables (optional - GitHub Actions will handle these):
+6. Add environment variables (optional - GitHub Actions will handle these):
    - `VITE_API_URL`: Your Worker URL (from Step 4)
    - `VITE_SITE_URL`: Your production site URL
 
@@ -144,34 +129,21 @@ GitHub Actions will automatically:
 - ✅ Deploy frontend to Cloudflare Pages
 - ✅ Deploy backend to Cloudflare Workers
 
-## DNS Configuration for Domain Redirect
+## DNS Configuration
 
-To redirect `ivanovyordan.com` → `www.ivanovyordan.com`:
+Configure DNS records in your domain provider or Cloudflare Dashboard:
 
 1. Go to **Cloudflare Dashboard** → **DNS** → **Records**
-2. Add/verify these DNS records:
+2. Add an A record:
+   - **Type**: `A`
+   - **Name**: `@` (or your subdomain)
+   - **IPv4 address**: Get the IP from Cloudflare Pages settings
+   - **Proxy status**: Proxied (orange cloud)
+3. Add a CNAME record for www (if needed):
    - **Type**: `CNAME`
    - **Name**: `www`
-   - **Target**: Your Cloudflare Pages domain (e.g., `ivanovyordan-com.pages.dev`) or your custom domain
+   - **Target**: Your Cloudflare Pages domain
    - **Proxy status**: Proxied (orange cloud)
-3. For the apex domain (`ivanovyordan.com`):
-   - **Option A (Recommended)**: Use Cloudflare's CNAME Flattening
-     - **Type**: `CNAME`
-     - **Name**: `@` (or root/apex)
-     - **Target**: Your Cloudflare Pages domain
-     - **Proxy status**: Proxied (orange cloud)
-     - Cloudflare will automatically flatten this
-   - **Option B**: Use A record (if CNAME not supported)
-     - **Type**: `A`
-     - **Name**: `@`
-     - **IPv4 address**: `192.0.2.1` (Cloudflare Pages will provide the actual IP)
-     - **Proxy status**: Proxied (orange cloud)
-4. **Redirect Rule** (you mentioned you already have this):
-   - Go to **Rules** → **Redirect Rules**
-   - Create a rule: `ivanovyordan.com/*` → `https://www.ivanovyordan.com/$1` (301 redirect)
-   - This ensures the redirect works even if DNS points directly to Pages
-
-**Note**: If you're using Cloudflare Pages custom domains, add both `ivanovyordan.com` and `www.ivanovyordan.com` in Pages → Your Project → **Custom domains**.
 
 ## How It Works
 
@@ -180,22 +152,72 @@ To redirect `ivanovyordan.com` → `www.ivanovyordan.com`:
 3. **Frontend deploy** → Deploys `frontend/dist` to Cloudflare Pages
 4. **Backend deploy** → Deploys backend to Cloudflare Workers (secrets are already set in Cloudflare)
 
-## Optional: Set Up Rate Limiting KV Namespace
+## Optional: Set Up D1 Database
 
-For production rate limiting across multiple Workers instances:
+The D1 database is optional and only needed if you want to store AI question analytics. For local development, you can skip this step as the database binding is optional.
+
+### Step 1: Create D1 Database
 
 ```bash
 cd backend
-npx wrangler kv:namespace create "RATE_LIMIT_KV"
+npx wrangler d1 create app-database
 ```
 
-Copy the `id` from the output and add it to `backend/wrangler.toml`:
+Copy the `database_id` from the output.
+
+### Step 2: Update wrangler.toml
+
+Add the database ID to `backend/wrangler.toml` (replace the empty `database_id = ""`):
 
 ```toml
-[[kv_namespaces]]
-binding = "RATE_LIMIT_KV"
-id = "your-kv-namespace-id"
+[[d1_databases]]
+binding = "DB"
+database_name = "app-database"
+database_id = "your-database-id-here"
 ```
+
+**Note**: For local development without a database, you can leave `database_id = ""` empty. The database binding will be undefined, but the code handles this gracefully.
+
+### Step 3: Run Migration
+
+```bash
+npx wrangler d1 execute app-database --local --file=./migrations/0001_create_questions_table.sql
+npx wrangler d1 execute app-database --file=./migrations/0001_create_questions_table.sql
+```
+
+### Step 4: Verify
+
+```bash
+npx wrangler d1 execute app-database --command="SELECT name FROM sqlite_master WHERE type='table' AND name='questions';"
+```
+
+### Step 5: Deploy
+
+```bash
+npx wrangler deploy
+```
+
+### Database Schema
+
+- `id` - Auto-incrementing primary key
+- `query` - The user's question
+- `created_at` - Timestamp
+- `knowledge_found` - Whether knowledge was found (0 or 1)
+- `article_url` - URL of referenced article (if any)
+- `article_section` - Section of article (if any)
+- `response_text` - AI's response
+- `client_ip` - Client IP address
+- `country_code` - ISO country code (from Cloudflare headers)
+
+### Querying Data
+
+```bash
+npx wrangler d1 execute app-database --command="SELECT * FROM questions ORDER BY created_at DESC LIMIT 10;"
+npx wrangler d1 execute app-database --command="SELECT query, created_at FROM questions WHERE knowledge_found = 0 ORDER BY created_at DESC;"
+npx wrangler d1 execute app-database --command="SELECT article_url, COUNT(*) as count FROM questions WHERE article_url IS NOT NULL GROUP BY article_url ORDER BY count DESC;"
+```
+
+Query via Cloudflare Dashboard: **Workers & Pages** → **D1** → Select database → **Open Console**.
 
 ## Troubleshooting
 

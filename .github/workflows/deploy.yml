@@ -36,7 +36,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy frontend/dist --project-name=ivanovyordan-com
+          command: pages deploy frontend/dist --project-name=ivanovyordan-com-frontend
 
   deploy-backend:
     name: Deploy Backend to Cloudflare Workers

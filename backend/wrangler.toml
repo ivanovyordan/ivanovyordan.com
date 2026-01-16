@@ -1,4 +1,4 @@
-name = "ivanovyordan-digital-twin-backend"
+name = "ivanovyordan-com-backend"
 compatibility_date = "2026-01-11"
 main = "functions/worker.ts"
 
@@ -10,7 +10,12 @@ GEMINI_MODEL = "gemini-3-flash-preview"
 GEMINI_EMBEDDING_MODEL = "text-embedding-004"
 PINECONE_INDEX_NAME = "digital-twin"
 
+[[d1_databases]]
+binding = "DB"
+database_name = "ivanovyordan-com-database"
+database_id = "c53a0381-251f-43de-80e0-dccecb6e9a40"
+
 [[rules]]
 type = "Text"
-globs = ["**/*.md", "**/*.txt"]
+globs = [ "**/*.md", "**/*.txt" ]
 fallthrough = true
