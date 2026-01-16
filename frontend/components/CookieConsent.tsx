@@ -4,16 +4,12 @@ import { getSiteConfig } from '../utils/site';
 const CookieConsent: React.FC = () => {
   const siteConfig = getSiteConfig();
   const [showBanner, setShowBanner] = useState(false);
-  const [analyticsEnabled, setAnalyticsEnabled] = useState(false);
 
   useEffect(() => {
     // Check if user has already made a choice
     const consent = localStorage.getItem('cookieConsent');
     if (!consent) {
       setShowBanner(true);
-    } else {
-      const parsed = JSON.parse(consent);
-      setAnalyticsEnabled(parsed.analytics === true);
     }
   }, []);
 
@@ -21,7 +17,6 @@ const CookieConsent: React.FC = () => {
     const consent = { analytics: true, timestamp: new Date().toISOString() };
     localStorage.setItem('cookieConsent', JSON.stringify(consent));
     setShowBanner(false);
-    setAnalyticsEnabled(true);
     // Reload to enable analytics
     window.location.reload();
   };
@@ -30,7 +25,6 @@ const CookieConsent: React.FC = () => {
     const consent = { analytics: false, timestamp: new Date().toISOString() };
     localStorage.setItem('cookieConsent', JSON.stringify(consent));
     setShowBanner(false);
-    setAnalyticsEnabled(false);
   };
 
   // Only show banner if analytics are configured

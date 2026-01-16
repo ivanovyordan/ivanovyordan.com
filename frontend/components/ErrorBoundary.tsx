@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, ErrorInfo, ReactNode } from 'react';
 import { getSiteConfig } from '../utils/site';
 
 interface Props {
@@ -65,6 +65,12 @@ class ErrorBoundary extends Component<Props, State> {
 declare global {
   interface Window {
     Sentry?: {
+      init?: (config: {
+        dsn: string;
+        environment?: string;
+        tracesSampleRate?: number;
+        beforeSend?: (event: any) => any;
+      }) => void;
       captureException: (error: Error, context?: any) => void;
     };
   }

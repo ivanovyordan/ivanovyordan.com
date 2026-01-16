@@ -13,12 +13,12 @@ const SentryInit: React.FC = () => {
         'sha384-7bqJhXNmMb6I1W2lXK8zJ5zRfKvPvZ6qL2z8v8v8v8v8v8v8v8v8v8v8v8v8v8v8=';
       script.crossOrigin = 'anonymous';
       script.onload = () => {
-        if (window.Sentry) {
+        if (window.Sentry?.init && siteConfig.errorTracking?.sentryDsn) {
           window.Sentry.init({
             dsn: siteConfig.errorTracking.sentryDsn,
             environment: siteConfig.errorTracking.environment || 'production',
             tracesSampleRate: 0.1, // 10% of transactions
-            beforeSend(event) {
+            beforeSend(event: any) {
               // Don't send errors in development
               if (import.meta.env.DEV) {
                 return null;
@@ -38,7 +38,12 @@ const SentryInit: React.FC = () => {
 declare global {
   interface Window {
     Sentry?: {
-      init: (config: any) => void;
+      init?: (config: {
+        dsn: string;
+        environment?: string;
+        tracesSampleRate?: number;
+        beforeSend?: (event: any) => any;
+      }) => void;
       captureException: (error: Error, context?: any) => void;
     };
   }

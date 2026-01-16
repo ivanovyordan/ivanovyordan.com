@@ -7,7 +7,7 @@ const pageFiles = import.meta.glob<PageContent>("../content/pages/*.json", {
 });
 
 export function getPageBySlug(slug: string, includeDrafts: boolean = false): PageContent | undefined {
-  for (const [path, content] of Object.entries(pageFiles)) {
+  for (const [, content] of Object.entries(pageFiles)) {
     if (content.slug === slug) {
       // Filter out drafts unless explicitly requested
       if (!includeDrafts && content.published === false) {

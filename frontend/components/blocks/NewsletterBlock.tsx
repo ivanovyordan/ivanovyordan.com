@@ -20,7 +20,9 @@ const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
       // Fetch nonce from Listmonk's subscription form endpoint
       const fetchNonce = async () => {
         try {
-          const response = await fetch(`${newsletterConfig.listmonk.baseUrl}/subscription/form`, {
+          const baseUrl = newsletterConfig.listmonk?.baseUrl;
+          if (!baseUrl) return;
+          const response = await fetch(`${baseUrl}/subscription/form`, {
             method: 'GET',
             mode: 'cors',
           });
@@ -120,7 +122,7 @@ const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
             'Content-Type': 'application/json',
             ...(newsletterConfig.apiKey && { Authorization: `Bearer ${newsletterConfig.apiKey}` }),
           },
-          body: JSON.stringify({ email, name: name || undefined }),
+          body: JSON.stringify({ email }),
         });
 
         if (response.ok) {
@@ -143,8 +145,6 @@ const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
       console.error('Newsletter subscription error:', error);
     }
   };
-
-  const newsletterConfig = siteConfig.newsletter;
 
   return (
     <section className="bg-gray-50 dark:bg-zinc-900 p-10 md:p-16 border border-gray-100 dark:border-zinc-800 mb-24">

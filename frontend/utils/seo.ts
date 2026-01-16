@@ -1,4 +1,3 @@
-import type { Post } from "../types";
 import { getAllPosts } from "./posts";
 import { getAllPages } from "./pages";
 import { getSiteConfig } from "./site";
@@ -49,7 +48,7 @@ export function generateRSSFeed(): string {
       const postDate = new Date(post.date || now);
       const postUrl = `${baseUrl}/blog/${post.id}`;
       const excerpt = escapeXml(post.excerpt || "");
-      const imageUrl = post.image ? `${baseUrl}${post.image}` : null;
+      const siteConfig = getSiteConfig();
       const authorEmail = siteConfig.email || "";
 
       return `    <item>
@@ -60,7 +59,6 @@ export function generateRSSFeed(): string {
       <pubDate>${formatRssDate(postDate)}</pubDate>
       <category>${escapeXml(post.category)}</category>
       ${authorEmail ? `<author>${escapeXml(authorEmail)} (${escapeXml(siteConfig.name)})</author>` : ""}
-      ${imageUrl ? `<enclosure url="${escapeXml(imageUrl)}" type="image/jpeg"/>` : ""}
     </item>`;
     })
     .join("\n");
@@ -94,7 +92,6 @@ export function generateAtomFeed(): string {
       const postDate = new Date(post.date || now);
       const postUrl = `${baseUrl}/blog/${post.id}`;
       const excerpt = escapeXml(post.excerpt || "");
-      const imageUrl = post.image ? `${baseUrl}${post.image}` : null;
       const authorEmail = siteConfig.email || "";
 
       return `    <entry>
@@ -109,7 +106,6 @@ export function generateAtomFeed(): string {
         <name>${escapeXml(siteConfig.name)}</name>
         ${authorEmail ? `<email>${escapeXml(authorEmail)}</email>` : ""}
       </author>
-      ${imageUrl ? `<link href="${escapeXml(imageUrl)}" rel="enclosure" type="image/jpeg"/>` : ""}
     </entry>`;
     })
     .join("\n");
@@ -133,7 +129,6 @@ export function generateAtomFeed(): string {
 
 // Generate sitemap
 export function generateSitemap(): string {
-  const siteConfig = getSiteConfig();
   const posts = getAllPosts();
   const pages = getAllPages();
   const baseUrl = getBaseUrl();
