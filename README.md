@@ -33,7 +33,7 @@ Personal website and blog for Yordan Ivanov, Head of Data Engineering. Built wit
 
 ### Prerequisites
 
-- Node.js 18 or later
+- Node.js 20 or later (required for Vite 7 and Wrangler 4)
 - npm
 
 ### Setup
