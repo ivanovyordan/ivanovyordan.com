@@ -25,8 +25,8 @@ export const config: AppConfig = {
     videoId: getEnvVar("COURSE_YOUTUBE_VIDEO_ID", "dQw4w9WgXcQ"),
   },
   assistant: {
-    url: getEnvVar("AI_API_URL", "http://localhost:8787"),
-    maxQuestions: getEnvVarAsNumber("AI_MAX_QUESTIONS", 10),
+    url: getEnvVar("VITE_API_URL", "http://localhost:8787"),
+    maxQuestions: getEnvVarAsNumber("VITE_MAX_QUESTIONS", 10),
     localStorageKey: "ai_credits_used",
   },
 };
