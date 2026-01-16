@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- Yellow hard hat -->
-  <path d="M50 15 L30 25 L30 45 L20 50 L20 65 L80 65 L80 50 L70 45 L70 25 Z" fill="#F7DB6B" stroke="#E0C85A" stroke-width="1"/>
-  <!-- Hard hat ridge -->
-  <path d="M50 15 L50 45" stroke="#E0C85A" stroke-width="2" stroke-linecap="round"/>
-  <!-- Blue jagged symbol -->
-  <path d="M45 35 L48 30 L50 35 L52 28 L55 35 L50 40 Z" fill="#2C4CB9" stroke="#1E3A8A" stroke-width="0.5"/>
-</svg>

@@ -138,6 +138,35 @@ GitHub Actions will automatically:
 - ✅ Deploy frontend to Cloudflare Pages
 - ✅ Deploy backend to Cloudflare Workers
 
+## DNS Configuration for Domain Redirect
+
+To redirect `ivanovyordan.com` → `www.ivanovyordan.com`:
+
+1. Go to **Cloudflare Dashboard** → **DNS** → **Records**
+2. Add/verify these DNS records:
+   - **Type**: `CNAME`
+   - **Name**: `www`
+   - **Target**: Your Cloudflare Pages domain (e.g., `ivanovyordan-com.pages.dev`) or your custom domain
+   - **Proxy status**: Proxied (orange cloud)
+3. For the apex domain (`ivanovyordan.com`):
+   - **Option A (Recommended)**: Use Cloudflare's CNAME Flattening
+     - **Type**: `CNAME`
+     - **Name**: `@` (or root/apex)
+     - **Target**: Your Cloudflare Pages domain
+     - **Proxy status**: Proxied (orange cloud)
+     - Cloudflare will automatically flatten this
+   - **Option B**: Use A record (if CNAME not supported)
+     - **Type**: `A`
+     - **Name**: `@`
+     - **IPv4 address**: `192.0.2.1` (Cloudflare Pages will provide the actual IP)
+     - **Proxy status**: Proxied (orange cloud)
+4. **Redirect Rule** (you mentioned you already have this):
+   - Go to **Rules** → **Redirect Rules**
+   - Create a rule: `ivanovyordan.com/*` → `https://www.ivanovyordan.com/$1` (301 redirect)
+   - This ensures the redirect works even if DNS points directly to Pages
+
+**Note**: If you're using Cloudflare Pages custom domains, add both `ivanovyordan.com` and `www.ivanovyordan.com` in Pages → Your Project → **Custom domains**.
+
 ## How It Works
 
 1. **Push to main branch** → GitHub Actions workflow (`.github/workflows/deploy.yml`) triggers

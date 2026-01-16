@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { NewsletterBlock as NewsletterBlockType } from '../../types';
 import { getSiteConfig } from '../../utils/site';
+import config from '../../config';
 
 interface NewsletterBlockProps {
   block: NewsletterBlockType;
@@ -17,24 +18,22 @@ const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
   useEffect(() => {
     const newsletterConfig = siteConfig.newsletter;
     if (newsletterConfig?.service === 'listmonk' && newsletterConfig.listmonk?.baseUrl) {
-      // Fetch nonce from Listmonk's subscription form endpoint
+      // Fetch nonce via proxy endpoint to avoid CORS issues
       const fetchNonce = async () => {
         try {
           const baseUrl = newsletterConfig.listmonk?.baseUrl;
           if (!baseUrl) return;
-          const response = await fetch(`${baseUrl}/subscription/form`, {
-            method: 'GET',
-            mode: 'cors',
-          });
+          const apiUrl = config.assistant.url;
+          const response = await fetch(
+            `${apiUrl}/api/newsletter/nonce?baseUrl=${encodeURIComponent(baseUrl)}`,
+            {
+              method: 'GET',
+            }
+          );
           if (response.ok) {
-            const html = await response.text();
-            // Extract nonce from the HTML form - try multiple patterns
-            const nonceMatch =
-              html.match(/name="nonce"\s+value="([^"]+)"/) ||
-              html.match(/<input[^>]*name="nonce"[^>]*value="([^"]+)"/i) ||
-              html.match(/nonce["\s]*[:=]["\s]*([^"'\s]+)/i);
-            if (nonceMatch && nonceMatch[1]) {
-              setNonce(nonceMatch[1]);
+            const data = await response.json();
+            if (data.nonce) {
+              setNonce(data.nonce);
             }
           }
         } catch (error) {
@@ -60,11 +59,11 @@ const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
 
     try {
       if (newsletterConfig.service === 'listmonk') {
-        // Listmonk form submission
+        // Listmonk form submission via proxy endpoint to avoid CORS issues
         const baseUrl = newsletterConfig.listmonk?.baseUrl || newsletterConfig.url;
         // Remove trailing slash and /subscription/form if already present
         const cleanBaseUrl = baseUrl.replace(/\/subscription\/form\/?$/, '').replace(/\/$/, '');
-        const formUrl = `${cleanBaseUrl}/subscription/form`;
+        const apiUrl = config.assistant.url;
 
         // Build form data
         const formData = new FormData();
@@ -83,36 +82,45 @@ const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
           });
         }
 
-        const response = await fetch(formUrl, {
-          method: 'POST',
-          body: formData,
-          mode: 'cors',
-          credentials: 'omit',
-        });
+        const response = await fetch(
+          `${apiUrl}/api/newsletter/subscribe?baseUrl=${encodeURIComponent(cleanBaseUrl)}`,
+          {
+            method: 'POST',
+            body: formData,
+          }
+        );
 
         if (response.ok) {
-          // Listmonk returns HTML on success, check for success indicators
-          const html = await response.text();
-          if (html.includes('success') || html.includes('subscribed') || response.status === 200) {
+          const data = await response.json();
+          if (data.success) {
             setStatus('success');
-            setMessage('Successfully subscribed! Please check your email to confirm.');
+            setMessage(data.message || 'Successfully subscribed! Please check your email to confirm.');
             setEmail('');
             // Refresh nonce for next submission
             if (newsletterConfig.listmonk?.baseUrl) {
-              const nonceResponse = await fetch(`${newsletterConfig.listmonk.baseUrl}/subscription/form`);
-              const nonceHtml = await nonceResponse.text();
-              const nonceMatch = nonceHtml.match(/name="nonce"\s+value="([^"]+)"/);
-              if (nonceMatch) {
-                setNonce(nonceMatch[1]);
+              try {
+                const nonceResponse = await fetch(
+                  `${apiUrl}/api/newsletter/nonce?baseUrl=${encodeURIComponent(newsletterConfig.listmonk.baseUrl)}`
+                );
+                if (nonceResponse.ok) {
+                  const nonceData = await nonceResponse.json();
+                  if (nonceData.nonce) {
+                    setNonce(nonceData.nonce);
+                  }
+                }
+              } catch (error) {
+                // Nonce refresh failed, but subscription succeeded, so continue
+                console.error('Failed to refresh nonce:', error);
               }
             }
           } else {
             setStatus('error');
-            setMessage('Subscription failed. Please try again.');
+            setMessage(data.message || 'Subscription failed. Please try again.');
           }
         } else {
+          const errorData = await response.json().catch(() => ({}));
           setStatus('error');
-          setMessage('Subscription failed. Please try again.');
+          setMessage(errorData.message || 'Subscription failed. Please try again.');
         }
       } else if (newsletterConfig.service === 'custom' && newsletterConfig.url) {
         // Custom API endpoint

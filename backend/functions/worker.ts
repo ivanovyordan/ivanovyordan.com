@@ -121,11 +121,145 @@ async function checkRateLimit(ip: string, env: Env): Promise<RateLimitResult> {
   }
 }
 
+/**
+ * Handle newsletter subscription requests by proxying to Listmonk
+ */
+async function handleNewsletterRequest(
+  request: Request,
+  env: Env,
+  corsHeaders: Record<string, string>
+): Promise<Response> {
+  const url = new URL(request.url);
+
+  // Get Listmonk base URL from request or use default
+  // The frontend will pass the Listmonk URL in the request body
+  if (request.method === "GET" && url.pathname === "/api/newsletter/nonce") {
+    // Fetch nonce from Listmonk
+    const listmonkUrl = url.searchParams.get("baseUrl");
+    if (!listmonkUrl) {
+      return new Response(
+        JSON.stringify({ error: "baseUrl parameter is required" }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    try {
+      const response = await fetch(`${listmonkUrl}/subscription/form`, {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        return new Response(
+          JSON.stringify({ error: "Failed to fetch nonce from Listmonk" }),
+          {
+            status: response.status,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+
+      const html = await response.text();
+      // Extract nonce from the HTML form
+      const nonceMatch =
+        html.match(/name="nonce"\s+value="([^"]+)"/) ||
+        html.match(/<input[^>]*name="nonce"[^>]*value="([^"]+)"/i);
+
+      if (nonceMatch && nonceMatch[1]) {
+        return new Response(JSON.stringify({ nonce: nonceMatch[1] }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response(
+        JSON.stringify({ error: "Nonce not found in Listmonk response" }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    } catch (error) {
+      console.error("Error fetching nonce from Listmonk:", error);
+      return new Response(JSON.stringify({ error: "Failed to fetch nonce" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  if (
+    request.method === "POST" &&
+    url.pathname === "/api/newsletter/subscribe"
+  ) {
+    try {
+      const formData = await request.formData();
+      const listmonkUrl = url.searchParams.get("baseUrl");
+
+      if (!listmonkUrl) {
+        return new Response(
+          JSON.stringify({ error: "baseUrl parameter is required" }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+
+      // Forward the form data to Listmonk
+      const listmonkResponse = await fetch(`${listmonkUrl}/subscription/form`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const responseText = await listmonkResponse.text();
+
+      // Check if subscription was successful
+      const isSuccess =
+        listmonkResponse.ok &&
+        (responseText.includes("success") ||
+          responseText.includes("subscribed") ||
+          listmonkResponse.status === 200);
+
+      return new Response(
+        JSON.stringify({
+          success: isSuccess,
+          message: isSuccess
+            ? "Successfully subscribed! Please check your email to confirm."
+            : "Subscription failed. Please try again.",
+        }),
+        {
+          status: isSuccess ? 200 : listmonkResponse.status,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    } catch (error) {
+      console.error("Error proxying newsletter subscription:", error);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "An error occurred. Please try again later.",
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+  }
+
+  return new Response("Method Not Allowed", {
+    status: 405,
+    headers: corsHeaders,
+  });
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const corsHeaders = {
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
     };
 
@@ -133,6 +267,17 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
+    const url = new URL(request.url);
+
+    // Handle newsletter subscription proxy
+    if (
+      url.pathname === "/api/newsletter/subscribe" ||
+      url.pathname === "/api/newsletter/nonce"
+    ) {
+      return handleNewsletterRequest(request, env, corsHeaders);
+    }
+
+    // Handle AI assistant requests (existing functionality)
     if (request.method !== "POST") {
       return new Response("Method Not Allowed", {
         status: 405,
