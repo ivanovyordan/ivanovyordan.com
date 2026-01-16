@@ -154,20 +154,31 @@ async function handleNewsletterRequest(
       });
 
       if (!response.ok) {
-        return new Response(
-          JSON.stringify({ error: "Failed to fetch nonce from Listmonk" }),
-          {
-            status: response.status,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          }
+        const errorText = await response.text().catch(() => "Unknown error");
+        console.error(
+          `Listmonk returned ${response.status}: ${errorText.substring(0, 200)}`
         );
+        // Return empty nonce instead of error - Listmonk can generate it server-side
+        return new Response(JSON.stringify({ nonce: null }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
 
       const html = await response.text();
-      // Extract nonce from the HTML form
+
+      if (!html || html.length === 0) {
+        console.warn("Empty response from Listmonk");
+        // Return empty nonce instead of error - Listmonk can generate it server-side
+        return new Response(JSON.stringify({ nonce: null }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Extract nonce from the HTML form - try multiple patterns
       const nonceMatch =
         html.match(/name="nonce"\s+value="([^"]+)"/) ||
-        html.match(/<input[^>]*name="nonce"[^>]*value="([^"]+)"/i);
+        html.match(/<input[^>]*name="nonce"[^>]*value="([^"]+)"/i) ||
+        html.match(/name=['"]nonce['"]\s+value=['"]([^'"]+)['"]/i);
 
       if (nonceMatch && nonceMatch[1]) {
         return new Response(JSON.stringify({ nonce: nonceMatch[1] }), {
@@ -175,13 +186,16 @@ async function handleNewsletterRequest(
         });
       }
 
-      return new Response(
-        JSON.stringify({ error: "Nonce not found in Listmonk response" }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+      // Log the HTML snippet for debugging (first 500 chars)
+      console.warn(
+        "Nonce not found in Listmonk response. HTML snippet:",
+        html.substring(0, 500)
       );
+
+      // Return empty nonce instead of error - Listmonk can generate it server-side
+      return new Response(JSON.stringify({ nonce: null }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     } catch (error) {
       console.error("Error fetching nonce from Listmonk:", error);
       return new Response(JSON.stringify({ error: "Failed to fetch nonce" }), {
@@ -241,6 +255,7 @@ async function handleNewsletterRequest(
           const credentials = `${env.LISTMONK_USERNAME}:${env.LISTMONK_API_KEY}`;
           const encodedCredentials = btoa(credentials);
 
+          // For fallback mode, use subscriber_emails (plural array) instead of subscriber_email
           const txResponse = await fetch(`${listmonkUrl}/api/tx`, {
             method: "POST",
             headers: {
@@ -248,7 +263,7 @@ async function handleNewsletterRequest(
               Authorization: `Basic ${encodedCredentials}`,
             },
             body: JSON.stringify({
-              subscriber_email: email,
+              subscriber_emails: [email], // Array required for fallback mode
               template_id: parseInt(templateId, 10),
               data: {},
               subscriber_mode: "fallback",
@@ -256,14 +271,32 @@ async function handleNewsletterRequest(
           });
 
           if (!txResponse.ok) {
+            const errorText = await txResponse.text();
             console.error(
-              "Failed to send welcome email:",
-              await txResponse.text()
+              `Failed to send welcome email (${txResponse.status}):`,
+              errorText
             );
+            // Log details for debugging
+            console.error("Welcome email request details:", {
+              url: `${listmonkUrl}/api/tx`,
+              templateId: parseInt(templateId, 10),
+              email: email,
+              hasAuth: !!(env.LISTMONK_USERNAME && env.LISTMONK_API_KEY),
+            });
             // Don't fail the subscription if email sending fails
+          } else {
+            const txResult = await txResponse.json().catch(() => ({}));
+            console.log("Welcome email sent successfully:", txResult);
           }
         } catch (emailError) {
           console.error("Error sending welcome email:", emailError);
+          // Log the full error for debugging
+          if (emailError instanceof Error) {
+            console.error("Error details:", {
+              message: emailError.message,
+              stack: emailError.stack,
+            });
+          }
           // Don't fail the subscription if email sending fails
         }
       }

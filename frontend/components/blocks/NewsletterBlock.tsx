@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import type { NewsletterBlock as NewsletterBlockType } from '../../types';
 import { getSiteConfig } from '../../utils/site';
 import config from '../../config';
@@ -10,40 +10,11 @@ interface NewsletterBlockProps {
 const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
   const siteConfig = getSiteConfig();
   const [email, setEmail] = useState('');
-  const [nonce, setNonce] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
 
-  // Fetch nonce from Listmonk if using Listmonk service
-  useEffect(() => {
-    const newsletterConfig = siteConfig.newsletter;
-    if (newsletterConfig?.service === 'listmonk' && newsletterConfig.listmonk?.baseUrl) {
-      // Fetch nonce via proxy endpoint to avoid CORS issues
-      const fetchNonce = async () => {
-        try {
-          const baseUrl = newsletterConfig.listmonk?.baseUrl;
-          if (!baseUrl) return;
-          const apiUrl = config.assistant.url;
-          const response = await fetch(
-            `${apiUrl}/api/newsletter/nonce?baseUrl=${encodeURIComponent(baseUrl)}`,
-            {
-              method: 'GET',
-            }
-          );
-          if (response.ok) {
-            const data = await response.json();
-            if (data.nonce) {
-              setNonce(data.nonce);
-            }
-          }
-        } catch (error) {
-          console.error('Failed to fetch Listmonk nonce:', error);
-          // Continue without nonce - Listmonk may handle it or generate it server-side
-        }
-      };
-      fetchNonce();
-    }
-  }, [siteConfig.newsletter]);
+  // Note: Nonce is optional - Listmonk can generate it server-side if not provided
+  // We skip fetching it to avoid unnecessary requests and errors
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,11 +37,9 @@ const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
         const apiUrl = config.assistant.url;
 
         // Build form data
+        // Note: Nonce is optional - Listmonk will generate it server-side if not provided
         const formData = new FormData();
         formData.append('email', email);
-        if (nonce) {
-          formData.append('nonce', nonce);
-        }
 
         // Add list subscriptions (hidden - always subscribe to all configured lists)
         if (newsletterConfig.listmonk?.lists) {
@@ -101,23 +70,6 @@ const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
             setStatus('success');
             setMessage(data.message || 'Successfully subscribed! Please check your email to confirm.');
             setEmail('');
-            // Refresh nonce for next submission
-            if (newsletterConfig.listmonk?.baseUrl) {
-              try {
-                const nonceResponse = await fetch(
-                  `${apiUrl}/api/newsletter/nonce?baseUrl=${encodeURIComponent(newsletterConfig.listmonk.baseUrl)}`
-                );
-                if (nonceResponse.ok) {
-                  const nonceData = await nonceResponse.json();
-                  if (nonceData.nonce) {
-                    setNonce(nonceData.nonce);
-                  }
-                }
-              } catch (error) {
-                // Nonce refresh failed, but subscription succeeded, so continue
-                console.error('Failed to refresh nonce:', error);
-              }
-            }
           } else {
             setStatus('error');
             setMessage(data.message || 'Subscription failed. Please try again.');

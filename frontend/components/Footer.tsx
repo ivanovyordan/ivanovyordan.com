@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { getFooterConfig, getSiteConfig } from '../utils/site';
 import Container from './Container';
 
@@ -33,6 +34,21 @@ const Footer: React.FC = () => {
             ))}
           </div>
         )}
+        <div className="mt-3 flex justify-center items-center gap-4">
+          <Link
+            to="/privacy"
+            className="text-[10px] text-gray-500 dark:text-zinc-500 hover:text-gray-700 dark:hover:text-zinc-300 uppercase tracking-widest font-bold focus:outline-none focus:underline"
+          >
+            Privacy Policy
+          </Link>
+          <span className="text-gray-400 dark:text-zinc-600 text-[10px]" aria-hidden="true">|</span>
+          <Link
+            to="/tos"
+            className="text-[10px] text-gray-500 dark:text-zinc-500 hover:text-gray-700 dark:hover:text-zinc-300 uppercase tracking-widest font-bold focus:outline-none focus:underline"
+          >
+            Terms of Service
+          </Link>
+        </div>
       </Container>
     </footer>
   );
