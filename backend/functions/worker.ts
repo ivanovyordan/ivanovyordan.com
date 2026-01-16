@@ -1,16 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import PROMPT_TEMPLATE from "../data/prompt.md";
 
-// In-memory rate limit store for local development
-// In production, use KV namespace for distributed rate limiting
-const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
-
-interface RateLimitResult {
-  allowed: boolean;
-  remaining: number;
-  resetAt: number;
-}
-
 export interface Env {
   GEMINI_API_KEY: string;
   GEMINI_EMBEDDING_MODEL: string;
@@ -21,106 +11,8 @@ export interface Env {
   PROFILE_NAME: string;
   PROFILE_ROLE: string;
   PROFILE_STYLE: string;
-  MAX_QUESTIONS_PER_IP?: string; // Max questions per IP address (default: 10)
-  RATE_LIMIT_WINDOW_HOURS?: string; // Rate limit window in hours (default: 24)
-  RATE_LIMIT_KV?: KVNamespace; // Optional KV namespace for rate limiting (production)
   LISTMONK_USERNAME?: string; // Listmonk username for API authentication
   LISTMONK_API_KEY?: string; // Listmonk API key for transactional emails
-}
-
-/**
- * Get client IP address from request headers
- */
-function getClientIP(request: Request): string {
-  // Try CF-Connecting-IP first (Cloudflare)
-  const cfIP = request.headers.get("CF-Connecting-IP");
-  if (cfIP) return cfIP;
-
-  // Try X-Forwarded-For
-  const xForwardedFor = request.headers.get("X-Forwarded-For");
-  if (xForwardedFor) {
-    // X-Forwarded-For can contain multiple IPs, take the first one
-    return xForwardedFor.split(",")[0].trim();
-  }
-
-  // Fallback to X-Real-IP
-  const xRealIP = request.headers.get("X-Real-IP");
-  if (xRealIP) return xRealIP;
-
-  // Last resort: use a default identifier (not ideal, but better than nothing)
-  return "unknown";
-}
-
-/**
- * Check rate limit for an IP address
- */
-async function checkRateLimit(ip: string, env: Env): Promise<RateLimitResult> {
-  const maxQuestions = parseInt(env.MAX_QUESTIONS_PER_IP || "10", 10);
-  const windowHours = parseInt(env.RATE_LIMIT_WINDOW_HOURS || "24", 10);
-  const resetAt = Date.now() + windowHours * 60 * 60 * 1000;
-
-  // Use KV if available (production), otherwise use in-memory store (local dev)
-  if (env.RATE_LIMIT_KV) {
-    const key = `rate_limit:${ip}`;
-    const stored = (await env.RATE_LIMIT_KV.get(key, "json")) as {
-      count: number;
-      resetAt: number;
-    } | null;
-
-    // If expired or doesn't exist, create new entry
-    if (!stored || stored.resetAt < Date.now()) {
-      await env.RATE_LIMIT_KV.put(key, JSON.stringify({ count: 1, resetAt }), {
-        expirationTtl: windowHours * 3600,
-      });
-      return { allowed: true, remaining: maxQuestions - 1, resetAt };
-    }
-
-    // Check if limit exceeded
-    if (stored.count >= maxQuestions) {
-      return { allowed: false, remaining: 0, resetAt: stored.resetAt };
-    }
-
-    // Increment count
-    const newCount = stored.count + 1;
-    await env.RATE_LIMIT_KV.put(
-      key,
-      JSON.stringify({ count: newCount, resetAt: stored.resetAt }),
-      { expirationTtl: Math.ceil((stored.resetAt - Date.now()) / 1000) }
-    );
-
-    return {
-      allowed: true,
-      remaining: maxQuestions - newCount,
-      resetAt: stored.resetAt,
-    };
-  } else {
-    // In-memory store for local development
-    const stored = rateLimitStore.get(ip);
-
-    // Clean up expired entries periodically
-    if (stored && stored.resetAt < Date.now()) {
-      rateLimitStore.delete(ip);
-    }
-
-    // If expired or doesn't exist, create new entry
-    if (!stored || stored.resetAt < Date.now()) {
-      rateLimitStore.set(ip, { count: 1, resetAt });
-      return { allowed: true, remaining: maxQuestions - 1, resetAt };
-    }
-
-    // Check if limit exceeded
-    if (stored.count >= maxQuestions) {
-      return { allowed: false, remaining: 0, resetAt: stored.resetAt };
-    }
-
-    // Increment count
-    stored.count++;
-    return {
-      allowed: true,
-      remaining: maxQuestions - stored.count,
-      resetAt: stored.resetAt,
-    };
-  }
 }
 
 /**
@@ -365,25 +257,6 @@ export default {
     }
 
     try {
-      // Check rate limit before processing
-      const clientIP = getClientIP(request);
-      const rateLimit = await checkRateLimit(clientIP, env);
-
-      if (!rateLimit.allowed) {
-        const resetDate = new Date(rateLimit.resetAt).toISOString();
-        return new Response(
-          JSON.stringify({
-            error: "Rate limit exceeded",
-            message: `You have reached the maximum number of questions. Please try again after ${resetDate}.`,
-            resetAt: resetDate,
-          }),
-          {
-            status: 429,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          }
-        );
-      }
-
       const { query } = (await request.json()) as { query: string };
 
       if (!query) {
@@ -528,7 +401,6 @@ export default {
       return new Response(
         JSON.stringify({
           text: responseText,
-          remaining: rateLimit.remaining,
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -537,7 +409,7 @@ export default {
     } catch (error: any) {
       console.error("Error generating response:", error);
 
-      // Handle Gemini API quota/rate limit errors
+      // Handle Gemini API quota errors
       if (error?.status === 429) {
         const isQuotaError = error?.errorDetails?.some(
           (detail: any) =>
@@ -557,18 +429,6 @@ export default {
             }
           );
         }
-
-        // Regular rate limit (not quota)
-        return new Response(
-          JSON.stringify({
-            error: "Rate limit exceeded",
-            message: "Too many requests. Please wait a moment and try again.",
-          }),
-          {
-            status: 429,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          }
-        );
       }
 
       // Generic error

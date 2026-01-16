@@ -16,7 +16,6 @@ const GeminiAssistantBlock: React.FC<GeminiAssistantBlockProps> = () => {
   const [loading, setLoading] = useState(false);
   const [thinking, setThinking] = useState(false);
   const [questionsAsked, setQuestionsAsked] = useState(0);
-  const [remainingFromServer, setRemainingFromServer] = useState<number | null>(null);
   const [isClient, setIsClient] = useState(false);
   const [error, setError] = useState('');
 
@@ -26,11 +25,11 @@ const GeminiAssistantBlock: React.FC<GeminiAssistantBlockProps> = () => {
     if (used) {
       setQuestionsAsked(parseInt(used, 10));
     }
-  }, []);
+  }, [STORAGE_KEY]);
 
   const handleAsk = async () => {
     if (!query.trim()) return;
-    if (remainingFromServer !== null && remainingFromServer <= 0) return;
+    if (questionsAsked >= MAX_QUESTIONS) return;
 
     // Immediate UI feedback
     setLoading(true);
@@ -51,11 +50,6 @@ const GeminiAssistantBlock: React.FC<GeminiAssistantBlockProps> = () => {
         // Try to parse error as JSON, fallback to text
         try {
           const data = await res.json();
-          if (res.status === 429) {
-            setError(data.message || 'Rate limit exceeded. Please try again later.');
-            setRemainingFromServer(0);
-            return;
-          }
           if (res.status === 503) {
             // API quota exceeded or service unavailable
             setError(data.message || 'The AI service is temporarily unavailable. Please try again later.');
@@ -72,21 +66,13 @@ const GeminiAssistantBlock: React.FC<GeminiAssistantBlockProps> = () => {
       setResponse(data.text || '');
       setThinking(false);
 
-      if (typeof data.remaining === 'number') {
-        setRemainingFromServer(data.remaining);
-        setQuestionsAsked(MAX_QUESTIONS - data.remaining);
-      } else {
-        const newCount = questionsAsked + 1;
-        setQuestionsAsked(newCount);
-        localStorage.setItem(STORAGE_KEY, newCount.toString());
-      }
+      // Update local storage
+      const newCount = questionsAsked + 1;
+      setQuestionsAsked(newCount);
+      localStorage.setItem(STORAGE_KEY, newCount.toString());
     } catch (err) {
       console.error(err);
-      if (err instanceof Error && err.message.includes('Rate limit')) {
-        setError(err.message);
-      } else {
-        setError('Could not connect to the Digital Twin backend. Please ensure the backend server is running.');
-      }
+      setError('Could not connect to the Digital Twin backend. Please ensure the backend server is running.');
     } finally {
       setLoading(false);
       setThinking(false);
@@ -94,10 +80,7 @@ const GeminiAssistantBlock: React.FC<GeminiAssistantBlockProps> = () => {
     }
   };
 
-  // Use server-side remaining count if available, otherwise fall back to client-side calculation
-  const remainingCredits = remainingFromServer !== null
-    ? remainingFromServer
-    : Math.max(0, MAX_QUESTIONS - questionsAsked);
+  const remainingCredits = Math.max(0, MAX_QUESTIONS - questionsAsked);
   const isLimitReached = remainingCredits <= 0;
 
   if (!isClient) return null;

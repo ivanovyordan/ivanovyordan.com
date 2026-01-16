@@ -9,15 +9,6 @@ PROFILE_STYLE = "Pragmatic, experienced, direct, business-focused."
 GEMINI_MODEL = "gemini-3-flash-preview"
 GEMINI_EMBEDDING_MODEL = "text-embedding-004"
 PINECONE_INDEX_NAME = "digital-twin"
-MAX_QUESTIONS_PER_IP = "10"
-RATE_LIMIT_WINDOW_HOURS = "24"
-
-# For production, create a KV namespace for distributed rate limiting:
-# 1. Run: wrangler kv:namespace create "RATE_LIMIT_KV"
-# 2. Add the binding below (uncomment and use the ID from step 1):
-# [[kv_namespaces]]
-# binding = "RATE_LIMIT_KV"
-# id = "your-kv-namespace-id"
 
 [[rules]]
 type = "Text"
