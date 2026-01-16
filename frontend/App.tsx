@@ -6,7 +6,6 @@ import Footer from './components/Footer';
 import Analytics from './components/Analytics';
 import CookieConsent from './components/CookieConsent';
 import ErrorBoundary from './components/ErrorBoundary';
-import SentryInit from './components/SentryInit';
 import SkipLink from './components/SkipLink';
 import Blog from './pages/Blog';
 import PostDetail from './pages/PostDetail';
@@ -16,7 +15,6 @@ import NotFound from './pages/NotFound';
 const App: React.FC = () => {
   return (
     <ErrorBoundary>
-      <SentryInit />
       <Router>
         <Analytics />
         <CookieConsent />
