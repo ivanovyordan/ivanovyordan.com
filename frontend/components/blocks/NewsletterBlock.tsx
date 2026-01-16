@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { NewsletterBlock as NewsletterBlockType } from '../../types';
+import type { NewsletterBlock as NewsletterBlockType, SiteConfig } from '../../types';
 import { getSiteConfig } from '../../utils/site';
 import config from '../../config';
 
@@ -7,14 +7,200 @@ interface NewsletterBlockProps {
   block: NewsletterBlockType;
 }
 
+type NewsletterConfig = NonNullable<SiteConfig['newsletter']>;
+
+interface SubscriptionResponse {
+  success?: boolean;
+  message?: string;
+}
+
+/**
+ * Validate newsletter configuration
+ */
+function validateNewsletterConfig(
+  newsletterConfig: NewsletterConfig | undefined
+): string | null {
+  if (!newsletterConfig?.url) {
+    return 'Newsletter service not configured.';
+  }
+  return null;
+}
+
+/**
+ * Clean base URL by removing trailing slashes and subscription form path
+ */
+function cleanBaseUrl(baseUrl: string): string {
+  return baseUrl
+    .replace(/\/subscription\/form\/?$/, '')
+    .replace(/\/$/, '');
+}
+
+/**
+ * Get listmonk base URL
+ */
+function getListmonkBaseUrl(newsletterConfig: NewsletterConfig): string {
+  return newsletterConfig.listmonk?.baseUrl || newsletterConfig.url || '';
+}
+
+/**
+ * Build form data for listmonk subscription
+ */
+function buildListmonkFormData(
+  email: string,
+  newsletterConfig: NewsletterConfig
+): FormData {
+  const formData = new FormData();
+  formData.append('email', email);
+
+  // Add list subscriptions (hidden - always subscribe to all configured lists)
+  if (newsletterConfig.listmonk?.lists) {
+    newsletterConfig.listmonk.lists.forEach((list) => {
+      // Only subscribe to lists that are marked as checked in config
+      if (list.checked !== false) {
+        formData.append('l', list.id);
+      }
+    });
+  }
+
+  return formData;
+}
+
+/**
+ * Build subscription URL with query parameters
+ */
+function buildSubscriptionUrl(
+  apiUrl: string,
+  baseUrl: string,
+  templateId?: number
+): URL {
+  const subscribeUrl = new URL(`${apiUrl}/email-list`);
+  subscribeUrl.searchParams.set('baseUrl', baseUrl);
+  if (templateId !== undefined) {
+    subscribeUrl.searchParams.set('templateId', String(templateId));
+  }
+  return subscribeUrl;
+}
+
+/**
+ * Submit listmonk subscription
+ */
+async function submitListmonkSubscription(
+  apiUrl: string,
+  email: string,
+  newsletterConfig: NewsletterConfig
+): Promise<SubscriptionResponse> {
+  const baseUrl = getListmonkBaseUrl(newsletterConfig);
+  const cleanBaseUrlValue = cleanBaseUrl(baseUrl);
+  const formData = buildListmonkFormData(email, newsletterConfig);
+  const templateId = newsletterConfig.listmonk?.welcomeEmailTemplateId;
+  const subscribeUrl = buildSubscriptionUrl(apiUrl, cleanBaseUrlValue, templateId);
+
+  const response = await fetch(subscribeUrl.toString(), {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (response.ok) {
+    const data = (await response.json()) as SubscriptionResponse;
+    return {
+      success: data.success ?? true,
+      message:
+        data.message ||
+        'Successfully subscribed! Please check your email to confirm.',
+    };
+  }
+
+  const errorData = (await response.json().catch(() => ({}))) as SubscriptionResponse;
+  return {
+    success: false,
+    message: errorData.message || 'Subscription failed. Please try again.',
+  };
+}
+
+/**
+ * Submit custom API subscription
+ */
+async function submitCustomSubscription(
+  url: string,
+  email: string,
+  apiKey?: string
+): Promise<SubscriptionResponse> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  if (apiKey) {
+    headers['Authorization'] = `Bearer ${apiKey}`;
+  }
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ email }),
+  });
+
+  if (response.ok) {
+    return {
+      success: true,
+      message: 'Successfully subscribed!',
+    };
+  }
+
+  return {
+    success: false,
+    message: 'Subscription failed. Please try again.',
+  };
+}
+
+/**
+ * Handle external redirect subscription (Mailchimp/ConvertKit)
+ */
+function handleExternalRedirect(url: string): SubscriptionResponse {
+  window.open(url, '_blank');
+  return {
+    success: true,
+    message: 'Redirecting to signup page...',
+  };
+}
+
+/**
+ * Process newsletter subscription based on service type
+ */
+async function processSubscription(
+  email: string,
+  newsletterConfig: NewsletterConfig,
+  apiUrl: string
+): Promise<SubscriptionResponse> {
+  if (newsletterConfig.service === 'listmonk') {
+    return submitListmonkSubscription(apiUrl, email, newsletterConfig);
+  }
+
+  if (newsletterConfig.service === 'custom' && newsletterConfig.url) {
+    return submitCustomSubscription(
+      newsletterConfig.url,
+      email,
+      newsletterConfig.apiKey
+    );
+  }
+
+  // For Mailchimp/ConvertKit, redirect to their signup page
+  if (newsletterConfig.url) {
+    return handleExternalRedirect(newsletterConfig.url);
+  }
+
+  return {
+    success: false,
+    message: 'Newsletter service not configured.',
+  };
+}
+
 const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
   const siteConfig = getSiteConfig();
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<
+    'idle' | 'loading' | 'success' | 'error'
+  >('idle');
   const [message, setMessage] = useState('');
-
-  // Note: Nonce is optional - Listmonk can generate it server-side if not provided
-  // We skip fetching it to avoid unnecessary requests and errors
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,87 +208,30 @@ const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
     setMessage('');
 
     const newsletterConfig = siteConfig.newsletter;
-    if (!newsletterConfig?.url) {
+    const configError = validateNewsletterConfig(newsletterConfig);
+    if (configError) {
       setStatus('error');
-      setMessage('Newsletter service not configured.');
+      setMessage(configError);
+      return;
+    }
+
+    if (!newsletterConfig) {
       return;
     }
 
     try {
-      if (newsletterConfig.service === 'listmonk') {
-        // Listmonk form submission via proxy endpoint to avoid CORS issues
-        const baseUrl = newsletterConfig.listmonk?.baseUrl || newsletterConfig.url;
-        // Remove trailing slash and /subscription/form if already present
-        const cleanBaseUrl = baseUrl.replace(/\/subscription\/form\/?$/, '').replace(/\/$/, '');
-        const apiUrl = config.assistant.url;
+      const apiUrl = config.assistant.url;
+      const result = await processSubscription(
+        email,
+        newsletterConfig,
+        apiUrl
+      );
 
-        // Build form data
-        // Note: Nonce is optional - Listmonk will generate it server-side if not provided
-        const formData = new FormData();
-        formData.append('email', email);
+      setStatus(result.success ? 'success' : 'error');
+      setMessage(result.message || 'An error occurred. Please try again later.');
 
-        // Add list subscriptions (hidden - always subscribe to all configured lists)
-        if (newsletterConfig.listmonk?.lists) {
-          newsletterConfig.listmonk.lists.forEach((list) => {
-            // Only subscribe to lists that are marked as checked in config
-            if (list.checked !== false) {
-              formData.append('l', list.id);
-            }
-          });
-        }
-
-        // Get welcome email template ID from config
-        const templateId = newsletterConfig.listmonk?.welcomeEmailTemplateId;
-        const subscribeUrl = new URL(`${apiUrl}/api/newsletter/subscribe`);
-        subscribeUrl.searchParams.set('baseUrl', cleanBaseUrl);
-        if (templateId) {
-          subscribeUrl.searchParams.set('templateId', String(templateId));
-        }
-
-        const response = await fetch(subscribeUrl.toString(), {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            setStatus('success');
-            setMessage(data.message || 'Successfully subscribed! Please check your email to confirm.');
-            setEmail('');
-          } else {
-            setStatus('error');
-            setMessage(data.message || 'Subscription failed. Please try again.');
-          }
-        } else {
-          const errorData = await response.json().catch(() => ({}));
-          setStatus('error');
-          setMessage(errorData.message || 'Subscription failed. Please try again.');
-        }
-      } else if (newsletterConfig.service === 'custom' && newsletterConfig.url) {
-        // Custom API endpoint
-        const response = await fetch(newsletterConfig.url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(newsletterConfig.apiKey && { Authorization: `Bearer ${newsletterConfig.apiKey}` }),
-          },
-          body: JSON.stringify({ email }),
-        });
-
-        if (response.ok) {
-          setStatus('success');
-          setMessage('Successfully subscribed!');
-          setEmail('');
-        } else {
-          setStatus('error');
-          setMessage('Subscription failed. Please try again.');
-        }
-      } else {
-        // For Mailchimp/ConvertKit, redirect to their signup page
-        window.open(newsletterConfig.url, '_blank');
-        setStatus('success');
-        setMessage('Redirecting to signup page...');
+      if (result.success) {
+        setEmail('');
       }
     } catch (error) {
       setStatus('error');
@@ -117,7 +246,9 @@ const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
         <h2 className="text-2xl md:text-3xl font-bold mb-4 font-serif dark:text-white">
           {block.title}
         </h2>
-        <p className="text-lg text-gray-700 dark:text-zinc-300 mb-8">{block.description}</p>
+        <p className="text-lg text-gray-700 dark:text-zinc-300 mb-8">
+          {block.description}
+        </p>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <div className="flex flex-col sm:flex-row gap-3">
             <input

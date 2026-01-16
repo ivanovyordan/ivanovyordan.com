@@ -1,35 +1,88 @@
 import React, { useState, useEffect } from 'react';
 import { getSiteConfig } from '../utils/site';
 
+interface CookieConsentData {
+  analytics: boolean;
+  timestamp: string;
+}
+
+/**
+ * Check if user has already given consent
+ */
+function hasConsent(): boolean {
+  const consent = localStorage.getItem('cookieConsent');
+  return consent !== null;
+}
+
+/**
+ * Create consent object
+ */
+function createConsentObject(analytics: boolean): CookieConsentData {
+  return {
+    analytics,
+    timestamp: new Date().toISOString(),
+  };
+}
+
+/**
+ * Save consent to localStorage
+ */
+function saveConsent(consent: CookieConsentData): void {
+  localStorage.setItem('cookieConsent', JSON.stringify(consent));
+}
+
+/**
+ * Check if analytics are configured
+ */
+function hasAnalyticsConfigured(
+  googleAnalyticsId?: string,
+  facebookPixelId?: string
+): boolean {
+  return Boolean(googleAnalyticsId || facebookPixelId);
+}
+
+/**
+ * Handle accept action
+ */
+function handleAcceptConsent(): void {
+  const consent = createConsentObject(true);
+  saveConsent(consent);
+  // Reload to enable analytics
+  window.location.reload();
+}
+
+/**
+ * Handle decline action
+ */
+function handleDeclineConsent(): void {
+  const consent = createConsentObject(false);
+  saveConsent(consent);
+}
+
 const CookieConsent: React.FC = () => {
   const siteConfig = getSiteConfig();
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
-    // Check if user has already made a choice
-    const consent = localStorage.getItem('cookieConsent');
-    if (!consent) {
+    if (!hasConsent()) {
       setShowBanner(true);
     }
   }, []);
 
   const handleAccept = () => {
-    const consent = { analytics: true, timestamp: new Date().toISOString() };
-    localStorage.setItem('cookieConsent', JSON.stringify(consent));
+    handleAcceptConsent();
     setShowBanner(false);
-    // Reload to enable analytics
-    window.location.reload();
   };
 
   const handleDecline = () => {
-    const consent = { analytics: false, timestamp: new Date().toISOString() };
-    localStorage.setItem('cookieConsent', JSON.stringify(consent));
+    handleDeclineConsent();
     setShowBanner(false);
   };
 
-  // Only show banner if analytics are configured
-  const hasAnalytics =
-    siteConfig.analytics?.googleAnalyticsId || siteConfig.analytics?.facebookPixelId;
+  const hasAnalytics = hasAnalyticsConfigured(
+    siteConfig.analytics?.googleAnalyticsId,
+    siteConfig.analytics?.facebookPixelId
+  );
 
   if (!showBanner || !hasAnalytics) {
     return null;
@@ -44,13 +97,20 @@ const CookieConsent: React.FC = () => {
     >
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex-1">
-          <h3 id="cookie-consent-title" className="text-lg font-bold mb-2 dark:text-white">
+          <h3
+            id="cookie-consent-title"
+            className="text-lg font-bold mb-2 dark:text-white"
+          >
             Cookie Consent
           </h3>
-          <p id="cookie-consent-description" className="text-sm text-gray-700 dark:text-zinc-300">
-            We use cookies and similar technologies to analyse site usage and improve your
-            experience. By clicking "Accept", you consent to our use of analytics cookies. You can
-            change your preferences at any time.
+          <p
+            id="cookie-consent-description"
+            className="text-sm text-gray-700 dark:text-zinc-300"
+          >
+            We use cookies and similar technologies to analyse site usage and
+            improve your experience. By clicking "Accept", you consent to our
+            use of analytics cookies. You can change your preferences at any
+            time.
           </p>
         </div>
         <div className="flex gap-3 flex-shrink-0">

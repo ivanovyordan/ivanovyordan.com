@@ -1,4 +1,3 @@
-
 import React, { useMemo, useEffect } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { marked } from 'marked';
@@ -8,13 +7,90 @@ import { getPostById } from '../utils/posts';
 import { getSiteConfig } from '../utils/site';
 import { getCanonicalUrl } from '../utils/routes';
 
+interface BlogPostingSchema {
+  '@context': string;
+  '@type': string;
+  headline: string;
+  description: string;
+  author: {
+    '@type': string;
+    name: string;
+  };
+  datePublished: string;
+  dateModified: string;
+  mainEntityOfPage: {
+    '@type': string;
+    '@id': string;
+  };
+  publisher: {
+    '@type': string;
+    name: string;
+  };
+}
+
+/**
+ * Get or create structured data script element
+ */
+function getOrCreateSchemaScript(): HTMLScriptElement {
+  let existingSchema = document.querySelector(
+    'script[type="application/ld+json"]'
+  ) as HTMLScriptElement | null;
+  if (!existingSchema) {
+    existingSchema = document.createElement('script');
+    existingSchema.setAttribute('type', 'application/ld+json');
+    document.head.appendChild(existingSchema);
+  }
+  return existingSchema;
+}
+
+/**
+ * Create blog posting schema data
+ */
+function createBlogPostingSchema(
+  post: { id: string; title: string; excerpt: string; date?: string },
+  siteName: string
+): BlogPostingSchema {
+  const postUrl = getCanonicalUrl(`/blog/${post.id}`);
+  const postDate = new Date(post.date || new Date());
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.excerpt,
+    author: {
+      '@type': 'Person',
+      name: siteName,
+    },
+    datePublished: postDate.toISOString(),
+    dateModified: postDate.toISOString(),
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': postUrl,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: siteName,
+    },
+  };
+}
+
+/**
+ * Update blog post structured data
+ */
+function updateBlogPostStructuredData(
+  post: { id: string; title: string; excerpt: string; date?: string },
+  siteName: string
+): void {
+  const schemaScript = getOrCreateSchemaScript();
+  const schema = createBlogPostingSchema(post, siteName);
+  schemaScript.textContent = JSON.stringify(schema);
+}
+
 const PostDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
 
-  const post = useMemo(() =>
-    id ? getPostById(id) : undefined,
-    [id]
-  );
+  const post = useMemo(() => (id ? getPostById(id) : undefined), [id]);
 
   const htmlContent = useMemo(() => {
     if (!post?.body) return '';
@@ -23,43 +99,10 @@ const PostDetail: React.FC = () => {
 
   const siteConfig = getSiteConfig();
 
-  // Add structured data for blog post
   useEffect(() => {
     if (!post) return;
-
-    const postUrl = getCanonicalUrl(`/blog/${post.id}`);
-    const postDate = new Date(post.date || new Date());
-
-    let existingSchema = document.querySelector('script[type="application/ld+json"]');
-    if (!existingSchema) {
-      existingSchema = document.createElement('script');
-      existingSchema.setAttribute('type', 'application/ld+json');
-      document.head.appendChild(existingSchema);
-    }
-
-    const schema = {
-      '@context': 'https://schema.org',
-      '@type': 'BlogPosting',
-      headline: post.title,
-      description: post.excerpt,
-      author: {
-        '@type': 'Person',
-        name: siteConfig.name,
-      },
-      datePublished: postDate.toISOString(),
-      dateModified: postDate.toISOString(),
-      mainEntityOfPage: {
-        '@type': 'WebPage',
-        '@id': postUrl,
-      },
-      publisher: {
-        '@type': 'Organization',
-        name: siteConfig.name,
-      },
-    };
-
-    existingSchema.textContent = JSON.stringify(schema);
-  }, [post, siteConfig]);
+    updateBlogPostStructuredData(post, siteConfig.name);
+  }, [post, siteConfig.name]);
 
   if (!post) {
     return <Navigate to="/404" replace />;
@@ -71,8 +114,21 @@ const PostDetail: React.FC = () => {
         to="/blog"
         className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white mb-12 inline-flex items-center gap-2 group focus:outline-none focus:underline"
       >
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="group-hover:-translate-x-1 transition-transform">
-          <path d="M11 6H1M1 6L6 1M1 6L6 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 12 12"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="group-hover:-translate-x-1 transition-transform"
+        >
+          <path
+            d="M11 6H1M1 6L6 1M1 6L6 11"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
         Back to Blog
       </Link>
@@ -80,9 +136,18 @@ const PostDetail: React.FC = () => {
       <article>
         <header className="mb-12">
           <div className="flex items-center gap-3 mb-6">
-            <span className="text-xs font-bold text-gray-600 dark:text-zinc-400 uppercase tracking-widest">{post.date}</span>
-            <span className="text-gray-300 dark:text-zinc-700 text-xs" aria-hidden="true">|</span>
-            <span className="text-xs font-bold text-gray-600 dark:text-zinc-400 uppercase tracking-widest">{post.category}</span>
+            <span className="text-xs font-bold text-gray-600 dark:text-zinc-400 uppercase tracking-widest">
+              {post.date}
+            </span>
+            <span
+              className="text-gray-300 dark:text-zinc-700 text-xs"
+              aria-hidden="true"
+            >
+              |
+            </span>
+            <span className="text-xs font-bold text-gray-600 dark:text-zinc-400 uppercase tracking-widest">
+              {post.category}
+            </span>
           </div>
           <h1 className="text-3xl md:text-5xl font-serif font-bold leading-tight mb-6 tracking-tight dark:text-white">
             {post.title}
@@ -103,9 +168,17 @@ const PostDetail: React.FC = () => {
 
         <footer className="mt-16 pt-12 border-t border-gray-100 dark:border-zinc-900">
           <div className="bg-gray-50 dark:bg-zinc-900 p-8 md:p-12 text-center border border-gray-100 dark:border-zinc-800">
-            <h4 className="text-xl font-bold mb-3 font-serif dark:text-white">Enjoyed this article?</h4>
-            <p className="text-gray-700 dark:text-zinc-300 mb-8 max-w-md mx-auto">Join the newsletter for more deep dives into engineering leadership.</p>
-            <Link to="/" className="inline-block bg-black dark:bg-white text-white dark:text-black px-10 py-3 text-sm font-bold hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white">
+            <h4 className="text-xl font-bold mb-3 font-serif dark:text-white">
+              Enjoyed this article?
+            </h4>
+            <p className="text-gray-700 dark:text-zinc-300 mb-8 max-w-md mx-auto">
+              Join the newsletter for more deep dives into engineering
+              leadership.
+            </p>
+            <Link
+              to="/"
+              className="inline-block bg-black dark:bg-white text-white dark:text-black px-10 py-3 text-sm font-bold hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+            >
               Join 5,000+ Readers
             </Link>
           </div>
