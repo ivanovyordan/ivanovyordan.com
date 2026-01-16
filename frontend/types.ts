@@ -264,6 +264,7 @@ export interface SiteConfig {
     apiKey?: string;
     listmonk?: {
       baseUrl?: string;
+      welcomeEmailTemplateId?: number;
       lists?: Array<{
         id: string;
         label: string;

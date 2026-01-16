@@ -82,13 +82,18 @@ const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
           });
         }
 
-        const response = await fetch(
-          `${apiUrl}/api/newsletter/subscribe?baseUrl=${encodeURIComponent(cleanBaseUrl)}`,
-          {
-            method: 'POST',
-            body: formData,
-          }
-        );
+        // Get welcome email template ID from config
+        const templateId = newsletterConfig.listmonk?.welcomeEmailTemplateId;
+        const subscribeUrl = new URL(`${apiUrl}/api/newsletter/subscribe`);
+        subscribeUrl.searchParams.set('baseUrl', cleanBaseUrl);
+        if (templateId) {
+          subscribeUrl.searchParams.set('templateId', String(templateId));
+        }
+
+        const response = await fetch(subscribeUrl.toString(), {
+          method: 'POST',
+          body: formData,
+        });
 
         if (response.ok) {
           const data = await response.json();

@@ -24,6 +24,8 @@ export interface Env {
   MAX_QUESTIONS_PER_IP?: string; // Max questions per IP address (default: 10)
   RATE_LIMIT_WINDOW_HOURS?: string; // Rate limit window in hours (default: 24)
   RATE_LIMIT_KV?: KVNamespace; // Optional KV namespace for rate limiting (production)
+  LISTMONK_USERNAME?: string; // Listmonk username for API authentication
+  LISTMONK_API_KEY?: string; // Listmonk API key for transactional emails
 }
 
 /**
@@ -196,6 +198,7 @@ async function handleNewsletterRequest(
     try {
       const formData = await request.formData();
       const listmonkUrl = url.searchParams.get("baseUrl");
+      const templateId = url.searchParams.get("templateId");
 
       if (!listmonkUrl) {
         return new Response(
@@ -206,6 +209,9 @@ async function handleNewsletterRequest(
           }
         );
       }
+
+      // Get email from form data
+      const email = formData.get("email")?.toString();
 
       // Forward the form data to Listmonk
       const listmonkResponse = await fetch(`${listmonkUrl}/subscription/form`, {
@@ -221,6 +227,46 @@ async function handleNewsletterRequest(
         (responseText.includes("success") ||
           responseText.includes("subscribed") ||
           listmonkResponse.status === 200);
+
+      // Send welcome email if subscription was successful and template ID is provided
+      if (
+        isSuccess &&
+        email &&
+        templateId &&
+        env.LISTMONK_USERNAME &&
+        env.LISTMONK_API_KEY
+      ) {
+        try {
+          // Create Basic auth header (username:api_key base64 encoded)
+          const credentials = `${env.LISTMONK_USERNAME}:${env.LISTMONK_API_KEY}`;
+          const encodedCredentials = btoa(credentials);
+
+          const txResponse = await fetch(`${listmonkUrl}/api/tx`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Basic ${encodedCredentials}`,
+            },
+            body: JSON.stringify({
+              subscriber_email: email,
+              template_id: parseInt(templateId, 10),
+              data: {},
+              subscriber_mode: "fallback",
+            }),
+          });
+
+          if (!txResponse.ok) {
+            console.error(
+              "Failed to send welcome email:",
+              await txResponse.text()
+            );
+            // Don't fail the subscription if email sending fails
+          }
+        } catch (emailError) {
+          console.error("Error sending welcome email:", emailError);
+          // Don't fail the subscription if email sending fails
+        }
+      }
 
       return new Response(
         JSON.stringify({

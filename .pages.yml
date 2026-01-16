@@ -862,6 +862,11 @@ content:
                 label: Listmonk Base URL
                 type: string
                 description: "Base URL of your Listmonk instance (e.g., https://newsletter.ivanovyordan.com)"
+              - name: welcomeEmailTemplateId
+                label: Welcome Email Template ID
+                type: number
+                default: 6
+                description: "Listmonk transactional email template ID to send after subscription"
               - name: lists
                 label: Mailing Lists
                 type: object

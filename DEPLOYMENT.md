@@ -74,6 +74,10 @@ npx wrangler secret put PINECONE_BASE_URL
 # Enter your Pinecone base URL when prompted
 npx wrangler secret put PINECONE_API_KEY
 # Enter your Pinecone API key when prompted
+npx wrangler secret put LISTMONK_USERNAME
+# Enter your Listmonk username when prompted
+npx wrangler secret put LISTMONK_API_KEY
+# Enter your Listmonk API key when prompted
 ```
 
 **Option 2: Using Cloudflare Dashboard**
@@ -85,6 +89,8 @@ npx wrangler secret put PINECONE_API_KEY
    - `GEMINI_API_KEY` → Your Google Gemini API key
    - `PINECONE_BASE_URL` → Your Pinecone API base URL
    - `PINECONE_API_KEY` → Your Pinecone API key
+   - `LISTMONK_USERNAME` → Your Listmonk username (for welcome emails)
+   - `LISTMONK_API_KEY` → Your Listmonk API key (for welcome emails)
 
 **Note**: These secrets persist across deployments. You only need to set them once.
 

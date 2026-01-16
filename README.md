@@ -59,6 +59,8 @@ Personal website and blog for Yordan Ivanov, Head of Data Engineering. Built wit
    - `GEMINI_API_KEY` - Google Gemini API key
    - `PINECONE_BASE_URL` - Pinecone API base URL
    - `PINECONE_API_KEY` - Pinecone API key
+   - `LISTMONK_USERNAME` - Listmonk username (for welcome emails)
+   - `LISTMONK_API_KEY` - Listmonk API key (for welcome emails)
 
 4. **Start the backend** (runs on port 8787)
    ```bash
