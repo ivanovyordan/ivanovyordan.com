@@ -21,96 +21,43 @@ interface SubscriptionResponse {
 function validateNewsletterConfig(
   newsletterConfig: NewsletterConfig | undefined
 ): string | null {
-  if (!newsletterConfig?.url) {
+  if (!newsletterConfig?.listmonk?.baseUrl) {
     return 'Newsletter service not configured.';
+  }
+  if (!newsletterConfig?.listmonk?.listId) {
+    return 'Newsletter list not configured.';
   }
   return null;
 }
 
 /**
- * Clean base URL by removing trailing slashes and subscription form path
+ * Submit subscription via backend API
  */
-function cleanBaseUrl(baseUrl: string): string {
-  return baseUrl
-    .replace(/\/subscription\/form\/?$/, '')
-    .replace(/\/$/, '');
-}
-
-/**
- * Get listmonk base URL
- */
-function getListmonkBaseUrl(newsletterConfig: NewsletterConfig): string {
-  return newsletterConfig.listmonk?.baseUrl || newsletterConfig.url || '';
-}
-
-/**
- * Build form data for listmonk subscription
- */
-function buildListmonkFormData(
-  email: string,
-  newsletterConfig: NewsletterConfig,
-  honeypot: string
-): FormData {
-  const formData = new FormData();
-  formData.append('email', email);
-  formData.append('website', honeypot); // Honeypot field for bot detection
-
-  // Add list subscriptions (hidden - always subscribe to all configured lists)
-  if (newsletterConfig.listmonk?.lists) {
-    newsletterConfig.listmonk.lists.forEach((list) => {
-      // Only subscribe to lists that are marked as checked in config
-      if (list.checked !== false) {
-        formData.append('l', list.id);
-      }
-    });
-  }
-
-  return formData;
-}
-
-/**
- * Build subscription URL with query parameters
- */
-function buildSubscriptionUrl(
-  apiUrl: string,
-  baseUrl: string,
-  templateId?: number
-): URL {
-  const subscribeUrl = new URL(`${apiUrl}/email-list`);
-  subscribeUrl.searchParams.set('baseUrl', baseUrl);
-  if (templateId !== undefined) {
-    subscribeUrl.searchParams.set('templateId', String(templateId));
-  }
-  return subscribeUrl;
-}
-
-/**
- * Submit listmonk subscription
- */
-async function submitListmonkSubscription(
+async function submitSubscription(
   apiUrl: string,
   email: string,
   newsletterConfig: NewsletterConfig,
   honeypot: string
 ): Promise<SubscriptionResponse> {
-  const baseUrl = getListmonkBaseUrl(newsletterConfig);
-  const cleanBaseUrlValue = cleanBaseUrl(baseUrl);
-  const formData = buildListmonkFormData(email, newsletterConfig, honeypot);
-  const templateId = newsletterConfig.listmonk?.welcomeEmailTemplateId;
-  const subscribeUrl = buildSubscriptionUrl(apiUrl, cleanBaseUrlValue, templateId);
-
-  const response = await fetch(subscribeUrl.toString(), {
+  const response = await fetch(`${apiUrl}/email-list`, {
     method: 'POST',
-    body: formData,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      email,
+      listId: newsletterConfig.listmonk?.listId,
+      baseUrl: newsletterConfig.listmonk?.baseUrl,
+      templateId: newsletterConfig.listmonk?.welcomeEmailTemplateId,
+      website: honeypot, // Honeypot field for bot detection
+    }),
   });
 
   if (response.ok) {
     const data = (await response.json()) as SubscriptionResponse;
     return {
       success: data.success ?? true,
-      message:
-        data.message ||
-        'Successfully subscribed! Please check your email to confirm.',
+      message: data.message || 'Successfully subscribed!',
     };
   }
 
@@ -121,91 +68,11 @@ async function submitListmonkSubscription(
   };
 }
 
-/**
- * Submit custom API subscription
- */
-async function submitCustomSubscription(
-  url: string,
-  email: string,
-  apiKey?: string
-): Promise<SubscriptionResponse> {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-
-  if (apiKey) {
-    headers['Authorization'] = `Bearer ${apiKey}`;
-  }
-
-  const response = await fetch(url, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({ email }),
-  });
-
-  if (response.ok) {
-    return {
-      success: true,
-      message: 'Successfully subscribed!',
-    };
-  }
-
-  return {
-    success: false,
-    message: 'Subscription failed. Please try again.',
-  };
-}
-
-/**
- * Handle external redirect subscription (Mailchimp/ConvertKit)
- */
-function handleExternalRedirect(url: string): SubscriptionResponse {
-  window.open(url, '_blank');
-  return {
-    success: true,
-    message: 'Redirecting to signup page...',
-  };
-}
-
-/**
- * Process newsletter subscription based on service type
- */
-async function processSubscription(
-  email: string,
-  newsletterConfig: NewsletterConfig,
-  apiUrl: string,
-  honeypot: string
-): Promise<SubscriptionResponse> {
-  if (newsletterConfig.service === 'listmonk') {
-    return submitListmonkSubscription(apiUrl, email, newsletterConfig, honeypot);
-  }
-
-  if (newsletterConfig.service === 'custom' && newsletterConfig.url) {
-    return submitCustomSubscription(
-      newsletterConfig.url,
-      email,
-      newsletterConfig.apiKey
-    );
-  }
-
-  // For Mailchimp/ConvertKit, redirect to their signup page
-  if (newsletterConfig.url) {
-    return handleExternalRedirect(newsletterConfig.url);
-  }
-
-  return {
-    success: false,
-    message: 'Newsletter service not configured.',
-  };
-}
-
 const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
   const siteConfig = getSiteConfig();
   const [email, setEmail] = useState('');
-  const [honeypot, setHoneypot] = useState(''); // Honeypot field - should remain empty
-  const [status, setStatus] = useState<
-    'idle' | 'loading' | 'success' | 'error'
-  >('idle');
+  const [honeypot, setHoneypot] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -227,12 +94,7 @@ const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
 
     try {
       const apiUrl = config.assistant.url;
-      const result = await processSubscription(
-        email,
-        newsletterConfig,
-        apiUrl,
-        honeypot
-      );
+      const result = await submitSubscription(apiUrl, email, newsletterConfig, honeypot);
 
       setStatus(result.success ? 'success' : 'error');
       setMessage(result.message || 'An error occurred. Please try again later.');

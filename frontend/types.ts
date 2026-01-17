@@ -1,4 +1,3 @@
-
 export interface Post {
   id: string;
   title: string;
@@ -259,17 +258,13 @@ export interface SiteConfig {
     facebookPixelId?: string;
   };
   newsletter?: {
-    service?: 'listmonk' | 'mailchimp' | 'convertkit' | 'custom';
+    service?: "listmonk" | "mailchimp" | "convertkit" | "custom";
     url?: string;
     apiKey?: string;
     listmonk?: {
       baseUrl?: string;
       welcomeEmailTemplateId?: number;
-      lists?: Array<{
-        id: string;
-        label: string;
-        checked?: boolean;
-      }>;
+      listId?: number;
     };
   };
   errorTracking?: {

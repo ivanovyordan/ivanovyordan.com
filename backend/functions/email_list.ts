@@ -1,44 +1,18 @@
 import type { Env } from "./types";
 
-/**
- * Validate that listmonk URL is provided
- */
-function validateListmonkUrl(
-  listmonkUrl: string | null,
-  corsHeaders: Record<string, string>
-): Response | null {
-  if (!listmonkUrl) {
-    return new Response(
-      JSON.stringify({ error: "baseUrl parameter is required" }),
-      {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
-  }
-  return null;
+interface SubscriptionRequest {
+  email: string;
+  listId: number;
+  baseUrl: string;
+  templateId?: number;
+  website?: string; // Honeypot field
 }
 
-/**
- * Extract subscription data from request
- */
-async function extractSubscriptionData(
-  request: Request,
-  url: URL
-): Promise<{
-  formData: FormData;
-  listmonkUrl: string | null;
-  templateId: string | null;
-  email: string | undefined;
-  honeypot: string | undefined;
-}> {
-  const formData = await request.formData();
-  const listmonkUrl = url.searchParams.get("baseUrl");
-  const templateId = url.searchParams.get("templateId");
-  const email = formData.get("email")?.toString();
-  const honeypot = formData.get("website")?.toString(); // Honeypot field
-
-  return { formData, listmonkUrl, templateId, email, honeypot };
+interface SubscriptionData {
+  email: string;
+  listId: number;
+  baseUrl: string;
+  templateId?: number;
 }
 
 /**
@@ -49,46 +23,194 @@ function isBot(honeypot: string | undefined): boolean {
 }
 
 /**
- * Forward subscription to Listmonk
+ * Create Basic Auth credentials
  */
-async function forwardSubscriptionToListmonk(
-  listmonkUrl: string,
-  formData: FormData
-): Promise<Response> {
-  return fetch(`${listmonkUrl}/subscription/form`, {
-    method: "POST",
-    body: formData,
-  });
+function createBasicAuthCredentials(username: string, apiKey: string): string {
+  return btoa(`${username}:${apiKey}`);
 }
 
 /**
- * Check if subscription was successful
+ * Extract and validate subscription data from request
  */
-function isSubscriptionSuccessful(
-  response: Response,
-  responseText: string
-): boolean {
-  return (
-    response.ok &&
-    (responseText.includes("success") ||
-      responseText.includes("subscribed") ||
-      response.status === 200)
+async function extractSubscriptionData(
+  request: Request
+): Promise<{ data: SubscriptionData; honeypot?: string } | null> {
+  const body = (await request.json()) as SubscriptionRequest;
+  const { email, listId, baseUrl, templateId, website: honeypot } = body;
+
+  if (!email || !listId || !baseUrl) {
+    return null;
+  }
+
+  return {
+    data: { email, listId, baseUrl, templateId },
+    honeypot,
+  };
+}
+
+/**
+ * Validate Listmonk credentials
+ */
+function validateCredentials(env: Env): boolean {
+  return Boolean(env.LISTMONK_USERNAME && env.LISTMONK_API_KEY);
+}
+
+/**
+ * Get subscriber by email
+ */
+async function getSubscriberByEmail(
+  baseUrl: string,
+  email: string,
+  username: string,
+  apiKey: string
+): Promise<number | null> {
+  const credentials = createBasicAuthCredentials(username, apiKey);
+  const query = `subscribers.email='${encodeURIComponent(email)}'`;
+
+  const response = await fetch(`${baseUrl}/api/subscribers?query=${query}`, {
+    headers: { Authorization: `Basic ${credentials}` },
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const data = (await response.json()) as {
+    data?: { results?: Array<{ id: number }> };
+  };
+
+  return data?.data?.results?.[0]?.id ?? null;
+}
+
+/**
+ * Add existing subscriber to a list
+ */
+async function addSubscriberToList(
+  baseUrl: string,
+  subscriberId: number,
+  listId: number,
+  username: string,
+  apiKey: string
+): Promise<boolean> {
+  const credentials = createBasicAuthCredentials(username, apiKey);
+
+  const response = await fetch(`${baseUrl}/api/subscribers/lists`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Basic ${credentials}`,
+    },
+    body: JSON.stringify({
+      ids: [subscriberId],
+      action: "add",
+      target_list_ids: [Number(listId)],
+      status: "confirmed",
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error(`Failed to add to list (${response.status}):`, errorText);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Handle existing subscriber (409 conflict)
+ */
+async function handleExistingSubscriber(
+  baseUrl: string,
+  email: string,
+  listId: number,
+  username: string,
+  apiKey: string
+): Promise<boolean> {
+  const subscriberId = await getSubscriberByEmail(
+    baseUrl,
+    email,
+    username,
+    apiKey
   );
+
+  if (!subscriberId) {
+    return true; // Can't find them, but they exist - consider success
+  }
+
+  return addSubscriberToList(baseUrl, subscriberId, listId, username, apiKey);
+}
+
+/**
+ * Create a new subscriber via Listmonk API
+ */
+async function createSubscriber(
+  baseUrl: string,
+  email: string,
+  listId: number,
+  username: string,
+  apiKey: string
+): Promise<{ success: boolean; isNew: boolean }> {
+  const credentials = createBasicAuthCredentials(username, apiKey);
+
+  const requestBody = {
+    email,
+    name: "",
+    status: "enabled",
+    lists: [Number(listId)],
+    preconfirm_subscriptions: true,
+  };
+
+  console.log("Creating subscriber:", JSON.stringify(requestBody));
+
+  const response = await fetch(`${baseUrl}/api/subscribers`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Basic ${credentials}`,
+    },
+    body: JSON.stringify(requestBody),
+  });
+
+  const responseText = await response.text();
+  console.log(`Listmonk response (${response.status}):`, responseText);
+
+  if (response.ok) {
+    return { success: true, isNew: true };
+  }
+
+  // Subscriber already exists - add them to the list
+  if (response.status === 409) {
+    const success = await handleExistingSubscriber(
+      baseUrl,
+      email,
+      listId,
+      username,
+      apiKey
+    );
+    return { success, isNew: false };
+  }
+
+  console.error(
+    `Failed to create subscriber (${response.status}):`,
+    responseText
+  );
+  return { success: false, isNew: false };
 }
 
 /**
  * Send welcome email via Listmonk transactional API
  */
 async function sendWelcomeEmail(
-  listmonkUrl: string,
+  baseUrl: string,
   email: string,
-  templateId: string,
+  templateId: number,
   username: string,
   apiKey: string
 ): Promise<void> {
-  const credentials = btoa(`${username}:${apiKey}`);
+  const credentials = createBasicAuthCredentials(username, apiKey);
 
-  const response = await fetch(`${listmonkUrl}/api/tx`, {
+  const response = await fetch(`${baseUrl}/api/tx`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -96,7 +218,7 @@ async function sendWelcomeEmail(
     },
     body: JSON.stringify({
       subscriber_email: email,
-      template_id: parseInt(templateId, 10),
+      template_id: Number(templateId),
     }),
   });
 
@@ -110,134 +232,100 @@ async function sendWelcomeEmail(
 }
 
 /**
- * Attempt to send welcome email if conditions are met
+ * Create JSON response
  */
-async function attemptWelcomeEmail(
-  email: string | undefined,
-  templateId: string | null,
-  listmonkUrl: string,
-  env: Env
-): Promise<void> {
-  if (
-    !email ||
-    !templateId ||
-    !env.LISTMONK_USERNAME ||
-    !env.LISTMONK_API_KEY
-  ) {
-    return;
-  }
-
-  try {
-    await sendWelcomeEmail(
-      listmonkUrl,
-      email,
-      templateId,
-      env.LISTMONK_USERNAME,
-      env.LISTMONK_API_KEY
-    );
-  } catch (error) {
-    console.error("Error sending welcome email:", error);
-  }
-}
-
-/**
- * Create subscription response
- */
-function createSubscriptionResponse(
-  isSuccess: boolean,
+function createResponse(
+  success: boolean,
+  message: string,
   statusCode: number,
   corsHeaders: Record<string, string>
 ): Response {
-  return new Response(
-    JSON.stringify({
-      success: isSuccess,
-      message: isSuccess
-        ? "Successfully subscribed! Please check your email to confirm."
-        : "Subscription failed. Please try again.",
-    }),
-    {
-      status: isSuccess ? 200 : statusCode,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    }
-  );
+  return new Response(JSON.stringify({ success, message }), {
+    status: statusCode,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
 }
 
 /**
- * Handle subscription request - process newsletter subscription
+ * Handle subscription request - main orchestrator
  */
-async function handleSubscriptionRequest(
+export async function handleSubscriptionRequest(
   request: Request,
-  url: URL,
   env: Env,
   corsHeaders: Record<string, string>
 ): Promise<Response> {
   try {
-    const { formData, listmonkUrl, templateId, email, honeypot } =
-      await extractSubscriptionData(request, url);
+    // Extract and validate request data
+    const extracted = await extractSubscriptionData(request);
 
-    // Reject bot submissions (honeypot filled)
+    if (!extracted) {
+      return createResponse(
+        false,
+        "Missing required fields.",
+        400,
+        corsHeaders
+      );
+    }
+
+    const { data, honeypot } = extracted;
+
+    // Reject bots silently
     if (isBot(honeypot)) {
-      // Return fake success to not alert bots
-      return createSubscriptionResponse(true, 200, corsHeaders);
+      return createResponse(true, "Successfully subscribed!", 200, corsHeaders);
     }
 
-    const validationError = validateListmonkUrl(listmonkUrl, corsHeaders);
-    if (validationError) {
-      return validationError;
+    // Validate credentials
+    if (!validateCredentials(env)) {
+      console.error("Listmonk credentials not configured");
+      return createResponse(
+        false,
+        "Newsletter service not configured.",
+        500,
+        corsHeaders
+      );
     }
 
-    if (!listmonkUrl) {
-      return createSubscriptionResponse(false, 400, corsHeaders);
-    }
-
-    const listmonkResponse = await forwardSubscriptionToListmonk(
-      listmonkUrl,
-      formData
+    // Create subscriber (credentials validated above)
+    const result = await createSubscriber(
+      data.baseUrl,
+      data.email,
+      data.listId,
+      env.LISTMONK_USERNAME!,
+      env.LISTMONK_API_KEY!
     );
 
-    const responseText = await listmonkResponse.text();
-    const isSuccess = isSubscriptionSuccessful(listmonkResponse, responseText);
-
-    if (isSuccess) {
-      await attemptWelcomeEmail(email, templateId, listmonkUrl, env);
+    if (!result.success) {
+      return createResponse(
+        false,
+        "Subscription failed. Please try again.",
+        500,
+        corsHeaders
+      );
     }
 
-    return createSubscriptionResponse(
-      isSuccess,
-      listmonkResponse.status,
+    // Send welcome email (non-blocking failure)
+    if (data.templateId) {
+      try {
+        await sendWelcomeEmail(
+          data.baseUrl,
+          data.email,
+          data.templateId,
+          env.LISTMONK_USERNAME!,
+          env.LISTMONK_API_KEY!
+        );
+      } catch (error) {
+        console.error("Error sending welcome email:", error);
+      }
+    }
+
+    return createResponse(true, "Successfully subscribed!", 200, corsHeaders);
+  } catch (error) {
+    console.error("Error processing subscription:", error);
+    return createResponse(
+      false,
+      "Subscription failed. Please try again.",
+      500,
       corsHeaders
     );
-  } catch (error) {
-    console.error("Error proxying newsletter subscription:", error);
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: "An error occurred. Please try again later.",
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
   }
-}
-
-/**
- * Handle newsletter subscription requests by proxying to Listmonk
- */
-export async function handleNewsletterRequest(
-  request: Request,
-  env: Env,
-  corsHeaders: Record<string, string>
-): Promise<Response> {
-  const url = new URL(request.url);
-
-  if (request.method === "POST" && url.pathname === "/email-list") {
-    return handleSubscriptionRequest(request, url, env, corsHeaders);
-  }
-
-  return new Response("Method Not Allowed", {
-    status: 405,
-    headers: corsHeaders,
-  });
 }

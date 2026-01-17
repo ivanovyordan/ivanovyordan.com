@@ -15,13 +15,7 @@
     "listmonk": {
       "baseUrl": "https://newsletter.ivanovyordan.com",
       "welcomeEmailTemplateId": 6,
-      "lists": [
-        {
-          "id": "fd3b8a08-a51f-40fc-b255-3ce353d07c41",
-          "label": "Everybody",
-          "checked": true
-        }
-      ]
+      "listId": 1
     }
   },
   "errorTracking": {

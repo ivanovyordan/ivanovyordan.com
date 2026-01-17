@@ -867,26 +867,11 @@ content:
                 type: number
                 default: 6
                 description: "Listmonk transactional email template ID to send after subscription"
-              - name: lists
-                label: Mailing Lists
-                type: object
-                list: true
-                fields:
-                  - name: id
-                    label: List ID
-                    type: string
-                    required: true
-                    description: "Listmonk list UUID (e.g., fd3b8a08-a51f-40fc-b255-3ce353d07c41)"
-                  - name: label
-                    label: List Label
-                    type: string
-                    required: true
-                    description: "Display name for the list (e.g., Everybody)"
-                  - name: checked
-                    label: Checked by Default
-                    type: boolean
-                    default: true
-                    description: "Whether this list should be pre-selected"
+              - name: listId
+                label: List ID
+                type: number
+                required: true
+                description: "Numeric Listmonk list ID (find it in Listmonk admin → Lists → click list → ID in URL)"
       - name: errorTracking
         label: Error Tracking
         type: object
