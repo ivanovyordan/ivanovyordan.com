@@ -33,6 +33,23 @@ function getExcerpt(content: string): string {
   return excerpt.trim();
 }
 
+// Extract the first image from markdown content
+function getFirstImage(content: string): string | undefined {
+  // Match markdown image syntax: ![alt](url)
+  const markdownImageMatch = content.match(/!\[([^\]]*)\]\(([^)]+)\)/);
+  if (markdownImageMatch) {
+    return markdownImageMatch[2];
+  }
+
+  // Match HTML img tag: <img src="url"
+  const htmlImageMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+  if (htmlImageMatch) {
+    return htmlImageMatch[1];
+  }
+
+  return undefined;
+}
+
 // Import all markdown files from content/posts at build time
 const postFiles = import.meta.glob<string>("../content/posts/*.md", {
   query: "?raw",
@@ -59,6 +76,7 @@ export function getAllPosts(): Post[] {
       category: data.category || "Uncategorised",
       readTime: calculateReadTime(body),
       body: body,
+      image: getFirstImage(body),
     });
   }
 

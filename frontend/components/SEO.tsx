@@ -37,7 +37,7 @@ function getPageDescription(
 /**
  * Update or create a meta tag
  */
-function updateMetaTag(
+export function updateMetaTag(
   name: string,
   content: string,
   property = false
@@ -97,13 +97,60 @@ function updateFeedLinks(): void {
 }
 
 /**
- * Get Open Graph image URL
+ * Extract first image from page sections
  */
-function getOpenGraphImage(ogImage: string | undefined): string {
-  if (ogImage) {
-    return ogImage;
+function getFirstImageFromSections(sections: PageContent['sections'] | undefined): string | undefined {
+  if (!sections) return undefined;
+
+  for (const section of sections) {
+    // Check common image block types
+    if (section._block === 'image' && section.src) {
+      return section.src as string;
+    }
+    if (section._block === 'about-hero' && section.headshot) {
+      return section.headshot as string;
+    }
+    // Check for nested content in sidebar blocks
+    if (section._block === 'sidebar') {
+      const sidebarImage = section.sidebar?._block === 'image' ? section.sidebar.src : undefined;
+      if (sidebarImage) return sidebarImage as string;
+    }
   }
-  return `${getCanonicalUrl('/')}/images/og-default.jpg`;
+
+  return undefined;
+}
+
+/**
+ * Get Open Graph image URL (returns undefined if no image)
+ */
+function getOpenGraphImage(
+  ogImage: string | undefined,
+  sections: PageContent['sections'] | undefined
+): string | undefined {
+  // First try explicit OG image
+  if (ogImage) {
+    return makeAbsoluteUrl(ogImage);
+  }
+
+  // Then try to find first image in sections
+  const sectionImage = getFirstImageFromSections(sections);
+  if (sectionImage) {
+    return makeAbsoluteUrl(sectionImage);
+  }
+
+  return undefined;
+}
+
+/**
+ * Make a URL absolute
+ */
+function makeAbsoluteUrl(url: string): string {
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  const baseUrl = getCanonicalUrl('/');
+  const cleanPath = url.startsWith('/') ? url : `/${url}`;
+  return `${baseUrl.replace(/\/$/, '')}${cleanPath}`;
 }
 
 /**
@@ -114,7 +161,8 @@ function updateOpenGraphTags(
   description: string,
   canonicalUrl: string,
   siteName: string,
-  ogImage: string | undefined
+  ogImage: string | undefined,
+  sections: PageContent['sections'] | undefined
 ): void {
   updateMetaTag('og:title', title, true);
   updateMetaTag('og:description', description, true);
@@ -122,10 +170,12 @@ function updateOpenGraphTags(
   updateMetaTag('og:url', canonicalUrl, true);
   updateMetaTag('og:site_name', siteName, true);
 
-  const imageUrl = getOpenGraphImage(ogImage);
-  updateMetaTag('og:image', imageUrl, true);
-  updateMetaTag('og:image:width', '1200', true);
-  updateMetaTag('og:image:height', '630', true);
+  const imageUrl = getOpenGraphImage(ogImage, sections);
+  if (imageUrl) {
+    updateMetaTag('og:image', imageUrl, true);
+    updateMetaTag('og:image:width', '1200', true);
+    updateMetaTag('og:image:height', '630', true);
+  }
 }
 
 /**
@@ -134,14 +184,17 @@ function updateOpenGraphTags(
 function updateTwitterCardTags(
   title: string,
   description: string,
-  ogImage: string | undefined
+  ogImage: string | undefined,
+  sections: PageContent['sections'] | undefined
 ): void {
-  updateMetaTag('twitter:card', 'summary_large_image');
+  const imageUrl = getOpenGraphImage(ogImage, sections);
+  updateMetaTag('twitter:card', imageUrl ? 'summary_large_image' : 'summary');
   updateMetaTag('twitter:title', title);
   updateMetaTag('twitter:description', description);
 
-  const imageUrl = getOpenGraphImage(ogImage);
-  updateMetaTag('twitter:image', imageUrl);
+  if (imageUrl) {
+    updateMetaTag('twitter:image', imageUrl);
+  }
 }
 
 /**
@@ -202,6 +255,7 @@ function initializeSEO(
   const title = getPageTitle(page, siteConfig.seo.defaultTitle);
   const description = getPageDescription(page, siteConfig.seo.defaultDescription);
   const ogImage = page?.seo?.ogImage;
+  const sections = page?.sections;
   const canonicalUrl = getCanonicalUrl(pathname);
 
   updateDocumentTitle(title);
@@ -213,9 +267,10 @@ function initializeSEO(
     description,
     canonicalUrl,
     siteConfig.name,
-    ogImage
+    ogImage,
+    sections
   );
-  updateTwitterCardTags(title, description, ogImage);
+  updateTwitterCardTags(title, description, ogImage, sections);
   updateStructuredData(siteConfig.name, siteConfig.seo.defaultDescription);
 }
 

@@ -6,6 +6,7 @@ export interface Post {
   category: string;
   readTime: string;
   body: string;
+  image?: string;
 }
 
 export interface CourseModule {

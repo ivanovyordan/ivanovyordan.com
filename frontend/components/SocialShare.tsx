@@ -21,11 +21,13 @@ const SocialShare: React.FC<SocialShareProps> = ({
   const shareDescription = encodeURIComponent(description || siteConfig.seo.defaultDescription);
   const encodedUrl = encodeURIComponent(shareUrl);
 
+  // Note: LinkedIn and Facebook no longer support pre-filled text via URL params.
+  // They pull title/description from Open Graph meta tags on the shared page.
   const shareLinks = {
-    twitter: `https://twitter.com/intent/tweet?text=${shareTitle}&url=${encodedUrl}`,
+    x: `https://x.com/intent/tweet?text=${shareTitle}&url=${encodedUrl}`,
     linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
-    email: `mailto:?subject=${shareTitle}&body=${shareDescription}%20${encodedUrl}`,
+    email: `mailto:?subject=${shareTitle}&body=${shareDescription}%0A%0A${encodedUrl}`,
   };
 
   const handleShare = (platform: keyof typeof shareLinks) => {
@@ -42,10 +44,10 @@ const SocialShare: React.FC<SocialShareProps> = ({
       <span className="text-sm font-medium text-gray-700 dark:text-zinc-300">Share:</span>
       <div className="flex gap-2">
         <button
-          onClick={() => handleShare('twitter')}
+          onClick={() => handleShare('x')}
           className="p-2 text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
-          aria-label="Share on Twitter"
-          title="Share on Twitter"
+          aria-label="Share on X"
+          title="Share on X"
         >
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />

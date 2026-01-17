@@ -3,10 +3,12 @@ import { useParams, Link, Navigate } from 'react-router-dom';
 import { marked } from 'marked';
 import Container from '../components/Container';
 import SocialShare from '../components/SocialShare';
+import NewsletterBlock from '../components/blocks/NewsletterBlock';
 import { getPostById } from '../utils/posts';
 import { getSiteConfig } from '../utils/site';
 import { getCanonicalUrl } from '../utils/routes';
 import { trackBlogPostView } from '../utils/analytics';
+import { updateMetaTag } from '../components/SEO';
 
 interface BlogPostingSchema {
   '@context': string;
@@ -88,6 +90,72 @@ function updateBlogPostStructuredData(
   schemaScript.textContent = JSON.stringify(schema);
 }
 
+/**
+ * Get absolute image URL for OG tags (returns undefined if no image)
+ */
+function getOgImageUrl(image: string | undefined): string | undefined {
+  if (!image) return undefined;
+
+  // If image is already absolute, return as-is
+  if (image.startsWith('http://') || image.startsWith('https://')) {
+    return image;
+  }
+
+  // Make relative URLs absolute
+  const baseUrl = getCanonicalUrl('/');
+  const cleanPath = image.startsWith('/') ? image : `/${image}`;
+  return `${baseUrl.replace(/\/$/, '')}${cleanPath}`;
+}
+
+/**
+ * Update SEO meta tags for blog post (OG, Twitter, etc.)
+ */
+function updateBlogPostSEO(
+  post: { id: string; title: string; excerpt: string; image?: string },
+  siteName: string
+): void {
+  const postUrl = getCanonicalUrl(`/blog/${post.id}`);
+  const ogImage = getOgImageUrl(post.image);
+
+  // Update document title
+  document.title = `${post.title} | ${siteName}`;
+
+  // Basic meta tags
+  updateMetaTag('description', post.excerpt);
+  updateMetaTag('title', post.title);
+
+  // Open Graph tags (for LinkedIn, Facebook)
+  updateMetaTag('og:title', post.title, true);
+  updateMetaTag('og:description', post.excerpt, true);
+  updateMetaTag('og:type', 'article', true);
+  updateMetaTag('og:url', postUrl, true);
+  updateMetaTag('og:site_name', siteName, true);
+
+  // Only set image tags if we have an image
+  if (ogImage) {
+    updateMetaTag('og:image', ogImage, true);
+    updateMetaTag('og:image:width', '1200', true);
+    updateMetaTag('og:image:height', '630', true);
+  }
+
+  // Twitter/X Card tags
+  updateMetaTag('twitter:card', ogImage ? 'summary_large_image' : 'summary');
+  updateMetaTag('twitter:title', post.title);
+  updateMetaTag('twitter:description', post.excerpt);
+  if (ogImage) {
+    updateMetaTag('twitter:image', ogImage);
+  }
+
+  // Canonical URL
+  let canonicalLink = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+  if (!canonicalLink) {
+    canonicalLink = document.createElement('link');
+    canonicalLink.setAttribute('rel', 'canonical');
+    document.head.appendChild(canonicalLink);
+  }
+  canonicalLink.setAttribute('href', postUrl);
+}
+
 const PostDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
 
@@ -102,6 +170,7 @@ const PostDetail: React.FC = () => {
 
   useEffect(() => {
     if (!post) return;
+    updateBlogPostSEO(post, siteConfig.name);
     updateBlogPostStructuredData(post, siteConfig.name);
     trackBlogPostView(post.id, post.title);
   }, [post, siteConfig.name]);
@@ -166,21 +235,14 @@ const PostDetail: React.FC = () => {
         </div>
 
         <footer className="mt-16 pt-12 border-t border-gray-100 dark:border-zinc-900">
-          <div className="bg-gray-50 dark:bg-zinc-900 p-8 md:p-12 text-center border border-gray-100 dark:border-zinc-800">
-            <h4 className="text-xl font-bold mb-3 font-serif dark:text-white">
-              Enjoyed this article?
-            </h4>
-            <p className="text-gray-700 dark:text-zinc-300 mb-8 max-w-md mx-auto">
-              Join the newsletter for more deep dives into engineering
-              leadership.
-            </p>
-            <Link
-              to="/"
-              className="inline-block bg-black dark:bg-white text-white dark:text-black px-10 py-3 text-sm font-bold hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
-            >
-              Join 5,000+ Readers
-            </Link>
-          </div>
+          <NewsletterBlock
+            block={{
+              _block: 'newsletter',
+              title: 'Enjoyed this article?',
+              description: 'Subscribe to the newsletter for more insights on engineering leadership, data, and career growth.',
+              placeholder: 'Your email address',
+            }}
+          />
         </footer>
       </article>
     </Container>
