@@ -91,6 +91,30 @@ function updateBlogPostStructuredData(
 }
 
 /**
+ * Strip markdown formatting for plain text (used in meta descriptions)
+ */
+function stripMarkdown(text: string): string {
+  return text
+    // Remove images ![alt](url)
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, '')
+    // Convert links [text](url) to just text
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    // Remove bold **text** or __text__
+    .replace(/(\*\*|__)(.*?)\1/g, '$2')
+    // Remove italic *text* or _text_
+    .replace(/(\*|_)(.*?)\1/g, '$2')
+    // Remove inline code `code`
+    .replace(/`([^`]+)`/g, '$1')
+    // Remove headers # ## ### etc.
+    .replace(/^#{1,6}\s+/gm, '')
+    // Remove blockquotes >
+    .replace(/^>\s+/gm, '')
+    // Collapse multiple spaces/newlines
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
  * Get absolute image URL for OG tags (returns undefined if no image)
  */
 function getOgImageUrl(image: string | undefined): string | undefined {
@@ -116,17 +140,18 @@ function updateBlogPostSEO(
 ): void {
   const postUrl = getCanonicalUrl(`/blog/${post.id}`);
   const ogImage = getOgImageUrl(post.image);
+  const plainExcerpt = stripMarkdown(post.excerpt);
 
   // Update document title
   document.title = `${post.title} | ${siteName}`;
 
-  // Basic meta tags
-  updateMetaTag('description', post.excerpt);
+  // Basic meta tags (use plain text for SEO)
+  updateMetaTag('description', plainExcerpt);
   updateMetaTag('title', post.title);
 
   // Open Graph tags (for LinkedIn, Facebook)
   updateMetaTag('og:title', post.title, true);
-  updateMetaTag('og:description', post.excerpt, true);
+  updateMetaTag('og:description', plainExcerpt, true);
   updateMetaTag('og:type', 'article', true);
   updateMetaTag('og:url', postUrl, true);
   updateMetaTag('og:site_name', siteName, true);
@@ -141,7 +166,7 @@ function updateBlogPostSEO(
   // Twitter/X Card tags
   updateMetaTag('twitter:card', ogImage ? 'summary_large_image' : 'summary');
   updateMetaTag('twitter:title', post.title);
-  updateMetaTag('twitter:description', post.excerpt);
+  updateMetaTag('twitter:description', plainExcerpt);
   if (ogImage) {
     updateMetaTag('twitter:image', ogImage);
   }
