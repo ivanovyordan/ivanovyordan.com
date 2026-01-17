@@ -9,10 +9,10 @@ content:
     type: collection
     path: frontend/content/posts
     format: yaml-frontmatter
-    filename: "{slug}.md"
+    filename: "{primary}.md"
     view:
       fields: [title, date, category]
-      primary: title
+      primary: slug
       sort: [date, title]
       default:
         sort: date
@@ -55,10 +55,10 @@ content:
     type: collection
     path: frontend/content/pages
     format: json
-    filename: "{slug}.json"
+    filename: "{primary}.json"
     view:
       fields: [title, slug]
-      primary: title
+      primary: slug
       sort: [title]
     fields:
       - name: title
