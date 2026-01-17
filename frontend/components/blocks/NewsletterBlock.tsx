@@ -48,10 +48,12 @@ function getListmonkBaseUrl(newsletterConfig: NewsletterConfig): string {
  */
 function buildListmonkFormData(
   email: string,
-  newsletterConfig: NewsletterConfig
+  newsletterConfig: NewsletterConfig,
+  honeypot: string
 ): FormData {
   const formData = new FormData();
   formData.append('email', email);
+  formData.append('website', honeypot); // Honeypot field for bot detection
 
   // Add list subscriptions (hidden - always subscribe to all configured lists)
   if (newsletterConfig.listmonk?.lists) {
@@ -88,11 +90,12 @@ function buildSubscriptionUrl(
 async function submitListmonkSubscription(
   apiUrl: string,
   email: string,
-  newsletterConfig: NewsletterConfig
+  newsletterConfig: NewsletterConfig,
+  honeypot: string
 ): Promise<SubscriptionResponse> {
   const baseUrl = getListmonkBaseUrl(newsletterConfig);
   const cleanBaseUrlValue = cleanBaseUrl(baseUrl);
-  const formData = buildListmonkFormData(email, newsletterConfig);
+  const formData = buildListmonkFormData(email, newsletterConfig, honeypot);
   const templateId = newsletterConfig.listmonk?.welcomeEmailTemplateId;
   const subscribeUrl = buildSubscriptionUrl(apiUrl, cleanBaseUrlValue, templateId);
 
@@ -170,10 +173,11 @@ function handleExternalRedirect(url: string): SubscriptionResponse {
 async function processSubscription(
   email: string,
   newsletterConfig: NewsletterConfig,
-  apiUrl: string
+  apiUrl: string,
+  honeypot: string
 ): Promise<SubscriptionResponse> {
   if (newsletterConfig.service === 'listmonk') {
-    return submitListmonkSubscription(apiUrl, email, newsletterConfig);
+    return submitListmonkSubscription(apiUrl, email, newsletterConfig, honeypot);
   }
 
   if (newsletterConfig.service === 'custom' && newsletterConfig.url) {
@@ -198,6 +202,7 @@ async function processSubscription(
 const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
   const siteConfig = getSiteConfig();
   const [email, setEmail] = useState('');
+  const [honeypot, setHoneypot] = useState(''); // Honeypot field - should remain empty
   const [status, setStatus] = useState<
     'idle' | 'loading' | 'success' | 'error'
   >('idle');
@@ -225,7 +230,8 @@ const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
       const result = await processSubscription(
         email,
         newsletterConfig,
-        apiUrl
+        apiUrl,
+        honeypot
       );
 
       setStatus(result.success ? 'success' : 'error');
@@ -252,6 +258,17 @@ const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
           {block.description}
         </p>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+          {/* Honeypot field - hidden from users, catches bots */}
+          <input
+            type="text"
+            name="website"
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+            autoComplete="off"
+            tabIndex={-1}
+            aria-hidden="true"
+            className="absolute -left-[9999px] opacity-0 h-0 w-0 pointer-events-none"
+          />
           <div className="flex flex-col sm:flex-row gap-3">
             <input
               type="email"

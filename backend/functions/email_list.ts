@@ -30,13 +30,22 @@ async function extractSubscriptionData(
   listmonkUrl: string | null;
   templateId: string | null;
   email: string | undefined;
+  honeypot: string | undefined;
 }> {
   const formData = await request.formData();
   const listmonkUrl = url.searchParams.get("baseUrl");
   const templateId = url.searchParams.get("templateId");
   const email = formData.get("email")?.toString();
+  const honeypot = formData.get("website")?.toString(); // Honeypot field
 
-  return { formData, listmonkUrl, templateId, email };
+  return { formData, listmonkUrl, templateId, email, honeypot };
+}
+
+/**
+ * Check if submission is from a bot (honeypot filled)
+ */
+function isBot(honeypot: string | undefined): boolean {
+  return Boolean(honeypot && honeypot.trim().length > 0);
 }
 
 /**
@@ -163,8 +172,14 @@ async function handleSubscriptionRequest(
   corsHeaders: Record<string, string>
 ): Promise<Response> {
   try {
-    const { formData, listmonkUrl, templateId, email } =
+    const { formData, listmonkUrl, templateId, email, honeypot } =
       await extractSubscriptionData(request, url);
+
+    // Reject bot submissions (honeypot filled)
+    if (isBot(honeypot)) {
+      // Return fake success to not alert bots
+      return createSubscriptionResponse(true, 200, corsHeaders);
+    }
 
     const validationError = validateListmonkUrl(listmonkUrl, corsHeaders);
     if (validationError) {

@@ -49,13 +49,13 @@ function calculateRemainingCredits(
 /**
  * Create API request
  */
-function createAIRequest(apiUrl: string, query: string): Request {
+function createAIRequest(apiUrl: string, query: string, honeypot: string): Request {
   return new Request(`${apiUrl}/ai`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ query }),
+    body: JSON.stringify({ query, website: honeypot }), // website is honeypot field
   });
 }
 
@@ -109,8 +109,8 @@ function incrementQuestionsAsked(currentCount: number): number {
 /**
  * Fetch AI response from API
  */
-async function fetchAIResponse(apiUrl: string, query: string): Promise<string> {
-  const request = createAIRequest(apiUrl, query);
+async function fetchAIResponse(apiUrl: string, query: string, honeypot: string): Promise<string> {
+  const request = createAIRequest(apiUrl, query, honeypot);
   const response = await fetch(request);
 
   if (!response.ok) {
@@ -130,6 +130,7 @@ async function handleAIQuestion(
   apiUrl: string,
   storageKey: string,
   currentQuestionsAsked: number,
+  honeypot: string,
   setQuestionsAsked: (count: number) => void,
   setResponse: (text: string) => void,
   setError: (error: string) => void,
@@ -140,7 +141,7 @@ async function handleAIQuestion(
   }
 
   try {
-    const responseText = await fetchAIResponse(apiUrl, query);
+    const responseText = await fetchAIResponse(apiUrl, query, honeypot);
     setResponse(responseText);
     setThinking(false);
 
@@ -165,6 +166,7 @@ const GeminiAssistantBlock: React.FC<GeminiAssistantBlockProps> = () => {
   const siteConfig = getSiteConfig();
 
   const [query, setQuery] = useState('');
+  const [honeypot, setHoneypot] = useState(''); // Honeypot field - should remain empty
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
   const [thinking, setThinking] = useState(false);
@@ -194,6 +196,7 @@ const GeminiAssistantBlock: React.FC<GeminiAssistantBlockProps> = () => {
         API_URL,
         STORAGE_KEY,
         questionsAsked,
+        honeypot,
         setQuestionsAsked,
         setResponse,
         setError,
@@ -229,6 +232,17 @@ const GeminiAssistantBlock: React.FC<GeminiAssistantBlockProps> = () => {
 
       {!isLimitReachedValue ? (
         <div className="space-y-4">
+          {/* Honeypot field - hidden from users, catches bots */}
+          <input
+            type="text"
+            name="website"
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+            autoComplete="off"
+            tabIndex={-1}
+            aria-hidden="true"
+            className="absolute -left-[9999px] opacity-0 h-0 w-0 pointer-events-none"
+          />
           <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"

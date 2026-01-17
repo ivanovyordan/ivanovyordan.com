@@ -49,11 +49,18 @@ function validateRequest(request: Request): { query: string } | Response {
 }
 
 /**
- * Extract query from request body
+ * Extract query and honeypot from request body
  */
-async function extractQuery(request: Request): Promise<string> {
-  const { query } = (await request.json()) as { query: string };
-  return query;
+async function extractRequestData(request: Request): Promise<{ query: string; honeypot?: string }> {
+  const { query, website } = (await request.json()) as { query: string; website?: string };
+  return { query, honeypot: website };
+}
+
+/**
+ * Check if submission is from a bot (honeypot filled)
+ */
+function isBot(honeypot: string | undefined): boolean {
+  return Boolean(honeypot && honeypot.trim().length > 0);
 }
 
 /**
@@ -373,7 +380,19 @@ export async function handleAIRequest(
   }
 
   try {
-    const query = await extractQuery(request);
+    const { query, honeypot } = await extractRequestData(request);
+
+    // Reject bot submissions (honeypot filled) - return fake success
+    if (isBot(honeypot)) {
+      return new Response(
+        JSON.stringify({ text: "Thank you for your question. I'll get back to you shortly." }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
     if (!query) {
       return new Response(JSON.stringify({ error: "Query is required" }), {
         status: 400,
