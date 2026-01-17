@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { marked } from 'marked';
 import type { LatestPostsBlock as LatestPostsBlockType } from '../../types';
 import { getAllPosts } from '../../utils/posts';
 
@@ -39,9 +40,10 @@ const LatestPostsBlock: React.FC<LatestPostsBlockProps> = ({ block }) => {
                 {post.title}
               </h3>
             </Link>
-            <p className="mt-3 text-lg text-gray-700 dark:text-zinc-300 leading-relaxed max-w-3xl">
-              {post.excerpt}
-            </p>
+            <div
+              className="mt-3 text-lg text-gray-700 dark:text-zinc-300 leading-relaxed max-w-3xl prose prose-lg dark:prose-invert"
+              dangerouslySetInnerHTML={{ __html: marked.parse(post.excerpt) as string }}
+            />
           </article>
         ))}
       </div>

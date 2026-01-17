@@ -4,9 +4,18 @@ import type { Post } from "../types";
 interface PostFrontmatter {
   title?: string;
   excerpt?: string;
-  date?: string;
+  date?: string | Date;
   category?: string;
   slug?: string;
+}
+
+// Convert date to string format (YYYY-MM-DD)
+function formatDate(date: string | Date | undefined): string {
+  if (!date) return "";
+  if (date instanceof Date) {
+    return date.toISOString().split("T")[0];
+  }
+  return date;
 }
 
 // Average reading speed in words per minute
@@ -46,7 +55,7 @@ export function getAllPosts(): Post[] {
       id: slug,
       title: data.title || "Untitled",
       excerpt: getExcerpt(body),
-      date: data.date || "",
+      date: formatDate(data.date),
       category: data.category || "Uncategorised",
       readTime: calculateReadTime(body),
       body: body,

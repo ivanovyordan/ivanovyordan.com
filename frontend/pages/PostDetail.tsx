@@ -154,9 +154,6 @@ const PostDetail: React.FC = () => {
           <h1 className="text-3xl md:text-5xl font-serif font-bold leading-tight mb-6 tracking-tight dark:text-white">
             {post.title}
           </h1>
-          <p className="text-xl md:text-2xl text-gray-600 dark:text-zinc-400 italic font-serif leading-relaxed border-l-2 border-gray-200 dark:border-zinc-800 pl-6 py-1">
-            {post.excerpt}
-          </p>
         </header>
 
         <div

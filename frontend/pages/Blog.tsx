@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { marked } from 'marked';
 import Container from '../components/Container';
 import { getAllPosts } from '../utils/posts';
 import { getSiteConfig } from '../utils/site';
@@ -127,9 +128,10 @@ const Blog: React.FC = () => {
               </Link>
             </header>
 
-            <p className="text-gray-700 dark:text-zinc-300 leading-relaxed text-lg mb-6 max-w-2xl">
-              {post.excerpt}
-            </p>
+            <div
+              className="text-gray-700 dark:text-zinc-300 leading-relaxed text-lg mb-6 max-w-2xl prose prose-lg dark:prose-invert"
+              dangerouslySetInnerHTML={{ __html: marked.parse(post.excerpt) as string }}
+            />
 
             <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest">
               <span className="text-gray-600 dark:text-zinc-400">
