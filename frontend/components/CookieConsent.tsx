@@ -10,8 +10,13 @@ interface CookieConsentData {
  * Check if user has already given consent
  */
 function hasConsent(): boolean {
-  const consent = localStorage.getItem('cookieConsent');
-  return consent !== null;
+  try {
+    const consent = localStorage.getItem('cookieConsent');
+    return consent !== null;
+  } catch {
+    // Handle cases where localStorage is disabled or throws
+    return false;
+  }
 }
 
 /**
@@ -28,7 +33,12 @@ function createConsentObject(analytics: boolean): CookieConsentData {
  * Save consent to localStorage
  */
 function saveConsent(consent: CookieConsentData): void {
-  localStorage.setItem('cookieConsent', JSON.stringify(consent));
+  try {
+    localStorage.setItem('cookieConsent', JSON.stringify(consent));
+  } catch (error) {
+    // Handle cases where localStorage is disabled or quota exceeded
+    console.warn('Failed to save cookie consent:', error);
+  }
 }
 
 /**

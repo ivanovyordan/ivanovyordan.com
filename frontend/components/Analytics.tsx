@@ -20,15 +20,20 @@ interface CookieConsent {
  * Check if user has given consent for analytics
  */
 function hasAnalyticsConsent(): boolean {
-  const consent = localStorage.getItem('cookieConsent');
-  if (!consent) {
-    return false;
-  }
-
   try {
+    const consent = localStorage.getItem('cookieConsent');
+    if (!consent) {
+      return false;
+    }
+
     const parsed = JSON.parse(consent) as CookieConsent;
+    // Guard against null/undefined parsed values and missing analytics property
+    if (!parsed || typeof parsed !== 'object') {
+      return false;
+    }
     return parsed.analytics === true;
   } catch {
+    // Handle any errors: localStorage disabled, JSON parse errors, etc.
     return false;
   }
 }
