@@ -17,12 +17,16 @@
       "path": "/coaching"
     },
     {
-      "label": "Newsletter",
-      "path": "https://www.datagibberish.com/"
-    },
-    {
       "label": "Contact",
       "path": "/contact"
+    },
+    {
+      "label": "Journalling App",
+      "path": "https://www.dearself.ai/"
+    },
+    {
+      "label": "Weekly Publication",
+      "path": "https://www.datagibberish.com/"
     }
   ]
 }
