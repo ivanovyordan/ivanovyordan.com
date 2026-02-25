@@ -21,12 +21,12 @@
       "path": "/contact"
     },
     {
-      "label": "Journalling App",
-      "path": "https://www.dearself.ai/"
+      "label": "Publication",
+      "path": "https://www.datagibberish.com/welcome"
     },
     {
-      "label": "Weekly Publication",
-      "path": "https://www.datagibberish.com/"
+      "label": "Journalling App",
+      "path": "https://www.dearself.ai/"
     }
   ]
 }
