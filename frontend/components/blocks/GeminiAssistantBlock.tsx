@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { config } from '../../config';
 import { getSiteConfig } from '../../utils/site';
 import type { GeminiAssistantBlock as GeminiAssistantBlockType } from '../../types';
-import { trackAIQuestionAsked } from '../../utils/analytics';
+import { trackAIQuestionAsked, trackBookingClick } from '../../utils/analytics';
 
 interface GeminiAssistantBlockProps {
   block: GeminiAssistantBlockType;
@@ -266,15 +266,16 @@ const GeminiAssistantBlock: React.FC<GeminiAssistantBlockProps> = () => {
           <p className="text-lg font-serif font-bold mb-2 dark:text-white">
             Limit Reached
           </p>
-          {siteConfig.bookingUrl ? (
-            <a
-              href={siteConfig.bookingUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+          {siteConfig.calCom ? (
+            <button
+              onClick={() => trackBookingClick('ai_assistant_limit')}
+              data-cal-link={siteConfig.calCom.link}
+              data-cal-namespace={siteConfig.calCom.namespace}
+              data-cal-config={JSON.stringify(siteConfig.calCom.config)}
               className="inline-block bg-black dark:bg-white text-white dark:text-black px-8 py-4 text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform shadow-lg cursor-pointer"
             >
               Book Strategy Session
-            </a>
+            </button>
           ) : (
             <button className="bg-black dark:bg-white text-white dark:text-black px-8 py-4 text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform shadow-lg cursor-pointer">
               Book Strategy Session

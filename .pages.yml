@@ -840,38 +840,7 @@ content:
           - name: service
             label: Service
             type: string
-            options:
-              - listmonk
-              - mailchimp
-              - convertkit
-              - custom
-            description: "Newsletter service provider"
-          - name: url
-            label: Subscribe URL
-            type: string
-            description: "Base URL for the newsletter service (e.g., https://newsletter.ivanovyordan.com)"
-          - name: apiKey
-            label: API Key (Optional)
-            type: string
-            description: "API key for services requiring authentication (keep private)"
-          - name: listmonk
-            label: Listmonk Settings
-            type: object
-            fields:
-              - name: baseUrl
-                label: Listmonk Base URL
-                type: string
-                description: "Base URL of your Listmonk instance (e.g., https://newsletter.ivanovyordan.com)"
-              - name: welcomeEmailTemplateId
-                label: Welcome Email Template ID
-                type: number
-                default: 6
-                description: "Listmonk transactional email template ID to send after subscription"
-              - name: listId
-                label: List ID
-                type: number
-                required: true
-                description: "Numeric Listmonk list ID (find it in Listmonk admin → Lists → click list → ID in URL)"
+            description: "Newsletter service provider (e.g., sendfox)"
       - name: errorTracking
         label: Error Tracking
         type: object

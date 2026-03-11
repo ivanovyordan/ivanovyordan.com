@@ -1,5 +1,4 @@
 import type { Env } from "./types";
-import { handleSubscriptionRequest } from "./email_list";
 import { handleAIRequest } from "./ai";
 
 export default {
@@ -18,10 +17,6 @@ export default {
 
     if (request.method === "OPTIONS") {
       return new Response(null, { headers: corsHeaders });
-    }
-
-    if (request.method === "POST" && url.pathname === "/email-list") {
-      return handleSubscriptionRequest(request, env, corsHeaders);
     }
 
     if (request.method === "POST" && url.pathname === "/ai") {

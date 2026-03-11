@@ -30,21 +30,37 @@ const CTASectionBlock: React.FC<CTASectionBlockProps> = ({ block }) => {
             </div>
           </div>
         )}
-        {block.buttonText && (
-          <a
-            href={siteConfig.bookingUrl || block.buttonUrl || '#'}
-            target={siteConfig.bookingUrl || block.buttonUrl ? "_blank" : undefined}
-            rel={siteConfig.bookingUrl || block.buttonUrl ? "noopener noreferrer" : undefined}
-            onClick={() => trackBookingClick('cta_section')}
-            className={`${
-              block.pricing
-                ? 'w-full bg-black dark:bg-white text-white dark:text-black py-4 font-bold hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors uppercase tracking-widest text-xs focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black dark:focus:ring-white cursor-pointer inline-block max-w-xs'
-                : 'inline-block bg-black dark:bg-white text-white dark:text-black px-12 py-5 text-lg font-bold hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors uppercase tracking-[0.2em] focus:outline-none focus:ring-4 focus:ring-black/20 dark:focus:ring-white/20 cursor-pointer'
-            }`}
-          >
-            {block.buttonText}
-          </a>
-        )}
+        {block.buttonText && (() => {
+          const isBooking = !block.buttonUrl || block.buttonUrl.includes('tidycal.com') || block.buttonUrl.includes('cal.com');
+          const className = block.pricing
+            ? 'w-full bg-black dark:bg-white text-white dark:text-black py-4 font-bold hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors uppercase tracking-widest text-xs focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black dark:focus:ring-white cursor-pointer inline-block max-w-xs text-center'
+            : 'inline-block bg-black dark:bg-white text-white dark:text-black px-12 py-5 text-lg font-bold hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors uppercase tracking-[0.2em] focus:outline-none focus:ring-4 focus:ring-black/20 dark:focus:ring-white/20 cursor-pointer text-center';
+
+          if (isBooking && siteConfig.calCom) {
+            return (
+              <button
+                onClick={() => trackBookingClick('cta_section')}
+                data-cal-link={siteConfig.calCom.link}
+                data-cal-namespace={siteConfig.calCom.namespace}
+                data-cal-config={JSON.stringify(siteConfig.calCom.config)}
+                className={className}
+              >
+                {block.buttonText}
+              </button>
+            );
+          }
+
+          return (
+            <a
+              href={block.buttonUrl || '#'}
+              target={block.buttonUrl ? "_blank" : undefined}
+              rel={block.buttonUrl ? "noopener noreferrer" : undefined}
+              className={className}
+            >
+              {block.buttonText}
+            </a>
+          );
+        })()}
       </div>
     </section>
   );
