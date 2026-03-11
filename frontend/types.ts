@@ -249,6 +249,11 @@ export interface SiteConfig {
   siteUrl?: string;
   email?: string;
   bookingUrl?: string;
+  calCom?: {
+    link: string;
+    namespace?: string;
+    config?: Record<string, any>;
+  };
   social?: Array<{
     label: string;
     url: string;

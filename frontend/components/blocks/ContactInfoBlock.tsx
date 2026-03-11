@@ -64,15 +64,15 @@ const ContactInfoBlock: React.FC<ContactInfoBlockProps> = ({ block }) => {
               </p>
             )}
             {block.officeHours.buttonText && (
-              <a
-                href={siteConfig.bookingUrl || block.officeHours.url || '#'}
-                target={siteConfig.bookingUrl || block.officeHours.url ? "_blank" : undefined}
-                rel={siteConfig.bookingUrl || block.officeHours.url ? "noopener noreferrer" : undefined}
+              <button
                 onClick={() => trackBookingClick('contact_info')}
-                className="inline-block bg-black dark:bg-white text-white dark:text-black px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black dark:focus:ring-offset-zinc-950"
+                data-cal-link={siteConfig.calCom?.link}
+                data-cal-namespace={siteConfig.calCom?.namespace}
+                data-cal-config={JSON.stringify(siteConfig.calCom?.config)}
+                className="inline-block bg-black dark:bg-white text-white dark:text-black px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black dark:focus:ring-offset-zinc-950 cursor-pointer"
               >
                 {block.officeHours.buttonText}
-              </a>
+              </button>
             )}
           </div>
         )}

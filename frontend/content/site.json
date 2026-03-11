@@ -4,7 +4,14 @@
   "description": "I help Data Engineers handle the side of the job that isn't code. I write about how to actually own a project, navigate the market, and get promoted without becoming a corporate politician.",
   "siteUrl": "https://www.ivanovyordan.com",
   "email": "mail@ivanovyordan.com",
-  "bookingUrl": "https://tidycal.com/ivanovyordan/discovery-call",
+  "calCom": {
+    "link": "ivanovyordan/discovery-call",
+    "namespace": "discovery-call",
+    "config": {
+      "layout": "month_view",
+      "useSlotsViewOnSmallScreen": "true"
+    }
+  },
   "analytics": {
     "googleAnalyticsId": "G-ZBQYHRPLK1",
     "facebookPixelId": "1177345760364341"
