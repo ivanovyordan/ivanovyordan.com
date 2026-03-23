@@ -20,7 +20,7 @@ const ColumnsBlock: React.FC<ColumnsBlockProps> = ({ block }) => {
       : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
 
   return (
-    <div className={`grid ${gridCols} ${gap} my-8`}>
+    <div className={`grid ${gridCols} ${gap} my-8 items-center`}>
       {block.items.map((item, idx) => (
         <div key={idx}>
           <BlockRenderer block={item} />

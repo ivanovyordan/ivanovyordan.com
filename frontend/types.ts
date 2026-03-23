@@ -113,6 +113,8 @@ export interface NewsletterBlock {
   title: string;
   description: string;
   placeholder?: string;
+  formUrl?: string;
+  buttonText?: string;
 }
 
 export interface TestimonialBlock {

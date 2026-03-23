@@ -1,0 +1,33 @@
+{
+  "title": "The Data Engineer's Business Translation Kit",
+  "slug": "data-engineers-business-translation-kit",
+  "published": true,
+  "sections": [
+    {
+      "_block": "columns",
+      "columns": 2,
+      "gap": "lg",
+      "items": [
+        {
+          "_block": "image",
+          "src": "/images/business-translation-kit.png",
+          "alt": "The Data Engineer's Business Translation Kit displayed on a tablet",
+          "shadow": true,
+          "rounded": true
+        },
+        {
+          "_block": "text",
+          "content": "## The Data Engineer's Business Translation Kit\n\nSenior data engineers routinely ship good work and stay invisible. Describing technical output in business terms is a separate skill from building it, and most people never develop it.\n\nThis free kit gives you the foundations: a three-column framework for translating your work into revenue, cost, or risk language; a storytelling structure that gets non-technical stakeholders to act; and a career leveling matrix showing exactly what separates Senior from Lead and above.\n\nIt is a slice of the Premium Resource Hub inside Data Gibberish. Enter your email and get it instantly."
+        }
+      ]
+    },
+    {
+      "_block": "newsletter",
+      "title": "Get the free toolkit",
+      "description": "Enter your email and get instant access to the Business Translation Kit.",
+      "placeholder": "Your email address",
+      "formUrl": "https://sendfox.com/form/m5xz6n/3oe0d9",
+      "buttonText": "Yes, I want the toolkit!"
+    }
+  ]
+}

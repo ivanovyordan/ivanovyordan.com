@@ -5,9 +5,10 @@ interface NewsletterBlockProps {
   block: NewsletterBlockType;
 }
 
-const SENDFOX_FORM_URL = 'https://sendfox.com/form/m5xz6n/1kwpr4';
+const DEFAULT_FORM_URL = 'https://sendfox.com/form/m5xz6n/1kwpr4';
 
 const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
+  const formUrl = block.formUrl || DEFAULT_FORM_URL;
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
@@ -22,7 +23,7 @@ const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
 
     // Submit via XMLHttpRequest with the exact headers SendFox expects
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', SENDFOX_FORM_URL);
+    xhr.open('POST', formUrl);
     xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhr.onload = () => {
       try {
@@ -31,6 +32,10 @@ const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
           setErrorMessage(response.errors[0]);
           setStatus('error');
         } else if (xhr.status === 200) {
+          if (response.redirect_url) {
+            window.location.href = response.redirect_url;
+            return;
+          }
           setStatus('success');
           formRef.current?.reset();
         } else {
@@ -83,7 +88,7 @@ const NewsletterBlock: React.FC<NewsletterBlockProps> = ({ block }) => {
                 disabled={status === 'submitting'}
                 className="bg-black dark:bg-white text-white dark:text-black px-8 py-3 text-sm font-bold hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black dark:focus:ring-offset-zinc-900 cursor-pointer disabled:opacity-50"
               >
-                {status === 'submitting' ? 'Subscribing...' : 'Subscribe'}
+                {status === 'submitting' ? 'Subscribing...' : (block.buttonText || 'Subscribe')}
               </button>
             </div>
             {status === 'error' && (
