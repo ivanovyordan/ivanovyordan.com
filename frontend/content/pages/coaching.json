@@ -5,34 +5,33 @@
   "sections": [
     {
       "_block": "hero",
-      "title": "Lead with Strategic Authority",
-      "subtitle": "High-impact advisory for technical leaders transitioning to full-scale organizational ownership.",
-      "badge": "1:1 Mentorship & Advisory"
+      "title": "Become the Data Leader Every Team Wants",
+      "subtitle": "I coach senior data engineers and new data leads who want to get promoted, own the room in stakeholder meetings, and build a career that matches their ability."
     },
     {
       "_block": "highlight-box",
-      "title": "The Challenge",
-      "content": "Strategic data leadership requires bridging the gap between technical complexity and business ROI. Your role involves building a data-driven organization. Success depends on alignment, culture, and measurable impact."
+      "title": "The Problem",
+      "content": "You can build the pipeline, design the architecture, and fix the production incident at 2am. But when it's time to present to the VP, make the case for headcount, or explain why your promotion is overdue, you go quiet. Technical skill got you here. It won't get you to the next level."
     },
     {
       "_block": "features-grid",
-      "title": "What we'll work on:",
+      "title": "What we work on:",
       "items": [
         {
-          "title": "Strategic Roadmapping",
-          "description": "Design long-term data visions that harmonize technical roadmaps with executive business goals. We create plans that provide stakeholders with absolute clarity on the future of the data organization."
+          "title": "Stakeholder Communication",
+          "description": "How to walk into a meeting with non-technical leadership and land your point. We work on structure, framing, and confidence so you stop leaving meetings thinking 'I should have said that differently.'"
         },
         {
-          "title": "Leadership at Scale",
-          "description": "Develop elite, multi-disciplinary teams across data engineering, analytics, and data science. We implement leadership frameworks that maximize collective output and foster a culture of high performance."
+          "title": "Promotion Business Cases",
+          "description": "Most data people wait to be noticed. We build an actual case: impact framed in business terms, a clear narrative for your manager, and a strategy for making it happen on your timeline."
         },
         {
-          "title": "Executive Presence",
-          "description": "Articulate data success through the lens of revenue, efficiency, and company-wide strategic advantage. We focus on mastering the language of business to secure consistent buy-in from the C-suite."
+          "title": "Data Strategy & Roadmaps",
+          "description": "How to think beyond the next sprint. We work on building a roadmap that connects your technical work to what the business actually cares about: revenue, cost, and risk."
         },
         {
-          "title": "Operational Maturity",
-          "description": "Optimize the complete data lifecycle to ensure high-quality insights reach decision-makers with speed. We build resilient ecosystems that sustain growth and establish the data function as a primary profit center."
+          "title": "Leading Without a Playbook",
+          "description": "If you just got the title (or want it), we cover the stuff nobody teaches in data: managing up, running your first team, saying no to stakeholders, and figuring out what 'being strategic' actually means."
         }
       ]
     },
@@ -42,9 +41,9 @@
     },
     {
       "_block": "cta-section",
-      "title": "Ready to lead with confidence?",
-      "description": "Transform your data function into a high-impact engine for business growth. You receive proven frameworks to scale your capabilities , optimize costs , and lead your team through complex organizational transitions with absolute clarity.",
-      "buttonText": "Book Your Discovery Session"
+      "title": "30 minutes. No pitch.",
+      "description": "Book a discovery call. Tell me what you're stuck on. If I can help, I'll tell you how. If I can't, I'll tell you that too.",
+      "buttonText": "Book a Discovery Call"
     },
     {
       "_block": "testimonial",
