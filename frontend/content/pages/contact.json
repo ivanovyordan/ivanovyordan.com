@@ -2,17 +2,21 @@
   "title": "Contact",
   "slug": "contact",
   "published": true,
+  "seo": {
+    "title": "Book a Discovery Call - Yordan Ivanov",
+    "description": "Book a free 30-minute call to talk about stakeholder communication, promotion strategy, or data leadership."
+  },
   "sections": [
     {
       "_block": "hero",
       "title": "Let's talk.",
-      "subtitle": "I provide executive advisory, leadership coaching, and organizational data strategy. Reach out to discuss scaling your data function and navigating corporate acquisitions using the experience I gained at three unicorns."
+      "subtitle": "I coach data engineers and data leads on stakeholder communication, promotion business cases, and career strategy. If you're stuck on the non-technical side of the job, book a call."
     },
     {
       "_block": "contact-info",
       "officeHours": {
-        "description": "Scale your data organization using leadership frameworks from my tenure at three unicorns and four corporate acquisitions. We align your technical roadmap with business objectives to build resilient structures for growth and M&A. This session maximizes the efficiency and strategic impact of your data function.",
-        "buttonText": "Book a Session"
+        "description": "Tell me what you're working on and where you're stuck. We'll figure out if I can help and what that looks like. No pitch, no commitment.",
+        "buttonText": "Book a Call"
       }
     }
   ]

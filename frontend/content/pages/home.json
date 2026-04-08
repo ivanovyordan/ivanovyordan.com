@@ -2,11 +2,15 @@
   "title": "Home",
   "slug": "home",
   "published": true,
+  "seo": {
+    "title": "Yordan Ivanov - Data Engineering Leadership",
+    "description": "I help data engineers handle the side of the job that isn't code. Writing about project ownership, career growth, and getting promoted."
+  },
   "sections": [
     {
       "_block": "hero",
-      "title": "Defining Data Strategy for High-Growth Organizations.",
-      "subtitle": "I help organizations transform complex data ecosystems into strategic assets that drive growth, clarity, and innovation."
+      "title": "The Side of Data Engineering That Isn't Code",
+      "subtitle": "I write about how to actually own a project, navigate the market, and get promoted without becoming a corporate politician."
     },
     {
       "_block": "latest-posts",
@@ -15,10 +19,18 @@
       "showViewAll": true
     },
     {
+      "_block": "testimonial",
+      "heading": "What people say about my work",
+      "quote": "This is why I follow Yordan's posts, it comes from experience, its valuable, and its real. Because its clearly written a bit hastily by a senior engineer and not by an AI.",
+      "author": "Andreas Ährlund-Richter, Data Engineer"
+    },
+    {
       "_block": "newsletter",
-      "title": "Deep Dives on Data Leadership",
-      "description": "Join 7,000+ leaders receiving advice on data architecture and team management.",
-      "placeholder": "Your email address"
+      "title": "Get the Data Engineer's Business Translation Kit",
+      "description": "A free framework for translating your technical work into revenue, cost, or risk language. Plus a career leveling matrix showing what separates Senior from Lead. Join 7,000+ data engineers.",
+      "placeholder": "Your email address",
+      "formUrl": "https://sendfox.com/form/m5xz6n/3oe0d9",
+      "buttonText": "Yes, I want the toolkit!"
     }
   ]
 }

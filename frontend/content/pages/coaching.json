@@ -2,6 +2,10 @@
   "title": "Coaching",
   "slug": "coaching",
   "published": true,
+  "seo": {
+    "title": "Data Engineering Coaching - Yordan Ivanov",
+    "description": "1-on-1 coaching for senior data engineers and new data leads. Stakeholder communication, promotion business cases, data strategy, and leadership."
+  },
   "sections": [
     {
       "_block": "hero",
@@ -47,8 +51,19 @@
     },
     {
       "_block": "testimonial",
+      "heading": "What people say about my work",
       "quote": "I highly recommend Yordan, he is an absolute pleasure to work with and I've not yet seen a problem that he can't solve. Yordan is also so generous with his knowledge, always taking the time to explain the best way of doing something or the merits of a range of options.",
       "author": "Katy Beckett, Analytics Manager"
+    },
+    {
+      "_block": "testimonial",
+      "quote": "I found very helpful one of the communication playbooks that I applied and successfully delivered at work: first the benefits of the solution, next the pain the said solution mitigated or eliminated, and only then the solution details. It builds a nice narrative and really levels up!",
+      "author": "Thiago Olivera, Principal Data Engineer"
+    },
+    {
+      "_block": "testimonial",
+      "quote": "Your content fills the gap between business value and technical skills and knowledge required to be a good data engineer, which is something that I always look for and is not easy to find.",
+      "author": "Filipe Balseiro, Lead Data Engineer"
     }
   ]
 }

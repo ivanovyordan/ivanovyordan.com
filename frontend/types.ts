@@ -119,6 +119,7 @@ export interface NewsletterBlock {
 
 export interface TestimonialBlock {
   _block: "testimonial";
+  heading?: string;
   quote: string;
   author: string;
 }

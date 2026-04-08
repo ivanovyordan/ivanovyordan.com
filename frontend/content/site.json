@@ -1,6 +1,6 @@
 {
   "name": "Yordan Ivanov",
-  "tagline": "Head of Data Engineering",
+  "tagline": "Head of Data",
   "description": "I help Data Engineers handle the side of the job that isn't code. I write about how to actually own a project, navigate the market, and get promoted without becoming a corporate politician.",
   "siteUrl": "https://www.ivanovyordan.com",
   "email": "mail@ivanovyordan.com",
@@ -41,7 +41,7 @@
     }
   ],
   "seo": {
-    "defaultTitle": "Yordan Ivanov - Head of Data Engineering",
+    "defaultTitle": "Yordan Ivanov - Head of Data",
     "defaultDescription": "Data engineering leadership, architecture, and coaching."
   },
   "blog": {

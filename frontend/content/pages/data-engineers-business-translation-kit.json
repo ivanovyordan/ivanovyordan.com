@@ -2,6 +2,10 @@
   "title": "The Data Engineer's Business Translation Kit",
   "slug": "data-engineers-business-translation-kit",
   "published": true,
+  "seo": {
+    "title": "The Data Engineer's Business Translation Kit - Free",
+    "description": "A free framework for translating your technical work into business language. Includes a career leveling matrix showing what separates Senior from Lead."
+  },
   "sections": [
     {
       "_block": "columns",
@@ -17,7 +21,7 @@
         },
         {
           "_block": "text",
-          "content": "## The Data Engineer's Business Translation Kit\n\nSenior data engineers routinely ship good work and stay invisible. Describing technical output in business terms is a separate skill from building it, and most people never develop it.\n\nThis free kit gives you the foundations: a three-column framework for translating your work into revenue, cost, or risk language; a storytelling structure that gets non-technical stakeholders to act; and a career leveling matrix showing exactly what separates Senior from Lead and above.\n\nIt is a slice of the Premium Resource Hub inside Data Gibberish. Enter your email and get it instantly."
+          "content": "## The Data Engineer's Business Translation Kit\n\nYour work is good. Nobody knows it.\n\nMost data engineers are better at building pipelines than talking about them. That gap costs you more than you think. Promotions, headcount, budget, buy-in for the project you know is right. All of it depends on whether the people above you understand what you do and why it matters.\n\nThis free kit helps you:\n\n* **Turn any technical task into a business outcome** that a CFO would repeat back.\n* **Structure your updates so they drive decisions** instead of getting skimmed.\n* **See exactly what separates Senior from Lead** so you know what to work on next.\n\nEnter your email and get it instantly."
         }
       ]
     },
