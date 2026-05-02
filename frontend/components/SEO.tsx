@@ -262,6 +262,11 @@ function initializeSEO(
   updateBasicMetaTags(title, description);
   updateCanonicalUrl(canonicalUrl);
   updateFeedLinks();
+  if (page?.seo?.noindex) {
+    updateMetaTag('robots', 'noindex, nofollow');
+  } else {
+    updateMetaTag('robots', 'index, follow');
+  }
   updateOpenGraphTags(
     title,
     description,

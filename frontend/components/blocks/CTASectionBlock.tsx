@@ -31,7 +31,7 @@ const CTASectionBlock: React.FC<CTASectionBlockProps> = ({ block }) => {
           </div>
         )}
         {block.buttonText && (() => {
-          const isBooking = !block.buttonUrl || block.buttonUrl.includes('tidycal.com') || block.buttonUrl.includes('cal.com');
+          const isBooking = !block.buttonUrl && !!siteConfig.calCom;
           const className = block.pricing
             ? 'w-full bg-black dark:bg-white text-white dark:text-black py-4 font-bold hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors uppercase tracking-widest text-xs focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black dark:focus:ring-white cursor-pointer inline-block max-w-xs text-center'
             : 'inline-block bg-black dark:bg-white text-white dark:text-black px-12 py-5 text-lg font-bold hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors uppercase tracking-[0.2em] focus:outline-none focus:ring-4 focus:ring-black/20 dark:focus:ring-white/20 cursor-pointer text-center';

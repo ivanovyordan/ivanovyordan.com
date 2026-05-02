@@ -28,6 +28,7 @@ export interface PageContent {
     title?: string;
     description?: string;
     ogImage?: string;
+    noindex?: boolean;
   };
   // Page visibility (defaults to true if not specified)
   published?: boolean;
