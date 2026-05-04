@@ -4,16 +4,15 @@
   "published": true,
   "seo": {
     "title": "Thank You — Yordan Ivanov",
-    "description": "Thank you for investing in your growth.",
-    "noindex": true
+    "description": "Thank you for investing in your growth."
   },
   "sections": [
     {
       "_block": "cta-section",
       "title": "You're in.",
-      "description": "Thank you for investing in your growth. Book your first call below — the same link works for every session.",
+      "description": "Thank you for investing in your growth. Book your first call below. The same link works for every session.",
       "buttonText": "Book Your Call",
-      "buttonUrl": "https://cal.com/ivanovyordan/private-coaching"
+      "buttonUrl": "https://cal.com/ivanovyordan/6-private-coaching-calls"
     }
   ]
 }
