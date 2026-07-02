@@ -113,9 +113,6 @@ export interface NewsletterBlock {
   _block: "newsletter";
   title: string;
   description: string;
-  placeholder?: string;
-  formUrl?: string;
-  buttonText?: string;
 }
 
 export interface TestimonialBlock {
@@ -266,9 +263,6 @@ export interface SiteConfig {
   analytics?: {
     googleAnalyticsId?: string;
     facebookPixelId?: string;
-  };
-  newsletter?: {
-    service?: string;
   };
   errorTracking?: {
     sentryDsn?: string;

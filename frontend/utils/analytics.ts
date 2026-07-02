@@ -64,13 +64,6 @@ export function trackEvent(
 }
 
 /**
- * Track newsletter subscription
- */
-export function trackNewsletterSubscribe(): void {
-  trackEvent('newsletter_subscribe');
-}
-
-/**
  * Track booking/CTA button click
  */
 export function trackBookingClick(location?: string): void {

@@ -265,7 +265,6 @@ const PostDetail: React.FC = () => {
               _block: 'newsletter',
               title: 'Enjoyed this article?',
               description: 'Subscribe to the newsletter for more insights on engineering leadership, data, and career growth.',
-              placeholder: 'Your email address',
             }}
           />
         </footer>
