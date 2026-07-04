@@ -3,23 +3,23 @@
   "slug": "coaching",
   "published": true,
   "seo": {
-    "title": "Data Engineering Coaching - Yordan Ivanov",
-    "description": "1-on-1 coaching for senior data engineers and new data leads. Stakeholder communication, promotion business cases, data strategy, and leadership."
+    "title": "Data Coaching - Yordan Ivanov",
+    "description": "1-on-1 for mid and senior data professionals. Stakeholder communication, promotion business cases, and the non-technical side of the job."
   },
   "sections": [
     {
       "_block": "hero",
-      "title": "Become the Data Leader Every Team Wants",
-      "subtitle": "I coach senior data engineers and new data leads who want to get promoted, own the room in stakeholder meetings, and build a career that matches their ability."
+      "title": "You're good at your job and deserve more.",
+      "subtitle": "I've spent nine years managing data teams and helping people through exactly what you're stuck on, whether that's stakeholder conversations, promotion strategy, or making your work count beyond the pipeline."
     },
     {
       "_block": "highlight-box",
       "title": "The Problem",
-      "content": "You can build the pipeline, design the architecture, and fix the production incident at 2am. But when it's time to present to the VP, make the case for headcount, or explain why your promotion is overdue, you go quiet. Technical skill got you here. It won't get you to the next level."
+      "content": "You can build the pipeline, design the architecture, and fix the production incident at 2am. But when it's time to present to the VP, make the case for headcount, or explain why your promotion is overdue, you go quiet. Technical skill got you here. It won't take you further."
     },
     {
       "_block": "features-grid",
-      "title": "What we work on:",
+      "title": "What we work on",
       "items": [
         {
           "title": "Stakeholder Communication",
@@ -34,8 +34,8 @@
           "description": "How to think beyond the next sprint. We work on building a roadmap that connects your technical work to what the business actually cares about: revenue, cost, and risk."
         },
         {
-          "title": "Leading Without a Playbook",
-          "description": "If you just got the title (or want it), we cover the stuff nobody teaches in data: managing up, running your first team, saying no to stakeholders, and figuring out what 'being strategic' actually means."
+          "title": "Working Without a Playbook",
+          "description": "Managing up, saying no to stakeholders, figuring out what 'being strategic' actually means at your level. Nobody teaches this. We work through the situations that don't have a right answer in the documentation."
         }
       ]
     },

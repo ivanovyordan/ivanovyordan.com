@@ -3,13 +3,13 @@
   "slug": "home",
   "published": true,
   "seo": {
-    "title": "Yordan Ivanov - Data Engineering Leadership",
-    "description": "I help data engineers handle the side of the job that isn't code. Writing about project ownership, career growth, and getting promoted."
+    "title": "Yordan Ivanov - Data Leadership",
+    "description": "I help data professionals handle the side of the job that isn't code. Writing about project ownership, career growth, and getting promoted."
   },
   "sections": [
     {
       "_block": "hero",
-      "title": "The Side of Data Engineering That Isn't Code",
+      "title": "The Side of Data That Isn't Code",
       "subtitle": "I write about how to actually own a project, navigate the market, and get promoted without becoming a corporate politician."
     },
     {
@@ -27,7 +27,7 @@
     {
       "_block": "newsletter",
       "title": "Get the Data Engineer's Business Translation Kit",
-      "description": "A free framework for translating your technical work into revenue, cost, or risk language. Plus a career leveling matrix showing what separates Senior from Lead. Join 7,000+ data engineers.",
+      "description": "A free framework for translating your technical work into revenue, cost, or risk language. Plus a career leveling matrix showing what separates Senior from Lead. Join 7,500+ subscribers.",
       "placeholder": "Your email address",
       "formUrl": "https://sendfox.com/form/m5xz6n/3oe0d9",
       "buttonText": "Yes, I want the toolkit!"

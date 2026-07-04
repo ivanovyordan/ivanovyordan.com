@@ -3,8 +3,8 @@
   "slug": "about",
   "published": true,
   "seo": {
-    "title": "About Yordan Ivanov - Head of Data at Dext",
-    "description": "15 years in data. Three unicorns. Four acquisitions. Head of Data at Dext. I coach data engineers on the non-technical side of the job."
+    "title": "About Yordan Ivanov - Head of Data Engineering at Dext",
+    "description": "16 years in tech, 9 in data. Head of Data Engineering at Dext. 4 M&A deals. I work with data professionals on the non-technical side of the job."
   },
   "sections": [
     {
@@ -15,12 +15,12 @@
         "headshot": "/images/profile.jpg",
         "location": "Plovdiv, Bulgaria / Remote",
         "expertise": "Data Platforms, Leadership, Systems Design",
-        "currently": "Head of Data at Dext"
+        "currently": "Head of Data Engineering at Dext"
       },
       "content": [
         {
           "_block": "text",
-          "content": "I've spent 15 years in data, most of it at high-growth companies. I led data teams through three unicorns and four acquisitions. These days I'm Head of Data at Dext, where I run the strategy behind our global data platform.\n\n## Scaling Through Change\n\nThree unicorns and four acquisitions teach you a lot about what breaks when companies grow fast. Ownership changes, KPIs shift, reporting needs to stay stable while everything around it moves. I've done this enough times to know what works and what doesn't.\n\n## What I've Built\n\nAt Dext, I run the data strategy that powers our global capabilities. Some numbers that matter:\n\n*   Cut infrastructure costs by 50% through better planning and pipeline execution.\n*   Built systems that handled 150% growth while improving report speeds by 83%.\n*   Unified commercial data models so every department works from the same source of truth.\n\n![](/images/journey.png)\n\n## How I Think About Leadership\n\nI pick reliable, proven technology over shiny new tools. I care about measurable impact, not activity. Every technical decision should connect to something the business actually needs. And I believe in radical clarity: if your stakeholders can't understand your data strategy, it's not a strategy.\n\n## Writing and Coaching\n\nI write [_Data Gibberish_](https://www.datagibberish.com/), a newsletter for data engineers who want to get better at the non-technical side of the job. I also [coach](/coaching) senior data engineers and new data leads on stakeholder communication, promotion business cases, and career strategy."
+          "content": "Sixteen years in tech. Nine of them in data.\n\nI run data strategy and engineering at Dext. I report to the Director and work directly with the CFO and CPTO. I own the data platform, the team, and the strategy behind both.\n\n## What I've Done\n\nI've been part of 4 M&A deals at Dext. 2 acquisitions, 2 mergers. I led the data due diligence each time. Evaluated what we were buying, what would break during integration, and what leadership needed to know before the deal closed.\n\n## What I've Built\n\nAt Dext, I run the data strategy that powers our global capabilities.\n\n*   Cut platform costs by 70% through better planning and pipeline optimization.\n*   Moved executive reporting from weekly batch to near-real-time. 83% faster.\n*   Unified data models across business lines so every department works from the same source of truth.\n*   Grew the data function from one engineer to a cross-functional team.\n\n![](/images/journey.png)\n\n## How I Think About Leadership\n\nI pick reliable, proven technology over whatever's new. I care about measurable impact, not activity. Every technical decision should connect to something the business actually needs.\n\nIf your stakeholders can't explain your data strategy back to you, it's not a strategy.\n\n## Writing and Coaching\n\nI write [_Data Gibberish_](https://www.datagibberish.com/), a newsletter for data professionals on the non-technical side of the job. Read by 7,500+ subscribers. I also [work with](/coaching) mid and senior data professionals on stakeholder communication, promotion business cases, and career strategy."
         }
       ]
     }
