@@ -1,5 +1,6 @@
 import type { Env } from "./types";
 import { handleAIRequest } from "./ai";
+import { MCP_ROUTE, handleMcpRequest } from "./mcp";
 
 export default {
   async fetch(
@@ -8,6 +9,12 @@ export default {
     ctx: ExecutionContext
   ): Promise<Response> {
     const url = new URL(request.url);
+
+    // The MCP handler sets its own CORS headers, including the MCP-specific
+    // ones, so it is routed before the website's simpler policy applies.
+    if (url.pathname === MCP_ROUTE) {
+      return handleMcpRequest(request, env, ctx);
+    }
 
     const corsHeaders = {
       "Access-Control-Allow-Origin": "*",

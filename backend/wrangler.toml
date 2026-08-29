@@ -1,6 +1,8 @@
 name = "ivanovyordan-com-backend"
 compatibility_date = "2026-01-11"
 main = "functions/worker.ts"
+# The MCP handler uses node:async_hooks (AsyncLocalStorage) internally.
+compatibility_flags = ["nodejs_compat"]
 
 [observability]
 [observability.logs]

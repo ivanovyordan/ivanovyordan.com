@@ -7,5 +7,6 @@ export interface Env {
   PROFILE_NAME: string;
   PROFILE_ROLE: string;
   PROFILE_STYLE: string;
-  DB?: D1Database; // D1 database for storing AI questions
+  /** Question logging, and the per-IP MCP rate limit count. */
+  DB: D1Database;
 }

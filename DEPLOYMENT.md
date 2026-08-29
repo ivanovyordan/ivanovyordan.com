@@ -146,6 +146,52 @@ Configure DNS records in your domain provider or Cloudflare Dashboard:
 3. **Frontend deploy** → Deploys `frontend/dist` to Cloudflare Pages
 4. **Backend deploy** → Deploys backend to Cloudflare Workers (secrets are already set in Cloudflare)
 
+## MCP Server
+
+The Worker also serves a remote MCP server at `/mcp`, exposing one tool
+(`ask_yordan`). It is **public** — no authentication, no sign-in. Anyone with
+the URL can connect.
+
+### One-time setup
+
+1. **Apply the migrations** (`--remote` for production):
+
+   ```bash
+   cd backend
+   npx wrangler d1 execute ivanovyordan-com-database --remote --file=./migrations/0003_add_question_source.sql
+   npx wrangler d1 execute ivanovyordan-com-database --remote --file=./migrations/0005_index_questions_ip_day.sql
+   ```
+
+2. **Push to `main`** to deploy.
+
+3. In **claude.ai** → Settings → Connectors → Add custom connector, use
+   `https://twin.ivanovyordan.com/mcp` and leave the OAuth fields empty.
+
+### Rate limiting
+
+Each client IP is capped at `MCP_DAILY_IP_LIMIT` calls per UTC day
+(`backend/functions/ratelimit.ts`, currently 100; `0` disables it). This is not
+a security control — anyone determined can change IP. It exists because an MCP
+client is an agent, and a stuck agentic loop can fire thousands of calls
+unattended against real Gemini credits.
+
+The count reads the `questions` table the handler already writes to, so there is
+no extra store. Rows are written after the answer returns, so a fast burst can
+slip a few calls past the cap — enough to stop a runaway loop over minutes, not
+a precise quota.
+
+The metered address comes from `CF-Connecting-IP` only. `X-Forwarded-For` is
+caller-controlled, so using it would make the cap opt-out.
+
+### Usage
+
+Every call spends Gemini credits and the endpoint is public, so watch volume:
+
+```bash
+npx wrangler d1 execute ivanovyordan-com-database --remote \
+  --command="SELECT client_ip, COUNT(*) AS n FROM questions WHERE source='mcp' GROUP BY client_ip ORDER BY n DESC LIMIT 20;"
+```
+
 ## D1 Database
 
 The D1 database stores AI question analytics. It is already provisioned as
