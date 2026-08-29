@@ -1,6 +1,26 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import PROMPT_TEMPLATE from "../data/prompt.md";
 import type { Env } from "./types";
+
+/**
+ * Minimum Pinecone similarity score for a match to count as knowledge.
+ *
+ * Measured against the live index: questions covered by the corpus score
+ * 0.73-0.80, unrelated ones (sourdough, football, car maintenance) score
+ * 0.54-0.60. 0.66 sits in the gap. Without a floor, topK always returns
+ * three neighbours and the "no relevant knowledge" path never fires.
+ */
+const MIN_MATCH_SCORE = 0.66;
+
+/** Which step of the pipeline failed, so a 500 says more than "something broke". */
+type AIStage = "embedding" | "vector_store" | "generation";
+
+class AIStageError extends Error {
+  constructor(readonly stage: AIStage, message: string) {
+    super(message);
+    this.name = "AIStageError";
+  }
+}
 
 interface Profile {
   name: string;
@@ -38,17 +58,6 @@ interface QuestionData {
 }
 
 /**
- * Validate the request method and extract the query
- */
-function validateRequest(request: Request): { query: string } | Response {
-  if (request.method !== "POST") {
-    return new Response("Method Not Allowed", { status: 405 });
-  }
-
-  return { query: "" }; // Placeholder, will be filled by caller
-}
-
-/**
  * Extract query and honeypot from request body
  */
 async function extractRequestData(request: Request): Promise<{ query: string; honeypot?: string }> {
@@ -78,44 +87,24 @@ function getProfile(env: Env): Profile {
  * Generate embedding vector for the query using Gemini
  */
 async function generateEmbedding(
+  ai: GoogleGenAI,
   query: string,
-  embeddingModel: string,
-  apiKey: string
+  embeddingModel: string
 ): Promise<number[]> {
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${embeddingModel}:embedContent`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": apiKey,
-      },
-      body: JSON.stringify({
-        content: {
-          parts: [{ text: query }],
-        },
-      }),
-    }
-  );
+  const response = await ai.models.embedContent({
+    model: embeddingModel,
+    contents: query,
+  });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(
-      `Embedding API error: ${response.statusText} - ${errorText}`
-    );
-  }
+  // Default output dimensionality (3072) matches the Pinecone index and is
+  // already normalised, so outputDimensionality is deliberately not set.
+  const embedding = response.embeddings?.[0]?.values ?? [];
 
-  const data = (await response.json()) as {
-    embedding?: { values?: number[] };
-  };
-
-  const embedding = data.embedding?.values || [];
-
-  if (!embedding || embedding.length === 0) {
-    const errorDetails = JSON.stringify(data, null, 2);
-    console.error("Embedding response structure:", errorDetails);
-    throw new Error(
-      `Failed to generate embedding vector. Response: ${errorDetails}`
+  if (embedding.length === 0) {
+    console.error("Embedding response contained no vector:", embeddingModel);
+    throw new AIStageError(
+      "embedding",
+      `Embedding model "${embeddingModel}" returned no vector`
     );
   }
 
@@ -158,41 +147,48 @@ async function queryPinecone(
 }
 
 /**
+ * Keep only matches similar enough to actually answer the question.
+ *
+ * topK always returns its quota of nearest neighbours, however far away they
+ * are, so relevance has to be decided here rather than by Pinecone.
+ */
+function getRelevantMatches(
+  queryData: PineconeQueryData | null
+): PineconeMatch[] {
+  return (queryData?.matches ?? []).filter(
+    (match) => (match.score ?? 0) >= MIN_MATCH_SCORE
+  );
+}
+
+/**
  * Extract article information from Pinecone match metadata
  */
 function extractArticleInfo(match: PineconeMatch): ArticleInfo {
   const metadata = match.metadata || {};
   return {
     url: metadata.url as string | undefined,
-    section: metadata.section as string | undefined,
+    // The ingestion pipeline writes title/subtitle; there is no "section" key.
+    section: (metadata.title ?? metadata.subtitle) as string | undefined,
   };
 }
 
 /**
- * Extract article information from the first Pinecone match
+ * Extract article information from the most relevant Pinecone match
  */
-function extractArticleInfoFromMatches(
-  queryData: PineconeQueryData | null
-): ArticleInfo {
-  if (!queryData?.matches || queryData.matches.length === 0) {
+function extractArticleInfoFromMatches(matches: PineconeMatch[]): ArticleInfo {
+  if (matches.length === 0) {
     return {};
   }
 
   // Get the first (most relevant) match
-  return extractArticleInfo(queryData.matches[0]);
+  return extractArticleInfo(matches[0]);
 }
 
 /**
  * Extract knowledge content from Pinecone matches
  */
-function extractKnowledgeFromMatches(
-  queryData: PineconeQueryData | null
-): string {
-  if (!queryData?.matches || queryData.matches.length === 0) {
-    return "";
-  }
-
-  return queryData.matches
+function extractKnowledgeFromMatches(matches: PineconeMatch[]): string {
+  return matches
     .map((match) => {
       return match.metadata?.text || match.metadata?.content || match.id;
     })
@@ -234,22 +230,53 @@ function prepareSystemPrompt(
  * Generate AI response using Gemini
  */
 async function generateAIResponse(
+  ai: GoogleGenAI,
   query: string,
   systemPrompt: string,
-  modelName: string,
-  apiKey: string
+  modelName: string
 ): Promise<string> {
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({
-    model: modelName,
-    systemInstruction: systemPrompt,
-    generationConfig: {
-      temperature: 0.5,
-    },
-  });
+  // Gemini returns 503 "high demand" for transient capacity shortfalls. Without
+  // a retry a single spike surfaces to the visitor as a generic failure.
+  const maxAttempts = 3;
+  let lastError: unknown;
 
-  const result = await model.generateContent(query);
-  return result.response.text();
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const response = await ai.models.generateContent({
+        model: modelName,
+        contents: query,
+        config: {
+          systemInstruction: systemPrompt,
+          temperature: 0.5,
+        },
+      });
+
+      const text = response.text;
+      if (text) {
+        return text;
+      }
+      lastError = new Error("Model returned an empty response");
+    } catch (error: any) {
+      lastError = error;
+      const status = error?.status ?? error?.code;
+      // Quota (429) is not transient within a request - fail fast so the
+      // caller can surface the dedicated quota message.
+      if (status === 429 || (status && status !== 503 && status < 500)) {
+        throw error;
+      }
+    }
+
+    if (attempt < maxAttempts) {
+      await new Promise((resolve) => setTimeout(resolve, 400 * attempt));
+    }
+  }
+
+  throw new AIStageError(
+    "generation",
+    `Model "${modelName}" failed after ${maxAttempts} attempts: ${
+      lastError instanceof Error ? lastError.message : String(lastError)
+    }`
+  );
 }
 
 /**
@@ -326,34 +353,31 @@ function handleAIError(
 ): Response {
   console.error("Error generating response:", error);
 
-  // Handle Gemini API quota errors
+  // Handle Gemini API quota errors. The SDK surfaces these as an ApiError with
+  // a numeric status and no structured details, so 429 is the whole signal -
+  // it covers both rate limiting and depleted billing credits.
   if (error?.status === 429) {
-    const isQuotaError = error?.errorDetails?.some(
-      (detail: any) =>
-        detail["@type"] === "type.googleapis.com/google.rpc.QuotaFailure"
+    return new Response(
+      JSON.stringify({
+        error: "API quota exceeded",
+        message:
+          "The AI service has reached its limit. Please try again later or contact support.",
+      }),
+      {
+        status: 503,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
     );
-
-    if (isQuotaError) {
-      return new Response(
-        JSON.stringify({
-          error: "API quota exceeded",
-          message:
-            "The AI service has reached its daily limit. Please try again tomorrow or contact support.",
-        }),
-        {
-          status: 503,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
   }
 
-  // Generic error
+  // Generic error. The stage is safe to expose - it names which step failed
+  // without echoing provider messages, which can contain request details.
   return new Response(
     JSON.stringify({
       error: "Failed to generate response",
       message:
         "An error occurred while processing your request. Please try again later.",
+      stage: error instanceof AIStageError ? error.stage : "unknown",
     }),
     {
       status: 500,
@@ -371,10 +395,9 @@ export async function handleAIRequest(
   corsHeaders: Record<string, string>,
   ctx: ExecutionContext
 ): Promise<Response> {
-  const methodCheck = validateRequest(request);
-  if (methodCheck instanceof Response) {
-    return new Response(methodCheck.body, {
-      status: methodCheck.status,
+  if (request.method !== "POST") {
+    return new Response("Method Not Allowed", {
+      status: 405,
       headers: corsHeaders,
     });
   }
@@ -401,43 +424,43 @@ export async function handleAIRequest(
     }
 
     const profile = getProfile(env);
+    const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
 
     const embedding = await generateEmbedding(
+      ai,
       query,
-      env.GEMINI_EMBEDDING_MODEL,
-      env.GEMINI_API_KEY
+      env.GEMINI_EMBEDDING_MODEL
     );
 
-    let knowledgeContent = "";
-    let queryData: PineconeQueryData | null = null;
+    let relevantMatches: PineconeMatch[] = [];
     try {
-      queryData = await queryPinecone(
+      const queryData = await queryPinecone(
         embedding,
         env.PINECONE_BASE_URL,
         env.PINECONE_API_KEY
       );
-      const extractedKnowledge = extractKnowledgeFromMatches(queryData);
-      knowledgeContent = getKnowledgeContent(extractedKnowledge);
+      relevantMatches = getRelevantMatches(queryData);
     } catch (err) {
       console.error("Error querying Pinecone:", err);
-      knowledgeContent = getKnowledgeContent("");
     }
+
+    const knowledgeContent = getKnowledgeContent(
+      extractKnowledgeFromMatches(relevantMatches)
+    );
 
     const basePrompt = prepareBasePrompt(profile);
     const systemPrompt = prepareSystemPrompt(basePrompt, knowledgeContent);
 
     const responseText = await generateAIResponse(
+      ai,
       query,
       systemPrompt,
-      env.GEMINI_MODEL,
-      env.GEMINI_API_KEY
+      env.GEMINI_MODEL
     );
 
     // Save question to database (background, non-blocking)
-    const articleInfo = extractArticleInfoFromMatches(queryData);
-    const knowledgeFound = Boolean(
-      queryData?.matches && queryData.matches.length > 0
-    );
+    const articleInfo = extractArticleInfoFromMatches(relevantMatches);
+    const knowledgeFound = relevantMatches.length > 0;
 
     ctx.waitUntil(
       saveQuestionToDatabase(env.DB, {

@@ -7,7 +7,10 @@ interface HeroWithVideoBlockProps {
 
 const HeroWithVideoBlock: React.FC<HeroWithVideoBlockProps> = ({ block }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const embedUrl = `https://www.youtube.com/embed/${block.video.videoId}?autoplay=1&modestbranding=1&rel=0`;
+  // No video yet? Show the copy full-width rather than a play button that
+  // opens an empty YouTube embed.
+  const hasVideo = Boolean(block.video?.videoId);
+  const embedUrl = `https://www.youtube.com/embed/${block.video?.videoId}?autoplay=1&modestbranding=1&rel=0`;
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -23,7 +26,7 @@ const HeroWithVideoBlock: React.FC<HeroWithVideoBlockProps> = ({ block }) => {
     <>
       {/* Contained hero section - matches original layout */}
       <section className="mb-24">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className={`grid grid-cols-1 ${hasVideo ? 'lg:grid-cols-2' : ''} gap-12 lg:gap-16 items-center`}>
             {/* Left Column - Content */}
             <div>
               {block.badge && (
@@ -58,6 +61,7 @@ const HeroWithVideoBlock: React.FC<HeroWithVideoBlockProps> = ({ block }) => {
             </div>
 
             {/* Right Column - Video */}
+            {hasVideo && (
             <div className="relative">
               <div
                 className="relative aspect-video bg-black dark:bg-black flex flex-col items-center justify-center cursor-pointer group"
@@ -106,11 +110,12 @@ const HeroWithVideoBlock: React.FC<HeroWithVideoBlockProps> = ({ block }) => {
                 )}
               </div>
             </div>
+            )}
           </div>
       </section>
 
       {/* Video Modal */}
-      {isModalOpen && (
+      {isModalOpen && hasVideo && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 md:p-10">
           <button
             onClick={closeModal}

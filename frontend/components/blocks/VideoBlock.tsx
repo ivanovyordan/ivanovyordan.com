@@ -9,6 +9,11 @@ const VideoBlock: React.FC<VideoBlockProps> = ({ block }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const embedUrl = `https://www.youtube.com/embed/${block.videoId}?autoplay=1&modestbranding=1&rel=0`;
 
+  // The whole block is the video, so render nothing until there is one.
+  if (!block.videoId) {
+    return null;
+  }
+
   const openModal = () => {
     setIsModalOpen(true);
     document.body.style.overflow = 'hidden';

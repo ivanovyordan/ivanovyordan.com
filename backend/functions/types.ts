@@ -3,7 +3,6 @@ export interface Env {
   GEMINI_EMBEDDING_MODEL: string;
   GEMINI_MODEL: string;
   PINECONE_API_KEY: string;
-  PINECONE_INDEX_NAME: string;
   PINECONE_BASE_URL: string;
   PROFILE_NAME: string;
   PROFILE_ROLE: string;

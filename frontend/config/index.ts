@@ -1,7 +1,4 @@
 interface AppConfig {
-  youtube: {
-    videoId: string;
-  };
   assistant: {
     url: string;
     maxQuestions: number;
@@ -21,9 +18,6 @@ function getEnvVarAsNumber(key: string, defaultValue: number): number {
 }
 
 export const config: AppConfig = {
-  youtube: {
-    videoId: getEnvVar("COURSE_YOUTUBE_VIDEO_ID", "dQw4w9WgXcQ"),
-  },
   assistant: {
     url: getEnvVar("VITE_API_URL", "http://localhost:8787"),
     maxQuestions: getEnvVarAsNumber("VITE_MAX_QUESTIONS", 10),

@@ -7,7 +7,7 @@ Complete guide for deploying the frontend (Cloudflare Pages) and backend (Cloudf
 - Cloudflare account ([sign up](https://cloudflare.com))
 - GitHub repository with code pushed to `main` branch
 - Cloudflare API token with appropriate permissions
-- **Node.js 20+** (required for Vite 7 and Wrangler 4 - GitHub Actions uses Node 20)
+- **Node.js 20+** (required for Vite 7 and Wrangler 4 - GitHub Actions uses Node 24)
 
 ## Quick Start Checklist
 
@@ -47,38 +47,32 @@ Add these secrets:
 
 **Note**: `CLOUDFLARE_WORKER_URL` will be added after Step 4.
 
-### Step 4: Initial Backend Deployment (10 min)
+### Step 4: First Backend Deployment (5 min)
 
-Before automated deployments work, deploy the backend once manually to get the Worker URL:
+**Deployment is push-based.** Pushing to `main` runs `.github/workflows/deploy.yml`,
+which deploys both the frontend and the Worker. There is no manual deploy step —
+you do not need `wrangler login` locally.
 
-```bash
-cd backend
-npm install
-npx wrangler login
-npx wrangler deploy
-```
-
-After deployment, note the Worker URL (e.g., `https://backend.your-account.workers.dev`)
+Push to `main` once to create the Worker, then read its URL from
+**Cloudflare Dashboard** → **Workers & Pages** → `ivanovyordan-com-backend`
+(e.g. `https://ivanovyordan-com-backend.<account>.workers.dev`).
 
 ### Step 5: Set Backend Secrets (5 min)
 
-Backend secrets must be set in Cloudflare Workers (not GitHub Secrets). The GitHub Actions workflow deploys code, but secrets are managed separately.
+Backend secrets live in Cloudflare, not GitHub Secrets. The workflow deploys code;
+secrets are managed separately and persist across deployments, so this is one-off.
 
-```bash
-cd backend
-npx wrangler secret put GEMINI_API_KEY
-# Enter your Gemini API key when prompted
-npx wrangler secret put PINECONE_BASE_URL
-# Enter your Pinecone base URL when prompted
-npx wrangler secret put PINECONE_API_KEY
-# Enter your Pinecone API key when prompted
-npx wrangler secret put LISTMONK_USERNAME
-# Enter your Listmonk username when prompted
-npx wrangler secret put LISTMONK_API_KEY
-# Enter your Listmonk API key when prompted
-```
+Set them in **Cloudflare Dashboard** → **Workers & Pages** → `ivanovyordan-com-backend`
+→ **Settings** → **Variables and Secrets**:
 
-**Note**: These secrets persist across deployments. You only need to set them once.
+| Secret              | Value                        |
+| ------------------- | ---------------------------- |
+| `GEMINI_API_KEY`    | Google AI Studio API key     |
+| `PINECONE_BASE_URL` | Pinecone index host URL      |
+| `PINECONE_API_KEY`  | Pinecone API key             |
+
+The non-secret model and profile settings are plain `[vars]` in
+`backend/wrangler.toml` and deploy with the code.
 
 ### Step 6: Add Worker URL to GitHub Secrets (2 min)
 
@@ -112,7 +106,7 @@ Go back to GitHub Secrets and add:
 
 **Important Notes**:
 
-- **Deployment Strategy**: We use GitHub Actions to deploy both frontend (via `cloudflare/pages-action`) and backend (via `cloudflare/wrangler-action`).
+- **Deployment Strategy**: We use GitHub Actions to deploy both frontend and backend via `cloudflare/wrangler-action@v3`.
 - If Pages has automatic deployments enabled, you'll get duplicate deployments. Disable Pages' automatic deployments.
 - The backend (Workers) deployment happens separately via GitHub Actions, not through Pages.
 - If you see a mandatory "Deploy command" field, you might be in Workers Builds instead of Pages. Create a Pages project instead.
@@ -152,50 +146,49 @@ Configure DNS records in your domain provider or Cloudflare Dashboard:
 3. **Frontend deploy** → Deploys `frontend/dist` to Cloudflare Pages
 4. **Backend deploy** → Deploys backend to Cloudflare Workers (secrets are already set in Cloudflare)
 
-## Optional: Set Up D1 Database
+## D1 Database
 
-The D1 database is optional and only needed if you want to store AI question analytics. For local development, you can skip this step as the database binding is optional.
+The D1 database stores AI question analytics. It is already provisioned as
+`ivanovyordan-com-database` and wired up in `backend/wrangler.toml` — the steps
+below are only needed when recreating it from scratch.
+
+The `DB` binding is optional in code: if it is missing, question logging is
+skipped and the assistant still answers.
 
 ### Step 1: Create D1 Database
 
 ```bash
 cd backend
-npx wrangler d1 create app-database
+npx wrangler d1 create ivanovyordan-com-database
 ```
 
 Copy the `database_id` from the output.
 
 ### Step 2: Update wrangler.toml
 
-Add the database ID to `backend/wrangler.toml` (replace the empty `database_id = ""`):
-
 ```toml
 [[d1_databases]]
 binding = "DB"
-database_name = "app-database"
+database_name = "ivanovyordan-com-database"
 database_id = "your-database-id-here"
 ```
-
-**Note**: For local development without a database, you can leave `database_id = ""` empty. The database binding will be undefined, but the code handles this gracefully.
 
 ### Step 3: Run Migration
 
 ```bash
-npx wrangler d1 execute app-database --local --file=./migrations/0001_create_questions_table.sql
-npx wrangler d1 execute app-database --remote --file=./migrations/0001_create_questions_table.sql
+npx wrangler d1 execute ivanovyordan-com-database --local --file=./migrations/0001_create_questions_table.sql
+npx wrangler d1 execute ivanovyordan-com-database --remote --file=./migrations/0001_create_questions_table.sql
 ```
 
 ### Step 4: Verify
 
 ```bash
-npx wrangler d1 execute app-database --remote --command="SELECT name FROM sqlite_master WHERE type='table' AND name='questions';"
+npx wrangler d1 execute ivanovyordan-com-database --remote --command="SELECT name FROM sqlite_master WHERE type='table' AND name='questions';"
 ```
 
 ### Step 5: Deploy
 
-```bash
-npx wrangler deploy
-```
+Commit the updated `wrangler.toml` and push to `main` — the workflow deploys it.
 
 ### Database Schema
 
@@ -204,7 +197,7 @@ npx wrangler deploy
 - `created_at` - Timestamp
 - `knowledge_found` - Whether knowledge was found (0 or 1)
 - `article_url` - URL of referenced article (if any)
-- `article_section` - Section of article (if any)
+- `article_section` - Title of the referenced article chunk (if any)
 - `response_text` - AI's response
 - `client_ip` - Client IP address
 - `country_code` - ISO country code (from Cloudflare headers)
@@ -212,9 +205,9 @@ npx wrangler deploy
 ### Querying Data
 
 ```bash
-npx wrangler d1 execute app-database --command="SELECT * FROM questions ORDER BY created_at DESC LIMIT 10;"
-npx wrangler d1 execute app-database --command="SELECT query, created_at FROM questions WHERE knowledge_found = 0 ORDER BY created_at DESC;"
-npx wrangler d1 execute app-database --command="SELECT article_url, COUNT(*) as count FROM questions WHERE article_url IS NOT NULL GROUP BY article_url ORDER BY count DESC;"
+npx wrangler d1 execute ivanovyordan-com-database --command="SELECT * FROM questions ORDER BY created_at DESC LIMIT 10;"
+npx wrangler d1 execute ivanovyordan-com-database --command="SELECT query, created_at FROM questions WHERE knowledge_found = 0 ORDER BY created_at DESC;"
+npx wrangler d1 execute ivanovyordan-com-database --command="SELECT article_url, COUNT(*) as count FROM questions WHERE article_url IS NOT NULL GROUP BY article_url ORDER BY count DESC;"
 ```
 
 Query via Cloudflare Dashboard: **Workers & Pages** → **D1** → Select database → **Open Console**.
@@ -227,16 +220,16 @@ Query via Cloudflare Dashboard: **Workers & Pages** → **D1** → Select databa
 - Verify `CLOUDFLARE_WORKER_URL` and `SITE_URL` are set in GitHub Secrets
 - Ensure Cloudflare Pages project exists and is connected to your repo
 - Verify the project name in `.github/workflows/deploy.yml` matches your Pages project
-- **Node.js version error**: If you see "Wrangler requires at least Node.js v20.0.0", ensure the workflow uses Node 20 (already configured)
+- **Node.js version error**: If you see "Wrangler requires at least Node.js v20.0.0", ensure the workflow uses Node 24 (already configured)
 
 ### Build succeeds but deployment fails with Node.js version error
 
 **Error**: `Wrangler requires at least Node.js v20.0.0. You are using v18.20.8`
 
-**Solution**: The workflow is already configured to use Node 20. If you still see this error:
+**Solution**: The workflow is already configured to use Node 24. If you still see this error:
 
 1. Ensure you've pushed the latest workflow changes
-2. The `cloudflare/pages-action` should use Wrangler 4 (configured with `wranglerVersion: 4`)
+2. `cloudflare/wrangler-action@v3` should resolve Wrangler 4 from the repo's lockfile
 3. If the error persists, the action might be using its own Node version - check the action's documentation
 
 ### Pages trying to run `npx wrangler deploy`
@@ -263,7 +256,7 @@ Query via Cloudflare Dashboard: **Workers & Pages** → **D1** → Select databa
    - Go to **Pages** → Your Project → **Settings** → **Builds & deployments**
    - **Disable automatic deployments** - This prevents Pages from trying to deploy
    - Remove or clear the **Deploy command** field (if it exists)
-   - The actual deployment is handled by GitHub Actions via `cloudflare/pages-action`
+   - The actual deployment is handled by GitHub Actions via `cloudflare/wrangler-action@v3`
 
 4. **Verify**: After fixing, GitHub Actions should handle all deployments. Check the Actions tab after pushing to main.
 
@@ -275,7 +268,7 @@ Query via Cloudflare Dashboard: **Workers & Pages** → **D1** → Select databa
 
 ### Backend deployment fails
 
-- Verify secrets are set: `npx wrangler secret list` (from backend directory)
+- Verify secrets are set in the Cloudflare Dashboard → Worker → **Settings** → **Variables and Secrets**
 - Check that `wrangler.toml` is correctly configured
 - Ensure Worker name matches in `wrangler.toml`
 - Check GitHub Actions logs for specific error messages
@@ -288,26 +281,8 @@ Query via Cloudflare Dashboard: **Workers & Pages** → **D1** → Select databa
 
 ### Worker URL not found
 
-- Deploy backend manually first (Step 4) to get the Worker URL
-- Add the Worker URL to GitHub Secrets before pushing to main
-
-## Manual Deployment (If Needed)
-
-If you need to deploy manually without GitHub Actions:
-
-### Frontend
-
-```bash
-npm run build:frontend
-# Then upload frontend/dist to Cloudflare Pages manually via dashboard
-```
-
-### Backend
-
-```bash
-cd backend
-npm run deploy
-```
+- Push to `main` once to create the Worker, then read its URL from the Cloudflare Dashboard
+- Add that URL to GitHub Secrets as `CLOUDFLARE_WORKER_URL`
 
 ## Build Configuration Reference
 
