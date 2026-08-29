@@ -11,7 +11,7 @@ invocation_logs = true
 PROFILE_NAME = "Yordan Ivanov"
 PROFILE_ROLE = "Head of Data Engineering"
 PROFILE_STYLE = "Pragmatic, experienced, direct, business-focused."
-GEMINI_MODEL = "gemini-3-flash-preview"
+GEMINI_MODEL = "gemini-3.7-flash"
 GEMINI_EMBEDDING_MODEL = "gemini-embedding-2"
 
 [[d1_databases]]

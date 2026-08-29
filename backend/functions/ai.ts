@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import PROMPT_TEMPLATE from "../data/prompt.md";
 import type { Env } from "./types";
 
@@ -247,7 +247,10 @@ async function generateAIResponse(
         contents: query,
         config: {
           systemInstruction: systemPrompt,
-          temperature: 0.5,
+          // Gemini 3.7 deprecates the sampling params (temperature/top_p/top_k)
+          // in favour of thinking level. Answers are grounded in retrieved
+          // text, so the cheapest, fastest level is enough.
+          thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
         },
       });
 
