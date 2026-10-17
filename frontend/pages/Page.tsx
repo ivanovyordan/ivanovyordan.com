@@ -4,6 +4,7 @@ import Container from '../components/Container';
 import BlockRenderer from '../components/blocks/BlockRenderer';
 import SEO from '../components/SEO';
 import { getPageBySlug } from '../utils/pages';
+import { buildPageMeta } from '../utils/meta';
 import NotFound from './NotFound';
 
 const Page: React.FC = () => {
@@ -34,7 +35,7 @@ const Page: React.FC = () => {
 
   return (
     <>
-      <SEO page={page} />
+      <SEO meta={buildPageMeta(page)} />
       <Container size={containerSize} className={padding}>
         {content}
       </Container>

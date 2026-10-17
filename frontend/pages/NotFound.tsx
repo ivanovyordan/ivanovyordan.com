@@ -2,9 +2,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Container from '../components/Container';
+import SEO from '../components/SEO';
+import { buildNotFoundMeta } from '../utils/meta';
 
 const NotFound: React.FC = () => {
   return (
+    <>
+    <SEO meta={buildNotFoundMeta()} />
     <Container className="py-32 text-center">
       <h1 className="text-8xl font-serif font-bold text-gray-100 dark:text-zinc-900 mb-4">404</h1>
       <h2 className="text-2xl font-bold mb-6 dark:text-white">Page Not Found</h2>
@@ -18,6 +22,7 @@ const NotFound: React.FC = () => {
         Return Home
       </Link>
     </Container>
+    </>
   );
 };
 

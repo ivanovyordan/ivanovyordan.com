@@ -30,9 +30,17 @@ if (!rootElement) {
   throw new Error("Could not find root element to mount to");
 }
 
-const root = ReactDOM.createRoot(rootElement);
-root.render(
+const app = (
   <React.StrictMode>
     <App />
   </React.StrictMode>
 );
+
+// Production HTML is pre-rendered at build time (scripts/prerender.mjs), so
+// the root already holds the page: hydrate it. The dev server ships an empty
+// root and renders from scratch.
+if (rootElement.children.length > 0) {
+  ReactDOM.hydrateRoot(rootElement, app);
+} else {
+  ReactDOM.createRoot(rootElement).render(app);
+}

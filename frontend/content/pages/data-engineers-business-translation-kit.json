@@ -1,7 +1,7 @@
 {
   "title": "The Data Engineer's Business Translation Kit",
   "slug": "data-engineers-business-translation-kit",
-  "published": true,
+  "published": false,
   "seo": {
     "title": "The Data Engineer's Business Translation Kit - Free",
     "description": "A free framework for translating your technical work into business language. Includes a career leveling matrix showing what separates Senior from Lead."
@@ -30,7 +30,6 @@
       "title": "Get the free toolkit",
       "description": "Enter your email and get instant access to the Business Translation Kit.",
       "placeholder": "Your email address",
-      "formUrl": "https://sendfox.com/form/m5xz6n/3oe0d9",
       "buttonText": "Yes, I want the toolkit!"
     }
   ]

@@ -1,5 +1,5 @@
 import React from 'react';
-import { getSiteConfig } from '../utils/site';
+import { getDefaultDescription } from '../utils/site';
 import { getCanonicalUrl } from '../utils/routes';
 
 interface SocialShareProps {
@@ -15,10 +15,11 @@ const SocialShare: React.FC<SocialShareProps> = ({
   description,
   className = '',
 }) => {
-  const siteConfig = getSiteConfig();
-  const shareUrl = url || getCanonicalUrl(window.location.pathname);
+  const shareUrl =
+    url ||
+    getCanonicalUrl(typeof window !== 'undefined' ? window.location.pathname : '/');
   const shareTitle = encodeURIComponent(title);
-  const shareDescription = encodeURIComponent(description || siteConfig.seo.defaultDescription);
+  const shareDescription = encodeURIComponent(description || getDefaultDescription());
   const encodedUrl = encodeURIComponent(shareUrl);
 
   // Note: LinkedIn and Facebook no longer support pre-filled text via URL params.

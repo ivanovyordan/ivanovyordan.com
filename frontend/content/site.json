@@ -1,16 +1,18 @@
 {
   "name": "Yordan Ivanov",
-  "tagline": "Head of Data Engineering",
-  "description": "I help data professionals handle the side of the job that isn't code. I write about how to actually own a project, navigate the market, and get promoted without becoming a corporate politician.",
+  "tagline": "coach and writer for experienced data professionals who already do a lead's job",
+  "description": "I help experienced data professionals who already do a lead's job get their priorities agreed, their work seen and the title to match.",
   "siteUrl": "https://www.ivanovyordan.com",
   "email": "mail@ivanovyordan.com",
-  "calCom": {
-    "link": "ivanovyordan/discovery-call",
-    "namespace": "discovery-call",
-    "config": {
-      "layout": "month_view",
-      "useSlotsViewOnSmallScreen": "true"
-    }
+  "bookingUrl": "https://book.ivanovyordan.com/",
+  "discoveryCallUrl": "https://book.ivanovyordan.com/discovery-call",
+  "newsletter": {
+    "name": "Data Gibberish",
+    "url": "https://www.datagibberish.com"
+  },
+  "seo": {
+    "defaultTitle": "Yordan Ivanov | Coaching for experienced data professionals",
+    "defaultDescription": "I help experienced data professionals who already do a lead's job get their priorities agreed, their work seen and the title to match."
   },
   "analytics": {
     "googleAnalyticsId": "G-ZBQYHRPLK1",
@@ -37,10 +39,6 @@
       "platform": "twitter"
     }
   ],
-  "seo": {
-    "defaultTitle": "Yordan Ivanov - Head of Data Engineering",
-    "defaultDescription": "Data engineering leadership, architecture, and coaching."
-  },
   "blog": {
     "title": "Blog",
     "description": "Thinking out loud about data engineering, leadership, and systems.",

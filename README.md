@@ -1,119 +1,77 @@
 # ivanovyordan.com
 
-Personal website and blog for Yordan Ivanov, Head of Data Engineering. Built with modern web technologies and featuring an AI-powered digital assistant.
+Personal website and blog for Yordan Ivanov. I help experienced data professionals who already do a lead's job get their priorities agreed, their work seen and the title to match.
+Static React front end on Cloudflare Pages, a small Cloudflare Worker behind the
+AI assistant on the coaching page.
 
-## Tech Stack
+## Stack
 
-### Frontend
-- **React 19** - UI framework
-- **TypeScript** - Type safety
-- **Vite** - Build tool and dev server
-- **Tailwind CSS 4** - Utility-first styling
-- **React Router** - Client-side routing
-- **PageCMS** - Content management system
+### Frontend (`frontend/`)
+- **React 19**, **TypeScript**, **Vite 7**, **Tailwind CSS 4**, **React Router**
+- **PageCMS** edits the content in `frontend/content/` (`.pages.yml` is the schema)
+- **Build-time pre-rendering**: every published route is written as its own
+  HTML file with its head tags and content, then hydrated in the browser.
+  The build also generates `sitemap.xml`, `feed.xml`, `atom.xml`, `llms.txt`
+  and a real `404.html`
+- **Newsletter signup** is the Substack embed for [Data Gibberish](https://www.datagibberish.com)
+- **Booking** lives at [book.ivanovyordan.com](https://book.ivanovyordan.com/)
+- Google Analytics and Facebook Pixel behind a cookie-consent banner, Sentry
+  for errors, dark mode, accessibility basics
 
-### Backend
-- **Cloudflare Workers** - Serverless runtime
-- **Google Gemini AI** - AI assistant and embeddings
-- **Pinecone** - Vector database for knowledge retrieval
-- **Cloudflare D1** - Database for analytics
-
-### Features
-- 📝 Blog with markdown posts
-- 🤖 AI Digital Twin assistant
-- 📧 Newsletter integration (Listmonk)
-- 📊 Analytics (Google Analytics, Facebook Pixel)
-- 🍪 GDPR-compliant cookie consent
-- 🐛 Error tracking (Sentry)
-- ♿ Accessibility features
-- 📱 Responsive design
-- 🌙 Dark mode support
+### Backend (`backend/`)
+- **Cloudflare Worker** serving `POST /ai` for the website widget and a remote
+  **MCP server** at `/mcp` (one tool, `ask_yordan`)
+- **Yordan's digital twin**: Gemini generation grounded in a Pinecone index of
+  his writing (`backend/data/prompt.md` is the system prompt). Website visitors
+  get 10 questions; annual Data Gibberish subscribers get full access
+- **Cloudflare D1** logs questions and backs the MCP per-IP daily limit
 
 ## Local Development
 
-### Prerequisites
+Requires Node.js 20 or later.
 
-- Node.js 20 or later (required for Vite 7 and Wrangler 4)
-- npm
+```bash
+npm install
+cp env.example .env   # VITE_API_URL, VITE_SITE_URL, VITE_MAX_QUESTIONS, Gemini and Pinecone keys
+npm run dev:backend   # Worker on http://localhost:8787
+npm run dev:frontend  # site on http://localhost:3000
+```
 
-### Setup
-
-1. **Clone the repository**
-   ```bash
-   git clone <your-repo-url>
-   cd ivanovyordan.com
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**
-   ```bash
-   cp env.example .env
-   ```
-   Edit `.env` with your local configuration:
-   - `VITE_API_URL` - Backend URL (default: `http://localhost:8787`)
-   - `VITE_SITE_URL` - Site URL (default: `http://localhost:3000`)
-   - `VITE_MAX_QUESTIONS` - Assistant questions per session (default: `10`)
-   - `GEMINI_API_KEY` - Google Gemini API key
-   - `PINECONE_BASE_URL` - Pinecone API base URL
-   - `PINECONE_API_KEY` - Pinecone API key
-
-4. **Start the backend** (runs on port 8787)
-   ```bash
-   npm run dev:backend
-   ```
-
-5. **Start the frontend** (runs on port 3000)
-   ```bash
-   npm run dev:frontend
-   ```
-
-6. **Open your browser**
-   Navigate to `http://localhost:3000`
-
-### Development Scripts
-
-- `npm run dev:frontend` - Start frontend dev server
-- `npm run dev:backend` - Start backend dev server
-- `npm run dev` - Start both frontend and backend
-- `npm run build:frontend` - Build frontend for production
-- `npm run deploy:backend` - Deploy backend to Cloudflare Workers
+Other scripts: `npm run dev` (both), `npm run build:frontend` (production
+build with pre-rendering into `frontend/dist`), `npm run build --workspace=backend`
+(typecheck), `npm run deploy:backend`.
 
 ## Project Structure
 
 ```
-ivanovyordan.com/
-├── frontend/          # React application
-│   ├── components/    # React components
-│   ├── content/       # CMS content files
-│   ├── pages/         # Page components
-│   └── utils/         # Utility functions
-├── backend/           # Cloudflare Worker
-│   ├── functions/     # Worker code
-│   └── data/         # AI prompt templates
-└── .github/           # GitHub Actions workflows
+frontend/
+  components/      React components (blocks/ are the CMS section types)
+  content/         site.json, navigation.json, pages/*.json, posts/*.md
+  pages/           Route components
+  utils/           Content loaders, route metadata, feed/sitemap/llms.txt generators
+  entry-server.tsx Build-time render entry
+  scripts/         prerender.mjs, the post-build step
+backend/
+  functions/       Worker: HTTP shell, pipeline, MCP server, rate limit
+  data/            Digital twin system prompt
+  migrations/      D1 schema
 ```
 
-## Content Management
+## Content
 
-Content is managed through PageCMS. Edit files in `frontend/content/` or use the CMS interface:
+Edit through PageCMS or directly in `frontend/content/`:
 
-- **Pages**: `frontend/content/pages/`
-- **Posts**: `frontend/content/posts/`
-- **Site config**: `frontend/content/site.json`
-- **Navigation**: `frontend/content/navigation.json`
+- **Site config**: `site.json` (name, tagline, description, booking and
+  newsletter URLs, social links, analytics)
+- **Pages**: `pages/*.json`; `published: false` keeps a page out of the
+  routes, the bundle, the sitemap and `llms.txt`
+- **Posts**: `posts/*.md` with front matter
+- **Navigation**: `navigation.json`
 
 ## Deployment
 
-This site uses automated CI/CD with GitHub Actions. On push to `main`:
-
-1. Frontend builds and deploys to **Cloudflare Pages**
-2. Backend deploys to **Cloudflare Workers**
-
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for complete deployment instructions.
+Push to `main` and GitHub Actions deploys the front end to Cloudflare Pages
+and the Worker to Cloudflare Workers. See [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 ## License
 
