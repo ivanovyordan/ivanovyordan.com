@@ -34,6 +34,8 @@ interface Profile {
   name: string;
   role: string;
   style: string;
+  /** The discovery-call booking page the twin points people to. */
+  bookingUrl: string;
 }
 
 interface PineconeMatch {
@@ -98,6 +100,7 @@ function getProfile(env: Env): Profile {
     name: env.PROFILE_NAME,
     role: env.PROFILE_ROLE,
     style: env.PROFILE_STYLE,
+    bookingUrl: env.BOOKING_URL,
   };
 }
 
@@ -221,6 +224,7 @@ function prepareBasePrompt(profile: Profile, lengthGuidance: string): string {
   return PROMPT_TEMPLATE.replace(/\{\{PROFILE_NAME\}\}/g, profile.name)
     .replace(/\{\{PROFILE_ROLE\}\}/g, profile.role)
     .replace(/\{\{PROFILE_STYLE\}\}/g, profile.style)
+    .replace(/\{\{BOOKING_URL\}\}/g, profile.bookingUrl)
     .replace(/\{\{LENGTH\}\}/g, lengthGuidance)
     .replace(/\{\{DATE\}\}/g, new Date().toLocaleDateString());
 }
@@ -228,9 +232,9 @@ function prepareBasePrompt(profile: Profile, lengthGuidance: string): string {
 /**
  * Get knowledge content, with fallback if none found
  */
-function getKnowledgeContent(knowledge: string): string {
+function getKnowledgeContent(knowledge: string, bookingUrl: string): string {
   if (!knowledge || knowledge.trim() === "") {
-    return "IMPORTANT: No relevant knowledge found in the knowledge base. You must inform the user that you don't have this information and direct them to book a strategic session. Do NOT use any general knowledge or training data to answer.";
+    return `IMPORTANT: No relevant knowledge found in the knowledge base. You must inform the user that you don't have this information and suggest booking a discovery call: ${bookingUrl}. Do NOT use any general knowledge or training data to answer.`;
   }
   return knowledge;
 }
@@ -373,7 +377,8 @@ export async function runAIPipeline(
   }
 
   const knowledgeContent = getKnowledgeContent(
-    extractKnowledgeFromMatches(relevantMatches)
+    extractKnowledgeFromMatches(relevantMatches),
+    profile.bookingUrl
   );
 
   const basePrompt = prepareBasePrompt(profile, lengthGuidance);

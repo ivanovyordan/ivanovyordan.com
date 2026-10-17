@@ -1,71 +1,11 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { marked } from 'marked';
 import Container from '../components/Container';
 import { getAllPosts } from '../utils/posts';
 import { getSiteConfig } from '../utils/site';
-import { getCanonicalUrl } from '../utils/routes';
-
-interface BlogSchema {
-  '@context': string;
-  '@type': string;
-  name: string;
-  description: string;
-  url: string;
-  author: {
-    '@type': string;
-    name: string;
-  };
-}
-
-/**
- * Get or create structured data script element
- */
-function getOrCreateSchemaScript(): HTMLScriptElement {
-  let existingSchema = document.querySelector(
-    'script[type="application/ld+json"]'
-  ) as HTMLScriptElement | null;
-  if (!existingSchema) {
-    existingSchema = document.createElement('script');
-    existingSchema.setAttribute('type', 'application/ld+json');
-    document.head.appendChild(existingSchema);
-  }
-  return existingSchema;
-}
-
-/**
- * Create blog schema data
- */
-function createBlogSchema(
-  siteName: string,
-  blogTitle: string,
-  blogDescription: string
-): BlogSchema {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'Blog',
-    name: `${siteName} - ${blogTitle}`,
-    description: blogDescription,
-    url: getCanonicalUrl('/blog'),
-    author: {
-      '@type': 'Person',
-      name: siteName,
-    },
-  };
-}
-
-/**
- * Update blog structured data
- */
-function updateBlogStructuredData(
-  siteName: string,
-  blogTitle: string,
-  blogDescription: string
-): void {
-  const schemaScript = getOrCreateSchemaScript();
-  const schema = createBlogSchema(siteName, blogTitle, blogDescription);
-  schemaScript.textContent = JSON.stringify(schema);
-}
+import SEO from '../components/SEO';
+import { buildBlogMeta } from '../utils/meta';
 
 const Blog: React.FC = () => {
   const siteConfig = getSiteConfig();
@@ -77,20 +17,13 @@ const Blog: React.FC = () => {
   const visiblePosts = posts.slice(0, visibleCount);
   const hasMore = visibleCount < posts.length;
 
-  useEffect(() => {
-    updateBlogStructuredData(
-      siteConfig.name,
-      siteConfig.blog.title,
-      siteConfig.blog.description
-    );
-  }, [siteConfig]);
-
   const handleLoadMore = () => {
     setVisibleCount((prev) => prev + POSTS_PER_LOAD);
   };
 
   return (
     <Container size="md" className="py-16">
+      <SEO meta={buildBlogMeta()} />
       <div className="mb-20">
         <h1 className="text-4xl font-serif font-bold mb-4 dark:text-white">
           {siteConfig.blog.title}

@@ -146,6 +146,29 @@ Configure DNS records in your domain provider or Cloudflare Dashboard:
 3. **Frontend deploy** → Deploys `frontend/dist` to Cloudflare Pages
 4. **Backend deploy** → Deploys backend to Cloudflare Workers (secrets are already set in Cloudflare)
 
+### What the frontend build produces
+
+`npm run build --workspace=frontend` runs `vite build`, then an SSR build of
+`frontend/entry-server.tsx`, then `frontend/scripts/prerender.mjs`. The result
+in `frontend/dist`:
+
+- One HTML file per published route, each with its own `<title>`, meta
+  description, canonical, Open Graph/Twitter tags, robots meta and JSON-LD,
+  and the page's content already rendered: `index.html` for `/`,
+  `coaching.html` for `/coaching`, `blog.html` for `/blog`,
+  `blog/<slug>.html` for a post. Cloudflare Pages serves `coaching.html` at
+  `/coaching` without a redirect (a `coaching/index.html` would redirect to
+  `/coaching/`). The client hydrates the page and handles navigation from
+  there, so no `_redirects` or `_routes.json` is needed.
+- `404.html`, rendered from the app's not-found page. Its presence makes
+  Pages answer unknown paths with a real 404 status instead of the
+  single-page-app fallback.
+- `sitemap.xml`, `feed.xml`, `atom.xml` and `llms.txt`, generated from
+  `content/site.json` plus the published pages and posts.
+
+Pages with `published: false` are excluded from all of the above and from the
+JavaScript bundle.
+
 ## MCP Server
 
 The Worker also serves a remote MCP server at `/mcp`, exposing one tool

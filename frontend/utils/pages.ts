@@ -1,29 +1,16 @@
 import type { PageContent } from "../types";
+// Only the published pages: vite-plugin-content.ts builds this module from
+// content/pages/*.json, so an unpublished page never ships.
+import pages from "virtual:published-pages";
 
-// Import all page JSON files at build time
-const pageFiles = import.meta.glob<PageContent>("../content/pages/*.json", {
-  import: "default",
-  eager: true,
-});
-
-export function getPageBySlug(slug: string, includeDrafts: boolean = false): PageContent | undefined {
-  for (const [, content] of Object.entries(pageFiles)) {
-    if (content.slug === slug) {
-      // Filter out drafts unless explicitly requested
-      if (!includeDrafts && content.published === false) {
-        return undefined;
-      }
-      return content;
-    }
-  }
-  return undefined;
+function publishedPages(): PageContent[] {
+  return pages.filter((page) => page.published !== false);
 }
 
-export function getAllPages(includeDrafts: boolean = false): PageContent[] {
-  const pages = Object.values(pageFiles) as PageContent[];
-  if (includeDrafts) {
-    return pages;
-  }
-  // Filter out unpublished pages
-  return pages.filter((page) => page.published !== false);
+export function getPageBySlug(slug: string): PageContent | undefined {
+  return publishedPages().find((page) => page.slug === slug);
+}
+
+export function getAllPages(): PageContent[] {
+  return publishedPages();
 }

@@ -5,181 +5,10 @@ import Container from '../components/Container';
 import SocialShare from '../components/SocialShare';
 import NewsletterBlock from '../components/blocks/NewsletterBlock';
 import { getPostById } from '../utils/posts';
-import { getSiteConfig } from '../utils/site';
 import { getCanonicalUrl } from '../utils/routes';
 import { trackBlogPostView } from '../utils/analytics';
-import { updateMetaTag } from '../components/SEO';
-
-interface BlogPostingSchema {
-  '@context': string;
-  '@type': string;
-  headline: string;
-  description: string;
-  author: {
-    '@type': string;
-    name: string;
-  };
-  datePublished: string;
-  dateModified: string;
-  mainEntityOfPage: {
-    '@type': string;
-    '@id': string;
-  };
-  publisher: {
-    '@type': string;
-    name: string;
-  };
-}
-
-/**
- * Get or create structured data script element
- */
-function getOrCreateSchemaScript(): HTMLScriptElement {
-  let existingSchema = document.querySelector(
-    'script[type="application/ld+json"]'
-  ) as HTMLScriptElement | null;
-  if (!existingSchema) {
-    existingSchema = document.createElement('script');
-    existingSchema.setAttribute('type', 'application/ld+json');
-    document.head.appendChild(existingSchema);
-  }
-  return existingSchema;
-}
-
-/**
- * Create blog posting schema data
- */
-function createBlogPostingSchema(
-  post: { id: string; title: string; excerpt: string; date?: string },
-  siteName: string
-): BlogPostingSchema {
-  const postUrl = getCanonicalUrl(`/blog/${post.id}`);
-  const postDate = new Date(post.date || new Date());
-
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
-    headline: post.title,
-    description: post.excerpt,
-    author: {
-      '@type': 'Person',
-      name: siteName,
-    },
-    datePublished: postDate.toISOString(),
-    dateModified: postDate.toISOString(),
-    mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': postUrl,
-    },
-    publisher: {
-      '@type': 'Organization',
-      name: siteName,
-    },
-  };
-}
-
-/**
- * Update blog post structured data
- */
-function updateBlogPostStructuredData(
-  post: { id: string; title: string; excerpt: string; date?: string },
-  siteName: string
-): void {
-  const schemaScript = getOrCreateSchemaScript();
-  const schema = createBlogPostingSchema(post, siteName);
-  schemaScript.textContent = JSON.stringify(schema);
-}
-
-/**
- * Strip markdown formatting for plain text (used in meta descriptions)
- */
-function stripMarkdown(text: string): string {
-  return text
-    // Remove images ![alt](url)
-    .replace(/!\[([^\]]*)\]\([^)]+\)/g, '')
-    // Convert links [text](url) to just text
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    // Remove bold **text** or __text__
-    .replace(/(\*\*|__)(.*?)\1/g, '$2')
-    // Remove italic *text* or _text_
-    .replace(/(\*|_)(.*?)\1/g, '$2')
-    // Remove inline code `code`
-    .replace(/`([^`]+)`/g, '$1')
-    // Remove headers # ## ### etc.
-    .replace(/^#{1,6}\s+/gm, '')
-    // Remove blockquotes >
-    .replace(/^>\s+/gm, '')
-    // Collapse multiple spaces/newlines
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-/**
- * Get absolute image URL for OG tags (returns undefined if no image)
- */
-function getOgImageUrl(image: string | undefined): string | undefined {
-  if (!image) return undefined;
-
-  // If image is already absolute, return as-is
-  if (image.startsWith('http://') || image.startsWith('https://')) {
-    return image;
-  }
-
-  // Make relative URLs absolute
-  const baseUrl = getCanonicalUrl('/');
-  const cleanPath = image.startsWith('/') ? image : `/${image}`;
-  return `${baseUrl.replace(/\/$/, '')}${cleanPath}`;
-}
-
-/**
- * Update SEO meta tags for blog post (OG, Twitter, etc.)
- */
-function updateBlogPostSEO(
-  post: { id: string; title: string; excerpt: string; image?: string },
-  siteName: string
-): void {
-  const postUrl = getCanonicalUrl(`/blog/${post.id}`);
-  const ogImage = getOgImageUrl(post.image);
-  const plainExcerpt = stripMarkdown(post.excerpt);
-
-  // Update document title
-  document.title = `${post.title} | ${siteName}`;
-
-  // Basic meta tags (use plain text for SEO)
-  updateMetaTag('description', plainExcerpt);
-  updateMetaTag('title', post.title);
-
-  // Open Graph tags (for LinkedIn, Facebook)
-  updateMetaTag('og:title', post.title, true);
-  updateMetaTag('og:description', plainExcerpt, true);
-  updateMetaTag('og:type', 'article', true);
-  updateMetaTag('og:url', postUrl, true);
-  updateMetaTag('og:site_name', siteName, true);
-
-  // Only set image tags if we have an image
-  if (ogImage) {
-    updateMetaTag('og:image', ogImage, true);
-    updateMetaTag('og:image:width', '1200', true);
-    updateMetaTag('og:image:height', '630', true);
-  }
-
-  // Twitter/X Card tags
-  updateMetaTag('twitter:card', ogImage ? 'summary_large_image' : 'summary');
-  updateMetaTag('twitter:title', post.title);
-  updateMetaTag('twitter:description', plainExcerpt);
-  if (ogImage) {
-    updateMetaTag('twitter:image', ogImage);
-  }
-
-  // Canonical URL
-  let canonicalLink = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-  if (!canonicalLink) {
-    canonicalLink = document.createElement('link');
-    canonicalLink.setAttribute('rel', 'canonical');
-    document.head.appendChild(canonicalLink);
-  }
-  canonicalLink.setAttribute('href', postUrl);
-}
+import SEO from '../components/SEO';
+import { buildPostMeta } from '../utils/meta';
 
 const PostDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -191,14 +20,10 @@ const PostDetail: React.FC = () => {
     return marked(post.body);
   }, [post?.body]);
 
-  const siteConfig = getSiteConfig();
-
   useEffect(() => {
     if (!post) return;
-    updateBlogPostSEO(post, siteConfig.name);
-    updateBlogPostStructuredData(post, siteConfig.name);
     trackBlogPostView(post.id, post.title);
-  }, [post, siteConfig.name]);
+  }, [post]);
 
   if (!post) {
     return <Navigate to="/404" replace />;
@@ -206,6 +31,7 @@ const PostDetail: React.FC = () => {
 
   return (
     <Container size="sm" className="py-12 md:py-20">
+      <SEO meta={buildPostMeta(post)} />
       <Link
         to="/blog"
         className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white mb-12 inline-flex items-center gap-2 group focus:outline-none focus:underline"
@@ -256,7 +82,11 @@ const PostDetail: React.FC = () => {
         />
 
         <div className="mt-12 pt-8 border-t border-gray-100 dark:border-zinc-900">
-          <SocialShare title={post.title} description={post.excerpt} />
+          <SocialShare
+            url={getCanonicalUrl(`/blog/${post.id}`)}
+            title={post.title}
+            description={post.excerpt}
+          />
         </div>
 
         <footer className="mt-16 pt-12 border-t border-gray-100 dark:border-zinc-900">

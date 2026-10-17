@@ -91,6 +91,11 @@ content:
             label: Open Graph Image
             type: image
             description: "Social sharing image (1200x630px recommended)"
+          - name: noindex
+            label: Hide from search engines
+            type: boolean
+            default: false
+            description: "Adds a noindex robots tag and keeps the page out of the sitemap"
       - name: sections
         label: Page Sections
         type: block
@@ -223,13 +228,13 @@ content:
                 label: Description
                 type: text
                 required: true
-              - name: placeholder
-                label: Email Placeholder
-                type: string
-                default: "Your email address"
           - name: testimonial
             label: Testimonial
             fields:
+              - name: heading
+                label: Heading
+                type: string
+                description: "Optional small heading above the quote"
               - name: quote
                 label: Quote
                 type: text
@@ -685,6 +690,10 @@ content:
                   - name: testimonial
                     label: Testimonial
                     fields:
+                      - name: heading
+                        label: Heading
+                        type: string
+                        description: "Optional small heading above the quote"
                       - name: quote
                         label: Quote
                         type: text
@@ -820,7 +829,11 @@ content:
       - name: bookingUrl
         label: Booking URL
         type: string
-        description: "URL for booking strategy sessions (used in AI assistant and contact blocks)"
+        description: "Where booking lives, every call type (e.g., https://book.ivanovyordan.com/)"
+      - name: discoveryCallUrl
+        label: Discovery Call URL
+        type: string
+        description: "The discovery-call booking page, used by every 'book a call' button"
       - name: analytics
         label: Analytics & Tracking
         type: object
@@ -834,13 +847,17 @@ content:
             type: string
             description: "Facebook Pixel ID (e.g., 123456789012345)"
       - name: newsletter
-        label: Newsletter Integration
+        label: Newsletter
         type: object
         fields:
-          - name: service
-            label: Service
+          - name: name
+            label: Name
             type: string
-            description: "Newsletter service provider (e.g., sendfox)"
+            description: "Newsletter name (e.g., Data Gibberish)"
+          - name: url
+            label: URL
+            type: string
+            description: "Newsletter home page (e.g., https://www.datagibberish.com)"
       - name: errorTracking
         label: Error Tracking
         type: object
@@ -880,13 +897,11 @@ content:
           - name: defaultTitle
             label: Default Meta Title
             type: string
-            required: true
-            description: "Default title for pages without custom SEO"
+            description: "Optional override. Defaults to 'Site Name - Tagline'"
           - name: defaultDescription
             label: Default Meta Description
             type: text
-            required: true
-            description: "Default description for pages without custom SEO"
+            description: "Optional override. Defaults to the Site Description"
       - name: blog
         label: Blog Settings
         type: object

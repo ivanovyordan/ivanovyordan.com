@@ -1,6 +1,7 @@
 import { getAllPosts } from "./posts";
 import { getAllPages } from "./pages";
-import { getSiteConfig } from "./site";
+import { getSiteConfig, getDefaultDescription } from "./site";
+import { stripMarkdown } from "./meta";
 
 // Get base URL from environment, site config, or use default
 export function getBaseUrl(): string {
@@ -70,7 +71,7 @@ export function generateRSSFeed(): string {
     siteConfig.blog.title
   )}</title>
     <link>${baseUrl}</link>
-    <description>${escapeXml(siteConfig.seo.defaultDescription)}</description>
+    <description>${escapeXml(getDefaultDescription())}</description>
     <language>en-GB</language>
     <lastBuildDate>${formatRssDate(now)}</lastBuildDate>
     <atom:link href="${baseUrl}/feed.xml" rel="self" type="application/rss+xml"/>
@@ -127,55 +128,135 @@ export function generateAtomFeed(): string {
 </feed>`;
 }
 
-// Generate sitemap
+// Generate sitemap: the published, indexable pages and every post
 export function generateSitemap(): string {
   const posts = getAllPosts();
-  const pages = getAllPages();
+  const pages = getAllPages().filter(
+    (page) => page.slug !== "home" && !page.seo?.noindex
+  );
   const baseUrl = getBaseUrl();
   const now = new Date();
+  const latestPostDate =
+    posts.length > 0 && posts[0].date ? new Date(posts[0].date) : now;
 
   const urls: string[] = [];
 
   // Homepage
-  urls.push(`    <url>
-      <loc>${baseUrl}/</loc>
-      <lastmod>${formatSitemapDate(now)}</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>1.0</priority>
-    </url>`);
+  urls.push(`  <url>
+    <loc>${baseUrl}/</loc>
+    <lastmod>${formatSitemapDate(now)}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>`);
 
   // Blog index
-  urls.push(`    <url>
-      <loc>${baseUrl}/blog</loc>
-      <lastmod>${formatSitemapDate(now)}</lastmod>
-      <changefreq>daily</changefreq>
-      <priority>0.9</priority>
-    </url>`);
+  urls.push(`  <url>
+    <loc>${baseUrl}/blog</loc>
+    <lastmod>${formatSitemapDate(latestPostDate)}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>`);
 
   // Blog posts
   posts.forEach((post) => {
     const postDate = new Date(post.date || now);
-    urls.push(`    <url>
-      <loc>${baseUrl}/blog/${post.id}</loc>
-      <lastmod>${formatSitemapDate(postDate)}</lastmod>
-      <changefreq>monthly</changefreq>
-      <priority>0.8</priority>
-    </url>`);
+    urls.push(`  <url>
+    <loc>${baseUrl}/blog/${post.id}</loc>
+    <lastmod>${formatSitemapDate(postDate)}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>`);
   });
 
   // Pages
   pages.forEach((page) => {
-    const slug = page.slug === "home" ? "" : `/${page.slug}`;
-    urls.push(`    <url>
-      <loc>${baseUrl}${slug}</loc>
-      <lastmod>${formatSitemapDate(now)}</lastmod>
-      <changefreq>monthly</changefreq>
-      <priority>0.7</priority>
-    </url>`);
+    urls.push(`  <url>
+    <loc>${baseUrl}/${page.slug}</loc>
+    <lastmod>${formatSitemapDate(now)}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`);
   });
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.join("\n")}
-</urlset>`;
+</urlset>
+`;
+}
+
+// One line of plain text for an llms.txt entry
+function oneLine(text: string, maxLength = 200): string {
+  const plain = stripMarkdown(text);
+  if (plain.length <= maxLength) return plain;
+  const cut = plain.slice(0, maxLength);
+  return `${cut.slice(0, Math.max(cut.lastIndexOf(" "), 1)).trim()}…`;
+}
+
+const LEGAL_SLUGS = new Set(["privacy", "tos", "terms"]);
+
+// Generate llms.txt (https://llmstxt.org) from site.json plus the published,
+// indexable pages and the posts, so it cannot drift from the site.
+export function generateLlmsTxt(): string {
+  const siteConfig = getSiteConfig();
+  const baseUrl = getBaseUrl();
+  const pages = getAllPages().filter(
+    (page) => page.slug !== "home" && !page.seo?.noindex
+  );
+  const mainPages = pages.filter((page) => !LEGAL_SLUGS.has(page.slug));
+  const legalPages = pages.filter((page) => LEGAL_SLUGS.has(page.slug));
+  const posts = getAllPosts();
+
+  const pageLine = (page: { title: string; slug: string; seo?: { description?: string } }) => {
+    const description = page.seo?.description
+      ? `: ${oneLine(page.seo.description)}`
+      : "";
+    return `- [${page.title}](${baseUrl}/${page.slug})${description}`;
+  };
+
+  const facts: string[] = [];
+  if (siteConfig.tagline) facts.push(`- Role: ${siteConfig.tagline}`);
+  facts.push(`- Website: ${baseUrl}`);
+  if (siteConfig.newsletter) {
+    facts.push(
+      `- Newsletter: [${siteConfig.newsletter.name}](${siteConfig.newsletter.url})`
+    );
+  }
+  if (siteConfig.bookingUrl) facts.push(`- Booking: ${siteConfig.bookingUrl}`);
+  if (siteConfig.email) facts.push(`- Email: ${siteConfig.email}`);
+  for (const item of siteConfig.social || []) {
+    facts.push(`- ${item.label}: ${item.url}`);
+  }
+
+  const sections: string[] = [
+    `# ${siteConfig.name}`,
+    "",
+    `> ${getDefaultDescription()}`,
+    "",
+    ...facts,
+    "",
+    "## Pages",
+    "",
+    ...mainPages.map(pageLine),
+    "",
+    `## ${siteConfig.blog.title}`,
+    "",
+    `[${siteConfig.blog.title}](${baseUrl}/blog): ${siteConfig.blog.description}`,
+    "",
+    ...posts.map(
+      (post) =>
+        `- [${post.title}](${baseUrl}/blog/${post.id})${
+          post.date ? ` (${post.date})` : ""
+        }: ${oneLine(post.excerpt)}`
+    ),
+    "",
+    "## Optional",
+    "",
+    ...legalPages.map(pageLine),
+    `- [RSS feed](${baseUrl}/feed.xml)`,
+    `- [Sitemap](${baseUrl}/sitemap.xml)`,
+    "",
+  ];
+
+  return sections.join("\n");
 }

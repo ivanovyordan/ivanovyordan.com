@@ -155,7 +155,7 @@ async function handleAIQuestion(
     const errorMessage =
       err instanceof Error
         ? err.message
-        : 'Could not connect to the Digital Twin backend. Please ensure the backend server is running.';
+        : 'Could not reach my digital twin. Please try again later.';
     setError(errorMessage);
   }
 }
@@ -219,10 +219,10 @@ const GeminiAssistantBlock: React.FC<GeminiAssistantBlockProps> = () => {
       <div className="flex justify-between items-start mb-6">
         <div>
           <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] mb-2 dark:text-white">
-            Ask My Digital Twin
+            Ask my digital twin
           </h4>
           <p className="text-sm text-gray-700 dark:text-zinc-300 leading-relaxed">
-            Trained on my specific engineering philosophy.{' '}
+            It answers the way I would.{' '}
             <span className="font-bold text-black dark:text-white">
               ({remainingCredits} free questions remaining)
             </span>
@@ -249,7 +249,7 @@ const GeminiAssistantBlock: React.FC<GeminiAssistantBlockProps> = () => {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAsk()}
-              placeholder="e.g., How do I explain technical debt?"
+              placeholder="e.g., How do I log and share my wins?"
               className="flex-grow bg-transparent border border-gray-300 dark:border-zinc-700 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white dark:text-white placeholder:text-gray-500 dark:placeholder:text-zinc-500 transition-all"
             />
             <button
@@ -264,23 +264,33 @@ const GeminiAssistantBlock: React.FC<GeminiAssistantBlockProps> = () => {
       ) : (
         <div className="bg-gray-100 dark:bg-zinc-800 p-8 text-center border border-gray-200 dark:border-zinc-700">
           <p className="text-lg font-serif font-bold mb-2 dark:text-white">
-            Limit Reached
+            That's your {MAX_QUESTIONS} questions
           </p>
-          {siteConfig.calCom ? (
-            <button
-              onClick={() => trackBookingClick('ai_assistant_limit')}
-              data-cal-link={siteConfig.calCom.link}
-              data-cal-namespace={siteConfig.calCom.namespace}
-              data-cal-config={JSON.stringify(siteConfig.calCom.config)}
-              className="inline-block bg-black dark:bg-white text-white dark:text-black px-8 py-4 text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform shadow-lg cursor-pointer"
-            >
-              Book Strategy Session
-            </button>
-          ) : (
-            <button className="bg-black dark:bg-white text-white dark:text-black px-8 py-4 text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform shadow-lg cursor-pointer">
-              Book Strategy Session
-            </button>
-          )}
+          <p className="text-sm text-gray-700 dark:text-zinc-300 mb-6">
+            Full access comes with the annual{' '}
+            {siteConfig.newsletter ? (
+              <a
+                href={siteConfig.newsletter.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline font-bold text-black dark:text-white"
+              >
+                {siteConfig.newsletter.name}
+              </a>
+            ) : (
+              'Data Gibberish'
+            )}{' '}
+            subscription. If you'd rather work on your case with me, book a discovery call.
+          </p>
+          <a
+            href={siteConfig.discoveryCallUrl || siteConfig.bookingUrl || '#'}
+            onClick={() => trackBookingClick('ai_assistant_limit')}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block bg-black dark:bg-white text-white dark:text-black px-8 py-4 text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform shadow-lg cursor-pointer"
+          >
+            book a discovery call
+          </a>
         </div>
       )}
 
@@ -295,7 +305,7 @@ const GeminiAssistantBlock: React.FC<GeminiAssistantBlockProps> = () => {
           <div className="flex items-center gap-2 mb-3">
             <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
             <span className="font-bold uppercase text-[10px] tracking-widest text-gray-500 dark:text-zinc-400">
-              {siteConfig.name} (AI)
+              {siteConfig.name}&apos;s digital twin
             </span>
           </div>
           <p className="text-gray-600 dark:text-zinc-400 italic">Thinking...</p>
@@ -307,7 +317,7 @@ const GeminiAssistantBlock: React.FC<GeminiAssistantBlockProps> = () => {
           <div className="flex items-center gap-2 mb-3">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
             <span className="font-bold uppercase text-[10px] tracking-widest text-gray-500 dark:text-zinc-400">
-              {siteConfig.name} (AI)
+              {siteConfig.name}&apos;s digital twin
             </span>
           </div>
           <p>{response}</p>

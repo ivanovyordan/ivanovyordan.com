@@ -64,15 +64,15 @@ const ContactInfoBlock: React.FC<ContactInfoBlockProps> = ({ block }) => {
               </p>
             )}
             {block.officeHours.buttonText && (
-              <button
+              <a
+                href={block.officeHours.url || siteConfig.discoveryCallUrl || '#'}
                 onClick={() => trackBookingClick('contact_info')}
-                data-cal-link={siteConfig.calCom?.link}
-                data-cal-namespace={siteConfig.calCom?.namespace}
-                data-cal-config={JSON.stringify(siteConfig.calCom?.config)}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-block bg-black dark:bg-white text-white dark:text-black px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black dark:focus:ring-offset-zinc-950 cursor-pointer"
               >
                 {block.officeHours.buttonText}
-              </button>
+              </a>
             )}
           </div>
         )}

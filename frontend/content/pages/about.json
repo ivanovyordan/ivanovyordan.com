@@ -3,8 +3,8 @@
   "slug": "about",
   "published": true,
   "seo": {
-    "title": "About Yordan Ivanov - Head of Data Engineering at Dext",
-    "description": "16 years in tech, 9 in data. Head of Data Engineering at Dext. 4 M&A deals. I work with data professionals on the non-technical side of the job."
+    "title": "About Yordan Ivanov | Coach for experienced data professionals",
+    "description": "Head of Data Engineering at Dext. I coach experienced data professionals who already do a lead's job, starting with a free 30-minute call."
   },
   "sections": [
     {
@@ -14,13 +14,30 @@
         "title": "Hey, I'm Yordan.",
         "headshot": "/images/profile.jpg",
         "location": "Plovdiv, Bulgaria / Remote",
-        "expertise": "Data Platforms, Leadership, Systems Design",
-        "currently": "Head of Data Engineering at Dext"
+        "expertise": "Priorities, stakeholders, promotion cases, data platforms",
+        "currently": "Head of Data Engineering, and writing Data Gibberish"
       },
       "content": [
         {
           "_block": "text",
-          "content": "Sixteen years in tech. Nine of them in data.\n\nI run data strategy and engineering at Dext. I report to the Director and work directly with the CFO and CPTO. I own the data platform, the team, and the strategy behind both.\n\n## What I've Done\n\nI've been part of 4 M&A deals at Dext. 2 acquisitions, 2 mergers. I led the data due diligence each time. Evaluated what we were buying, what would break during integration, and what leadership needed to know before the deal closed.\n\n## What I've Built\n\nAt Dext, I run the data strategy that powers our global capabilities.\n\n*   Cut platform costs by 70% through better planning and pipeline optimization.\n*   Moved executive reporting from weekly batch to near-real-time. 83% faster.\n*   Unified data models across business lines so every department works from the same source of truth.\n*   Grew the data function from one engineer to a cross-functional team.\n\n![](/images/journey.png)\n\n## How I Think About Leadership\n\nI pick reliable, proven technology over whatever's new. I care about measurable impact, not activity. Every technical decision should connect to something the business actually needs.\n\nIf your stakeholders can't explain your data strategy back to you, it's not a strategy.\n\n## Writing and Coaching\n\nI write [_Data Gibberish_](https://www.datagibberish.com/), a newsletter for data professionals on the non-technical side of the job. Read by 7,500+ subscribers. I also [work with](/coaching) mid and senior data professionals on stakeholder communication, promotion business cases, and career strategy."
+          "content": "If you're the person your data team leans on, and you already do much of a lead's job without the title, I work with you on the part of the job that isn't code. That's getting the next request prioritised or turned down without a fight, getting your work seen by the people who fund the team, and building the case for the title.\n\nI teach what I didn't have the first time I led a team, and I'm on my second go now. I went from data engineer to Head of Data Engineering on a fast track, with a 40% salary increase.\n\nMost career advice for this is either motivational LinkedIn bullshit or written for managers who already have direct reports, and neither helps when you're doing the job without the title."
+        },
+        {
+          "_block": "text",
+          "content": "## The record\n\n- Named one of Bulgaria's Top 100 Tech Talents, 2025.\n- Delivered the data platform behind a $73M Series C.\n- Grew the data function from one engineer to a cross-functional team.\n- Cut Snowflake platform costs by 70% and reinvested in headcount and AI/ML.\n- Handled data due diligence on 2 acquisitions, with go/no-go recommendations inside 2 weeks.\n\n![](/images/journey.png)"
+        },
+        {
+          "_block": "testimonial",
+          "heading": "What people say about working with me",
+          "quote": "For the past year and a half in Dext I’ve had the pleasure to work under the guidance of the very thoughtful leader and wonderful friend that Yordan is. What I most admire about him is his limitless energy for sharing the experience, knowledge and passion.",
+          "author": "Kamelia Mladenova, Data & Analytics Engineering Lead, Tide"
+        },
+        {
+          "_block": "cta-section",
+          "title": "Work on your case with me",
+          "description": "If you want me on your own case, see how coaching works. It starts with a free 30-minute discovery call, and I don't pitch on it.",
+          "buttonText": "see how coaching works",
+          "buttonUrl": "/coaching"
         }
       ]
     }

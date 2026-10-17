@@ -3,20 +3,20 @@
   "slug": "contact",
   "published": true,
   "seo": {
-    "title": "Book a Discovery Call - Yordan Ivanov",
-    "description": "Book a free 30-minute call to talk about stakeholder communication, promotion strategy, or data leadership."
+    "title": "Book a discovery call | Yordan Ivanov",
+    "description": "Book a free 30-minute discovery call with Yordan Ivanov about priorities, stakeholders or your promotion case. No pitch, no commitment."
   },
   "sections": [
     {
       "_block": "hero",
-      "title": "Let's talk.",
-      "subtitle": "I work with data professionals on stakeholder communication, promotion business cases, and career strategy. If you're stuck on the non-technical side of the job, book a call."
+      "title": "Tell me what you're stuck on",
+      "subtitle": "The discovery call is 30 minutes and free. Bring the fourth urgent request you can't say no to, the promotion case you're drafting or the data roadmap nobody above you reads, and I'll tell you whether I can help. For anything else, email me."
     },
     {
       "_block": "contact-info",
       "officeHours": {
-        "description": "Tell me what you're working on and where you're stuck. We'll figure out if I can help and what that looks like. No pitch, no commitment.",
-        "buttonText": "Book a Call"
+        "description": "No pitch and no commitment. If I can help, I'll tell you how and share my rates on the call, so pick a slot.",
+        "buttonText": "book a discovery call"
       }
     }
   ]

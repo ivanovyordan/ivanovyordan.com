@@ -11,8 +11,9 @@ invocation_logs = true
 
 [vars]
 PROFILE_NAME = "Yordan Ivanov"
-PROFILE_ROLE = "Head of Data Engineering"
+PROFILE_ROLE = "coach and writer for experienced data professionals who already do a lead's job"
 PROFILE_STYLE = "Pragmatic, experienced, direct, business-focused."
+BOOKING_URL = "https://book.ivanovyordan.com/discovery-call"
 GEMINI_MODEL = "gemini-3.7-flash"
 GEMINI_EMBEDDING_MODEL = "gemini-embedding-2"
 

@@ -3,34 +3,37 @@
   "slug": "home",
   "published": true,
   "seo": {
-    "title": "Yordan Ivanov - Data Leadership",
-    "description": "I help data professionals handle the side of the job that isn't code. Writing about project ownership, career growth, and getting promoted."
+    "title": "Yordan Ivanov | Coaching for experienced data professionals",
+    "description": "I help experienced data professionals who already do a lead's job get their priorities agreed, their work seen and the title to match."
   },
   "sections": [
     {
       "_block": "hero",
-      "title": "The Side of Data That Isn't Code",
-      "subtitle": "I write about how to actually own a project, navigate the market, and get promoted without becoming a corporate politician."
+      "title": "You're already doing a lead's job without the title",
+      "subtitle": "If you're an experienced data professional in that spot, I coach you on getting your priorities agreed, your work seen and the title to match."
     },
     {
-      "_block": "latest-posts",
-      "title": "Latest Articles",
-      "limit": 3,
-      "showViewAll": true
+      "_block": "cta-section",
+      "title": "Coaching on your own case",
+      "description": "If you want help with the promotion case you're writing or the stakeholder who keeps saying no, we work on it 1-on-1. I coach alongside my day job as Head of Data Engineering, and it starts with a free 30-minute discovery call where I don't pitch. Book it and tell me what you're stuck on.",
+      "buttonText": "book a discovery call"
+    },
+    {
+      "_block": "newsletter",
+      "title": "My free email course",
+      "description": "If you want your \"not now\" to hold and a yes from the people above you, start here. Over your first 10 days it covers how I rank requests and how I get buy-in for my most ambitious projects, among other things. After that, Data Gibberish comes twice a week. Join 5,000+ subscribers."
     },
     {
       "_block": "testimonial",
-      "heading": "What people say about my work",
+      "heading": "What readers say",
       "quote": "This is why I follow Yordan's posts, it comes from experience, its valuable, and its real. Because its clearly written a bit hastily by a senior engineer and not by an AI.",
       "author": "Andreas Ährlund-Richter, Data Engineer"
     },
     {
-      "_block": "newsletter",
-      "title": "Get the Data Engineer's Business Translation Kit",
-      "description": "A free framework for translating your technical work into revenue, cost, or risk language. Plus a career leveling matrix showing what separates Senior from Lead. Join 7,500+ subscribers.",
-      "placeholder": "Your email address",
-      "formUrl": "https://sendfox.com/form/m5xz6n/3oe0d9",
-      "buttonText": "Yes, I want the toolkit!"
+      "_block": "latest-posts",
+      "title": "Latest from the blog",
+      "limit": 3,
+      "showViewAll": true
     }
   ]
 }

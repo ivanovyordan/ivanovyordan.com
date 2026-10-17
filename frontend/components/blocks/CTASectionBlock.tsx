@@ -31,30 +31,19 @@ const CTASectionBlock: React.FC<CTASectionBlockProps> = ({ block }) => {
           </div>
         )}
         {block.buttonText && (() => {
-          const isBooking = !block.buttonUrl && !!siteConfig.calCom;
+          const href = block.buttonUrl || siteConfig.discoveryCallUrl;
+          const isBooking = !block.buttonUrl && !!siteConfig.discoveryCallUrl;
+          const isExternal = /^https?:\/\//i.test(href || '');
           const className = block.pricing
             ? 'w-full bg-black dark:bg-white text-white dark:text-black py-4 font-bold hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors uppercase tracking-widest text-xs focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black dark:focus:ring-white cursor-pointer inline-block max-w-xs text-center'
             : 'inline-block bg-black dark:bg-white text-white dark:text-black px-12 py-5 text-lg font-bold hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors uppercase tracking-[0.2em] focus:outline-none focus:ring-4 focus:ring-black/20 dark:focus:ring-white/20 cursor-pointer text-center';
 
-          if (isBooking && siteConfig.calCom) {
-            return (
-              <button
-                onClick={() => trackBookingClick('cta_section')}
-                data-cal-link={siteConfig.calCom.link}
-                data-cal-namespace={siteConfig.calCom.namespace}
-                data-cal-config={JSON.stringify(siteConfig.calCom.config)}
-                className={className}
-              >
-                {block.buttonText}
-              </button>
-            );
-          }
-
           return (
             <a
-              href={block.buttonUrl || '#'}
-              target={block.buttonUrl ? "_blank" : undefined}
-              rel={block.buttonUrl ? "noopener noreferrer" : undefined}
+              href={href || '#'}
+              onClick={isBooking ? () => trackBookingClick('cta_section') : undefined}
+              target={isExternal ? "_blank" : undefined}
+              rel={isExternal ? "noopener noreferrer" : undefined}
               className={className}
             >
               {block.buttonText}

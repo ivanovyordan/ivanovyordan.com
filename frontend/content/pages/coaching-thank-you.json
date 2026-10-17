@@ -3,16 +3,17 @@
   "slug": "coaching-thank-you",
   "published": true,
   "seo": {
-    "title": "Thank You — Yordan Ivanov",
-    "description": "Thank you for investing in your growth."
+    "title": "Thank you | Yordan Ivanov",
+    "description": "Book your first coaching call with Yordan Ivanov.",
+    "noindex": true
   },
   "sections": [
     {
       "_block": "cta-section",
-      "title": "You're in.",
-      "description": "Thank you for investing in your growth. Book your first call below. The same link works for every session.",
-      "buttonText": "Book Your Call",
-      "buttonUrl": "https://cal.com/ivanovyordan/6-private-coaching-calls"
+      "title": "You're in",
+      "description": "Thank you. If there's a document you're about to send or a meeting you're dreading, bring it to the first call. Book that call at book.ivanovyordan.com, and use the same link for every call after it.",
+      "buttonText": "book your first call",
+      "buttonUrl": "https://book.ivanovyordan.com/"
     }
   ]
 }

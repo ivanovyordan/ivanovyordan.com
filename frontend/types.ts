@@ -249,11 +249,14 @@ export interface SiteConfig {
   description?: string;
   siteUrl?: string;
   email?: string;
+  /** Where booking lives (every call type). */
   bookingUrl?: string;
-  calCom?: {
-    link: string;
-    namespace?: string;
-    config?: Record<string, any>;
+  /** The discovery-call booking page, used by every "book a call" CTA. */
+  discoveryCallUrl?: string;
+  /** The newsletter the Substack embed signs people up to. */
+  newsletter?: {
+    name: string;
+    url: string;
   };
   social?: Array<{
     label: string;
@@ -268,9 +271,10 @@ export interface SiteConfig {
     sentryDsn?: string;
     environment?: string;
   };
-  seo: {
-    defaultTitle: string;
-    defaultDescription: string;
+  /** Optional overrides. Defaults derive from name, tagline and description. */
+  seo?: {
+    defaultTitle?: string;
+    defaultDescription?: string;
   };
   blog: {
     title: string;

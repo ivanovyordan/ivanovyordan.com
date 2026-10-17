@@ -3,57 +3,81 @@
   "slug": "coaching",
   "published": true,
   "seo": {
-    "title": "Data Coaching - Yordan Ivanov",
-    "description": "1-on-1 for mid and senior data professionals. Stakeholder communication, promotion business cases, and the non-technical side of the job."
+    "title": "1-on-1 coaching for experienced data professionals | Yordan Ivanov",
+    "description": "1-on-1 coaching for experienced data professionals doing a lead's job without the title. Start with a free 30-minute discovery call."
   },
   "sections": [
     {
       "_block": "hero",
-      "title": "You're good at your job and deserve more.",
-      "subtitle": "I've spent nine years managing data teams and helping people through exactly what you're stuck on, whether that's stakeholder conversations, promotion strategy, or making your work count beyond the pipeline."
+      "badge": "1-on-1 coaching",
+      "title": "You're allowed to lead before you have the title",
+      "subtitle": "If you're an experienced data professional already doing a lead's job, I coach you 1-on-1 on getting priorities agreed, getting buy-in without being pushy, and building the case for your promotion."
     },
     {
       "_block": "highlight-box",
-      "title": "The Problem",
-      "content": "You can build the pipeline, design the architecture, and fix the production incident at 2am. But when it's time to present to the VP, make the case for headcount, or explain why your promotion is overdue, you go quiet. Technical skill got you here. It won't take you further."
+      "title": "The conversations nobody trained you for",
+      "content": "Your next title depends on winning priorities, buy-in and recognition from people who outrank you. Nobody trains you for those conversations, and the title that says you're allowed to have them only comes after you've had them, which is a damn annoying order to do things in. I didn't have those skills the first time I led a team either.\n\nIf a fourth urgent request comes in on top of three and your \"not now\" doesn't hold when the requester pushes back, your team covers it with its weekends. When a VP asks what the data team delivered this quarter and the honest answer is \"kept everything running\", the work counts for nothing."
     },
     {
       "_block": "features-grid",
       "title": "What we work on",
       "items": [
         {
-          "title": "Stakeholder Communication",
-          "description": "How to walk into a meeting with non-technical leadership and land your point. We work on structure, framing, and confidence so you stop leaving meetings thinking 'I should have said that differently.'"
+          "title": "Stakeholder communication",
+          "description": "Before the meeting with non-technical leadership, we plan what you open with, what you leave out and what you ask for, so the point they repeat afterwards is yours."
         },
         {
-          "title": "Promotion Business Cases",
-          "description": "Most data people wait to be noticed. We build an actual case: impact framed in business terms, a clear narrative for your manager, and a strategy for making it happen on your timeline."
+          "title": "Promotion business cases",
+          "description": "The case your manager takes into the promotion meeting you're not in, written with your impact in terms the business counts and the date you're asking for."
         },
         {
-          "title": "Data Strategy & Roadmaps",
-          "description": "How to think beyond the next sprint. We work on building a roadmap that connects your technical work to what the business actually cares about: revenue, cost, and risk."
+          "title": "Data strategy and roadmaps",
+          "description": "A plan past the next sprint, with each piece of technical work tied to revenue, cost or risk, so the people who fund the team can see what they're paying for."
         },
         {
-          "title": "Working Without a Playbook",
-          "description": "Managing up, saying no to stakeholders, figuring out what 'being strategic' actually means at your level. Nobody teaches this. We work through the situations that don't have a right answer in the documentation."
+          "title": "Working without a playbook",
+          "description": "Managing up, saying \"not now\" to a stakeholder, working out what \"being strategic\" means at your level. We work through your own situations, the ones the docs have no answer for."
         }
       ]
     },
     {
-      "_block": "gemini-assistant",
-      "label": "AI Assistant"
+      "_block": "cta-section",
+      "title": "How it works",
+      "description": "It starts with a free 30-minute discovery call. You tell me what you're stuck on, I tell you whether I can help, and I share my rates on the call. If we're a fit, you pick the package of 6, a package of 3 or a single call. All three are also at book.ivanovyordan.com if you already know what you want, and if you don't, book the discovery call first.",
+      "buttonText": "book a discovery call"
     },
     {
-      "_block": "cta-section",
-      "title": "30 minutes. No pitch.",
-      "description": "Book a discovery call. Tell me what you're stuck on. If I can help, I'll tell you how. If I can't, I'll tell you that too.",
-      "buttonText": "Book a Discovery Call"
+      "_block": "accordion",
+      "title": "What stops you from booking",
+      "defaultOpen": 0,
+      "items": [
+        {
+          "question": "I don't want to be pushy, and I'm not sure leading is my place.",
+          "answer": "As a manager, this is what I think when someone on my team takes the lead: \"I love it when my team takes initiative. They take work off my plate, they show they've outgrown the role, and that's why they see the big picture\". Pushy is asking without a case, so we build the case first."
+        },
+        {
+          "question": "I already know this.",
+          "answer": "We work on the stakeholder you're dealing with, the document you're about to send and the meeting you have next week, before any of it happens."
+        },
+        {
+          "question": "I don't have time.",
+          "answer": "The discovery call is 30 minutes. After that you book each call yourself, so you can put one in the week before the meeting that matters."
+        },
+        {
+          "question": "This won't work in my org.",
+          "answer": "Every call starts from how your org works, who sets priorities, who funds the team and what your manager needs to see. If it can't work where you are, the discovery call is where I tell you."
+        }
+      ]
+    },
+    {
+      "_block": "text",
+      "content": "## How Erfan got to 22%\n\nI coached Erfan Hesami through his promotion. A reorg changed his manager 3 months before his annual review, and the company's first offer was 12%. He finished with the lead title and 22% after 4 meetings over 3 weeks, and the case that got him there was in writing. I wrote up how he did it, meeting by meeting."
     },
     {
       "_block": "testimonial",
       "heading": "What people say about my work",
-      "quote": "I highly recommend Yordan, he is an absolute pleasure to work with and I've not yet seen a problem that he can't solve. Yordan is also so generous with his knowledge, always taking the time to explain the best way of doing something or the merits of a range of options.",
-      "author": "Katy Beckett, Analytics Manager"
+      "quote": "Thank you for coaching. Your framework guidance and advice to ask clarifying questions/make assumptions explicit in technical rounds was incredibly helpful. I also appreciate the concrete next steps (recorded practice answers + 2‑minute pitch). This gave me a clear plan to improve phone-screen conversion.",
+      "author": "Shravya Yermal, Senior Data Engineer"
     },
     {
       "_block": "testimonial",
@@ -64,6 +88,29 @@
       "_block": "testimonial",
       "quote": "Your content fills the gap between business value and technical skills and knowledge required to be a good data engineer, which is something that I always look for and is not easy to find.",
       "author": "Filipe Balseiro, Lead Data Engineer"
+    },
+    {
+      "_block": "testimonial",
+      "quote": "I highly recommend Yordan, he is an absolute pleasure to work with and I've not yet seen a problem that he can't solve. Yordan is also so generous with his knowledge, always taking the time to explain the best way of doing something or the merits of a range of options.",
+      "author": "Katy Beckett, Analytics Manager"
+    },
+    {
+      "_block": "text",
+      "content": "The rest are on my [wall of love](https://datagibberish.notion.site/30001b01052c8023b49ff09f7bc11f71)."
+    },
+    {
+      "_block": "text",
+      "content": "## Try my digital twin before you book\n\nMy digital twin is an AI assistant that answers the way I would. You get 10 questions here, free. Full access comes with the [annual Data Gibberish subscription](https://www.datagibberish.com/subscribe?utm_source=ivanovyordan&utm_medium=referral&utm_campaign=coaching-twin), and a year of it costs less than one coaching package."
+    },
+    {
+      "_block": "gemini-assistant",
+      "label": "My digital twin"
+    },
+    {
+      "_block": "cta-section",
+      "title": "30 minutes. No pitch.",
+      "description": "If I can help, I'll tell you how and what it costs, and if I can't, I'll tell you that too. Book it and tell me what you're stuck on.",
+      "buttonText": "book a discovery call"
     }
   ]
 }
