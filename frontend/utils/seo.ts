@@ -223,6 +223,8 @@ export function generateLlmsTxt(): string {
     );
   }
   if (siteConfig.bookingUrl) facts.push(`- Booking: ${siteConfig.bookingUrl}`);
+  if (siteConfig.discoveryCallUrl) facts.push(`- Free discovery call: ${siteConfig.discoveryCallUrl}`);
+  if (siteConfig.flagshipUrl) facts.push(`- Flagship (6 private coaching calls): ${siteConfig.flagshipUrl}`);
   if (siteConfig.email) facts.push(`- Email: ${siteConfig.email}`);
   for (const item of siteConfig.social || []) {
     facts.push(`- ${item.label}: ${item.url}`);

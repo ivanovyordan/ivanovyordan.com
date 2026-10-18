@@ -207,6 +207,19 @@ content:
               - name: buttonUrl
                 label: Button URL
                 type: string
+                description: "Leave empty for the on-site discovery-call calendar (Site Settings > Discovery Call Page)"
+              - name: items
+                label: Bullet points
+                type: string
+                list: true
+                description: "Optional list shown between the description and the button (e.g. what a package includes)"
+              - name: secondaryButtonText
+                label: Secondary link text
+                type: string
+                description: "Quieter text link under the main button"
+              - name: secondaryButtonUrl
+                label: Secondary link URL
+                type: string
               - name: pricing
                 label: Pricing
                 type: object
@@ -217,6 +230,26 @@ content:
                   - name: price
                     label: Price
                     type: string
+          - name: booking-embed
+            label: Booking Calendar (TidyCal)
+            fields:
+              - name: path
+                label: TidyCal path
+                type: string
+                required: true
+                default: "ivanovyordan/discovery-call"
+                description: "The part after tidycal.com/, e.g. ivanovyordan/discovery-call"
+              - name: id
+                label: Anchor id
+                type: string
+                default: "book"
+                description: "Links such as /coaching#book land on this section"
+              - name: title
+                label: Title
+                type: string
+              - name: description
+                label: Description
+                type: text
           - name: newsletter
             label: Newsletter Signup
             fields:
@@ -677,6 +710,16 @@ content:
                       - name: buttonUrl
                         label: Button URL
                         type: string
+                      - name: items
+                        label: Bullet points
+                        type: string
+                        list: true
+                      - name: secondaryButtonText
+                        label: Secondary link text
+                        type: string
+                      - name: secondaryButtonUrl
+                        label: Secondary link URL
+                        type: string
                       - name: pricing
                         label: Pricing
                         type: object
@@ -833,7 +876,15 @@ content:
       - name: discoveryCallUrl
         label: Discovery Call URL
         type: string
-        description: "The discovery-call booking page, used by every 'book a call' button"
+        description: "External discovery-call page: the digital twin, llms.txt and the fallback link under the embedded calendar"
+      - name: discoveryCallPage
+        label: Discovery Call Page
+        type: string
+        description: "Where on-site 'book a discovery call' buttons go (e.g., /coaching#book)"
+      - name: flagshipUrl
+        label: Flagship Package URL
+        type: string
+        description: "The 6-call package booking page (e.g., https://book.ivanovyordan.com/6-private-coaching-calls)"
       - name: analytics
         label: Analytics & Tracking
         type: object

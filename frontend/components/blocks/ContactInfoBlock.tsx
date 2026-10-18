@@ -63,17 +63,21 @@ const ContactInfoBlock: React.FC<ContactInfoBlockProps> = ({ block }) => {
                 {block.officeHours.description}
               </p>
             )}
-            {block.officeHours.buttonText && (
+            {block.officeHours.buttonText && (() => {
+              const href = block.officeHours.url || siteConfig.discoveryCallPage || siteConfig.discoveryCallUrl || '#';
+              const external = /^https?:\/\//i.test(href);
+              return (
               <a
-                href={block.officeHours.url || siteConfig.discoveryCallUrl || '#'}
+                href={href}
                 onClick={() => trackBookingClick('contact_info')}
-                target="_blank"
-                rel="noopener noreferrer"
+                target={external ? '_blank' : undefined}
+                rel={external ? 'noopener noreferrer' : undefined}
                 className="inline-block bg-black dark:bg-white text-white dark:text-black px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black dark:focus:ring-offset-zinc-950 cursor-pointer"
               >
                 {block.officeHours.buttonText}
               </a>
-            )}
+              );
+            })()}
           </div>
         )}
       </div>

@@ -283,10 +283,8 @@ const GeminiAssistantBlock: React.FC<GeminiAssistantBlockProps> = () => {
             subscription. If you'd rather work on your case with me, book a discovery call.
           </p>
           <a
-            href={siteConfig.discoveryCallUrl || siteConfig.bookingUrl || '#'}
+            href={siteConfig.discoveryCallPage || siteConfig.discoveryCallUrl || siteConfig.bookingUrl || '#'}
             onClick={() => trackBookingClick('ai_assistant_limit')}
-            target="_blank"
-            rel="noopener noreferrer"
             className="inline-block bg-black dark:bg-white text-white dark:text-black px-8 py-4 text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform shadow-lg cursor-pointer"
           >
             book a discovery call

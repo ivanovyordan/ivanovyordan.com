@@ -43,8 +43,23 @@
     {
       "_block": "cta-section",
       "title": "How it works",
-      "description": "It starts with a free 30-minute discovery call. You tell me what you're stuck on, I tell you whether I can help, and I share my rates on the call. If we're a fit, you pick the package of 6, a package of 3 or a single call. All three are also at book.ivanovyordan.com if you already know what you want, and if you don't, book the discovery call first.",
+      "description": "It starts with a free 30-minute discovery call. You tell me what you're stuck on, I tell you whether I can help, and I share my rates on the call. If we're a fit, most people take the package of 6 calls below. A package of 3 and single calls are also at book.ivanovyordan.com if you already know what you want. The calendar for the discovery call is at the bottom of this page.",
       "buttonText": "book a discovery call"
+    },
+    {
+      "_block": "cta-section",
+      "title": "The flagship: 6 private coaching calls",
+      "description": "For the promotion case or the stakeholder situation that plays out over the next few months, not just the next meeting. The first call maps your case: who decides, what they need to see and the date you're asking for. After that you book each call yourself, before the document you're about to send or the meeting you're dreading, and it's me on every call.",
+      "items": [
+        "6 one-hour calls, booked at your pace over the months the case takes",
+        "We work on your real documents and meetings, before they happen",
+        "Written feedback between calls on what you're about to send",
+        "By the end, your case is in writing, in terms the business counts"
+      ],
+      "buttonText": "book the 6-call package",
+      "buttonUrl": "https://book.ivanovyordan.com/6-private-coaching-calls",
+      "secondaryButtonText": "not sure yet? book the free discovery call",
+      "secondaryButtonUrl": "/coaching#book"
     },
     {
       "_block": "accordion",
@@ -61,7 +76,7 @@
         },
         {
           "question": "I don't have time.",
-          "answer": "The discovery call is 30 minutes. After that you book each call yourself, so you can put one in the week before the meeting that matters."
+          "answer": "The discovery call is 30 minutes, and the calendar is at the bottom of this page. After that you book each call yourself, so you can put one in the week before the meeting that matters."
         },
         {
           "question": "This won't work in my org.",
@@ -107,10 +122,11 @@
       "label": "My digital twin"
     },
     {
-      "_block": "cta-section",
+      "_block": "booking-embed",
+      "id": "book",
+      "path": "ivanovyordan/discovery-call",
       "title": "30 minutes. No pitch.",
-      "description": "If I can help, I'll tell you how and what it costs, and if I can't, I'll tell you that too. Book it and tell me what you're stuck on.",
-      "buttonText": "book a discovery call"
+      "description": "If I can help, I'll tell you how and what it costs, and if I can't, I'll tell you that too. Pick a slot and tell me what you're stuck on."
     }
   ]
 }

@@ -14,7 +14,8 @@ AI assistant on the coaching page.
   The build also generates `sitemap.xml`, `feed.xml`, `atom.xml`, `llms.txt`
   and a real `404.html`
 - **Newsletter signup** is the Substack embed for [Data Gibberish](https://www.datagibberish.com)
-- **Booking** lives at [book.ivanovyordan.com](https://book.ivanovyordan.com/)
+- **Booking** is TidyCal: the free discovery call is embedded on `/coaching` and
+  `/contact`, the paid packages live at [book.ivanovyordan.com](https://book.ivanovyordan.com/)
 - Google Analytics and Facebook Pixel behind a cookie-consent banner, Sentry
   for errors, dark mode, accessibility basics
 

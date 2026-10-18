@@ -53,7 +53,8 @@ export type PageBlock =
   | ImageBlock
   | ColumnsBlock
   | SidebarBlock
-  | AccordionBlock;
+  | AccordionBlock
+  | BookingEmbedBlock;
 
 export interface HeroBlock {
   _block: "hero";
@@ -101,8 +102,14 @@ export interface CTASectionBlock {
   _block: "cta-section";
   title: string;
   description?: string;
+  /** Optional bullets rendered between the description and the button. */
+  items?: string[];
   buttonText: string;
+  /** Defaults to site.discoveryCallPage, then site.discoveryCallUrl. */
   buttonUrl?: string;
+  /** Quieter text link under the main button. */
+  secondaryButtonText?: string;
+  secondaryButtonUrl?: string;
   pricing?: {
     label: string;
     price: string;
@@ -223,6 +230,16 @@ export interface AccordionBlock {
   defaultOpen?: number; // Index of item to open by default (optional)
 }
 
+export interface BookingEmbedBlock {
+  _block: "booking-embed";
+  /** TidyCal booking path, e.g. "ivanovyordan/discovery-call". */
+  path: string;
+  /** Section id so /coaching#book lands here. Defaults to "book". */
+  id?: string;
+  title?: string;
+  description?: string;
+}
+
 export interface HeaderConfig {
   branding: {
     text: string;
@@ -251,8 +268,12 @@ export interface SiteConfig {
   email?: string;
   /** Where booking lives (every call type). */
   bookingUrl?: string;
-  /** The discovery-call booking page, used by every "book a call" CTA. */
+  /** The external discovery-call page: the twin, llms.txt and the fallback link under the embedded calendar. */
   discoveryCallUrl?: string;
+  /** Where on-site "book a discovery call" buttons go, e.g. "/coaching#book". */
+  discoveryCallPage?: string;
+  /** The flagship 6-call package booking page. */
+  flagshipUrl?: string;
   /** The newsletter the Substack embed signs people up to. */
   newsletter?: {
     name: string;

@@ -6,6 +6,8 @@
   "email": "mail@ivanovyordan.com",
   "bookingUrl": "https://book.ivanovyordan.com/",
   "discoveryCallUrl": "https://book.ivanovyordan.com/discovery-call",
+  "discoveryCallPage": "/coaching#book",
+  "flagshipUrl": "https://book.ivanovyordan.com/6-private-coaching-calls",
   "newsletter": {
     "name": "Data Gibberish",
     "url": "https://www.datagibberish.com"

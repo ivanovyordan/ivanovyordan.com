@@ -73,6 +73,20 @@ export function trackBookingClick(location?: string): void {
 }
 
 /**
+ * Whether a CTA href leads to booking: the discovery call (external page or
+ * the on-site embed anchor) or anything under the booking domain.
+ */
+export function isBookingHref(
+  href: string | undefined,
+  site: { bookingUrl?: string; discoveryCallUrl?: string; discoveryCallPage?: string }
+): boolean {
+  if (!href) return false;
+  if (href === site.discoveryCallUrl || href === site.discoveryCallPage) return true;
+  if (site.bookingUrl && href.startsWith(site.bookingUrl)) return true;
+  return href.endsWith('#book');
+}
+
+/**
  * Track AI assistant question
  */
 export function trackAIQuestionAsked(): void {

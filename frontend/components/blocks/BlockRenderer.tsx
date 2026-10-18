@@ -19,6 +19,7 @@ import ImageBlock from './ImageBlock';
 import ColumnsBlock from './ColumnsBlock';
 import SidebarBlock from './SidebarBlock';
 import AccordionBlock from './AccordionBlock';
+import BookingEmbedBlock from './BookingEmbedBlock';
 
 interface BlockRendererProps {
   block: PageBlock;
@@ -64,6 +65,8 @@ const BlockRenderer: React.FC<BlockRendererProps> = ({ block }) => {
       return <SidebarBlock block={block} />;
     case 'accordion':
       return <AccordionBlock block={block} />;
+    case 'booking-embed':
+      return <BookingEmbedBlock block={block} />;
     default:
       return null;
   }
