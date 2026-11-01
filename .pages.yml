@@ -43,6 +43,7 @@ content:
             - Data
             - Career
             - Technical
+            - AI
       - name: body
         label: Content
         type: rich-text
