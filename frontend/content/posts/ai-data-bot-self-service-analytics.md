@@ -4,13 +4,13 @@ slug: ai-data-bot-self-service-analytics
 date: 2026-11-01
 category: AI
 ---
-![](/images/posts/ai-data-bot-self-service-analytics/hero.png)
-
 This article is the technical counterpart of my article ++*[An AI bot won't save your overwhelmed data team](https://open.substack.com/pub/datagibberish/p/reporting-before-ai-to-save-data-teams-from-burnout?r=odlo3&utm_campaign=post-expanded-share&utm_medium=web)*++. That article covers the foundations. This article covers the build.
 
 Once you have all the foundations, you can finally work on the AI solution. Here’s how we did it. We call our bot Chandler, and it answers questions about company data in Slack and in Claude, from the same definitions our dashboards use. Most of the work wasn’t code, though. It was writing down what the business means, in a place a model can read.
 
 Here’s the method in short. You write your business knowledge into the semantic layer, structure it like a tree, and pull it into your own database every night. The bot then answers from saved answers and stamped dashboards first, and only writes its own query when nothing else fits, with read-only access and PII blocked.
+
+![](/images/posts/ai-data-bot-self-service-analytics/hero.png)
 
 ## Where should an AI data bot get its business context?
 
@@ -40,7 +40,7 @@ The reason to do this is very simple. When working with AI, the most trivial way
 
 That’s exactly how Chandler moves. It starts at the top of the semantic layer, reads the description at each level to decide where to go, and only loads the full field details for the one topic it picks. Everything else stays out of the context.
 
-![A tree with the big picture on top, models under it, and fields and metrics at the bottom. Chandler loads only the branch it needs.](/images/semantic-layer-tree.png)
+![A tree with the big picture on top, models under it, and fields and metrics at the bottom. Chandler loads only the branch it needs.](/images/posts/ai-data-bot-self-service-analytics/semantic-layer-tree.png)
 
 ## Why sync the semantic layer into your own database every night?
 
@@ -63,7 +63,7 @@ The run starts after the warehouse refresh, and it ends by clearing every saved 
 
 We also made it strict. If a definition can’t be turned into a real warehouse query, the field is marked as unavailable and Chandler isn’t allowed to use it. A half-translated definition would still run, and it would return a wrong number. Dashboards that need more than one step to build are left out for the same reason, because half a query answers a different question.
 
-![Every night, after the warehouse refresh, read the semantic layer, map each field to the warehouse, add certified dashboard tiles, and store everything in Chandler’s database.](/images/nightly-sync-flow.png)
+![Every night, after the warehouse refresh, read the semantic layer, map each field to the warehouse, add certified dashboard tiles, and store everything in Chandler’s database.](/images/posts/ai-data-bot-self-service-analytics/nightly-sync-flow.png)
 
 ## How does an AI data bot answer a question?
 
@@ -89,7 +89,7 @@ A few rules made a big difference:
 
 Finally, every answer says where the number came from. If a stamped dashboard answered it, you get the link. If the agent wrote the query, you get a line on what was counted, over which period, and whether the default filters were applied. You also get at most one warning, like an empty result or a month that isn’t over yet. Those warnings come from simple rules, not from the model.
 
-![A question reaches Chandler in Slack or Claude and goes through saved answers, similar questions and certified dashboards before the agent loop.](/images/answer-path.png)
+![A question reaches Chandler in Slack or Claude and goes through saved answers, similar questions and certified dashboards before the agent loop.](/images/posts/ai-data-bot-self-service-analytics/answer-path.png)
 
 ## How do you keep an AI data bot read-only and free of PII?
 
@@ -105,7 +105,7 @@ Third, answers about yourself stay yours. Saved answers are shared, so the secon
 
 Finally, access. People sign in with their company Google account. Apps get keys that only admins can issue, and each key traces back to a person. And who can open the admin side is a simple list we maintain.
 
-![Four controls in Chandler’s code: read only, no personal data in answers, your answers stay yours, and approved people and apps only.](/images/security-ring.png)
+![Four controls in Chandler’s code: read only, no personal data in answers, your answers stay yours, and approved people and apps only.](/images/posts/ai-data-bot-self-service-analytics/security-ring.png)
 
 ## How do you monitor an AI data bot after launch?
 
