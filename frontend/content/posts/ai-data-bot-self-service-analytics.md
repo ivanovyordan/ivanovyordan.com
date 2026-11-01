@@ -4,7 +4,7 @@ slug: ai-data-bot-self-service-analytics
 date: 2026-11-01
 category: AI
 ---
-This article is the technical counterpart of my article ++*[An AI bot won't save your overwhelmed data team](https://open.substack.com/pub/datagibberish/p/reporting-before-ai-to-save-data-teams-from-burnout?r=odlo3&utm_campaign=post-expanded-share&utm_medium=web)*++**.**That article covers the foundations. This article covers the build.
+This article is the technical counterpart of my article ++[An AI bot won't save your overwhelmed data team](https://open.substack.com/pub/datagibberish/p/reporting-before-ai-to-save-data-teams-from-burnout?r=odlo3&utm_campaign=post-expanded-share&utm_medium=web)++ That article covers the foundations. This article covers the build.
 
 Once you have all the foundations, you can finally work on the AI solution. Here’s how we did it. We call our bot Chandler, and it answers questions about company data in Slack and in Claude, from the same definitions our dashboards use. Most of the work wasn’t code, though. It was writing down what the business means, in a place a model can read.
 
@@ -26,7 +26,7 @@ Whatever you pick, the bot is only as good as what you write in there. Where a n
 
 ## How should you structure semantic-layer docs for an AI bot?
 
-Slapping on a semantic layer is not enough, and you have a lot of work to do with this one. So, before we continue, I need to give proper credit to Prabhu (TK: link to Prabhu’s LinkedIn profile) and Oli (TK: link to Oli’s LinkedIn profile), who did all the work here.
+Slapping on a semantic layer is not enough, and you have a lot of work to do with this one. So, before we continue, I need to give proper credit to ++[Prabhu](https://www.linkedin.com/in/prabhuparthiban/)++ and ++[Oli](https://www.linkedin.com/in/oliver-aspen-paterson/)++, who did all the work here.
 
 You want to structure your semantics like a tree. On top of everything, you have the big picture. Here you explain:
 
