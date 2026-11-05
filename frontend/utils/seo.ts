@@ -36,6 +36,27 @@ function formatSitemapDate(date: Date): string {
   return date.toISOString().split("T")[0];
 }
 
+const IMAGE_MIME_TYPES: Record<string, string> = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  webp: "image/webp",
+  gif: "image/gif",
+};
+
+// Media RSS image tag, so feed consumers like Pinterest can find the post image
+function mediaContentTag(image: string | undefined, baseUrl: string): string {
+  if (!image) return "";
+  const url = /^https?:\/\//.test(image)
+    ? image
+    : `${baseUrl}${image.startsWith("/") ? image : `/${image}`}`;
+  const extension = url.split(/[?#]/)[0].split(".").pop()?.toLowerCase() || "";
+  const type = IMAGE_MIME_TYPES[extension];
+  return `<media:content url="${escapeXml(url)}" medium="image"${
+    type ? ` type="${type}"` : ""
+  }/>`;
+}
+
 // Generate RSS feed
 export function generateRSSFeed(): string {
   const siteConfig = getSiteConfig();
@@ -48,9 +69,10 @@ export function generateRSSFeed(): string {
     .map((post) => {
       const postDate = new Date(post.date || now);
       const postUrl = `${baseUrl}/blog/${post.id}`;
-      const excerpt = escapeXml(post.excerpt || "");
+      const excerpt = escapeXml(stripMarkdown(post.excerpt || ""));
       const siteConfig = getSiteConfig();
       const authorEmail = siteConfig.email || "";
+      const mediaContent = mediaContentTag(post.image, baseUrl);
 
       return `    <item>
       <title>${escapeXml(post.title)}</title>
@@ -59,13 +81,14 @@ export function generateRSSFeed(): string {
       <description>${excerpt}</description>
       <pubDate>${formatRssDate(postDate)}</pubDate>
       <category>${escapeXml(post.category)}</category>
+      ${mediaContent}
       ${authorEmail ? `<author>${escapeXml(authorEmail)} (${escapeXml(siteConfig.name)})</author>` : ""}
     </item>`;
     })
     .join("\n");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
   <channel>
     <title>${escapeXml(siteConfig.name)} - ${escapeXml(
     siteConfig.blog.title
@@ -92,7 +115,7 @@ export function generateAtomFeed(): string {
     .map((post) => {
       const postDate = new Date(post.date || now);
       const postUrl = `${baseUrl}/blog/${post.id}`;
-      const excerpt = escapeXml(post.excerpt || "");
+      const excerpt = escapeXml(stripMarkdown(post.excerpt || ""));
       const authorEmail = siteConfig.email || "";
 
       return `    <entry>
