@@ -12,6 +12,8 @@ import {
   renderHeadTags,
   type RouteMeta,
 } from './utils/meta';
+import { getMarkdownPath } from './utils/routes';
+import { blogIndexToMarkdown, pageToMarkdown, postToMarkdown } from './utils/markdown';
 import {
   generateAtomFeed,
   generateLlmsTxt,
@@ -76,10 +78,19 @@ export function render(route: PrerenderRoute): { head: string; html: string } {
 
 /** The non-HTML files generated at build time, keyed by path under dist/. */
 export function generateFiles(): Record<string, string> {
-  return {
+  const posts = getAllPosts();
+  const files: Record<string, string> = {
     'sitemap.xml': generateSitemap(),
     'feed.xml': generateRSSFeed(),
     'atom.xml': generateAtomFeed(),
     'llms.txt': generateLlmsTxt(),
+    'blog.md': blogIndexToMarkdown(posts),
   };
+  for (const page of getAllPages()) {
+    files[getMarkdownPath(getPagePath(page)).slice(1)] = pageToMarkdown(page);
+  }
+  for (const post of posts) {
+    files[getMarkdownPath(`/blog/${post.id}`).slice(1)] = postToMarkdown(post);
+  }
+  return files;
 }

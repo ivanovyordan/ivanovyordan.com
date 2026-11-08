@@ -2,6 +2,7 @@ import { getAllPosts } from "./posts";
 import { getAllPages } from "./pages";
 import { getSiteConfig, getDefaultDescription } from "./site";
 import { stripMarkdown } from "./meta";
+import { getMarkdownPath } from "./routes";
 
 // Get base URL from environment, site config, or use default
 export function getBaseUrl(): string {
@@ -234,7 +235,7 @@ export function generateLlmsTxt(): string {
     const description = page.seo?.description
       ? `: ${oneLine(page.seo.description)}`
       : "";
-    return `- [${page.title}](${baseUrl}/${page.slug})${description}`;
+    return `- [${page.title}](${baseUrl}${getMarkdownPath(`/${page.slug}`)})${description}`;
   };
 
   const facts: string[] = [];
@@ -266,11 +267,11 @@ export function generateLlmsTxt(): string {
     "",
     `## ${siteConfig.blog.title}`,
     "",
-    `[${siteConfig.blog.title}](${baseUrl}/blog): ${siteConfig.blog.description}`,
+    `[${siteConfig.blog.title}](${baseUrl}${getMarkdownPath("/blog")}): ${siteConfig.blog.description}`,
     "",
     ...posts.map(
       (post) =>
-        `- [${post.title}](${baseUrl}/blog/${post.id})${
+        `- [${post.title}](${baseUrl}${getMarkdownPath(`/blog/${post.id}`)})${
           post.date ? ` (${post.date})` : ""
         }: ${oneLine(post.excerpt)}`
     ),

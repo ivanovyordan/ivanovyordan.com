@@ -1,6 +1,6 @@
 import type { PageContent, Post } from "../types";
 import { getSiteConfig, getDefaultDescription } from "./site";
-import { getCanonicalUrl } from "./routes";
+import { getCanonicalUrl, getMarkdownPath } from "./routes";
 
 /**
  * Everything a route puts in <head>: title, description, canonical, robots,
@@ -18,6 +18,8 @@ export interface RouteMeta {
   ogType: "website" | "article";
   /** Absolute image URL for Open Graph / Twitter cards. */
   image?: string;
+  /** Absolute URL of the route's markdown variant, advertised as rel="alternate". */
+  markdown?: string;
   jsonLd: Record<string, unknown>[];
 }
 
@@ -145,6 +147,7 @@ export function buildPageMeta(page: PageContent): RouteMeta {
     robots: page.seo?.noindex ? "noindex, nofollow" : "index, follow",
     ogType: "website",
     image: image ? makeAbsoluteUrl(image) : undefined,
+    markdown: getCanonicalUrl(getMarkdownPath(getPagePath(page))),
     jsonLd,
   };
 }
@@ -157,6 +160,7 @@ export function buildBlogMeta(): RouteMeta {
     canonical: getCanonicalUrl("/blog"),
     robots: "index, follow",
     ogType: "website",
+    markdown: getCanonicalUrl(getMarkdownPath("/blog")),
     jsonLd: [
       personSchema(),
       {
@@ -185,6 +189,7 @@ export function buildPostMeta(post: Post): RouteMeta {
     robots: "index, follow",
     ogType: "article",
     image,
+    markdown: getCanonicalUrl(getMarkdownPath(`/blog/${post.id}`)),
     jsonLd: [
       personSchema(),
       {
@@ -249,6 +254,11 @@ export function renderHeadTags(meta: RouteMeta): string {
   if (meta.canonical) {
     tags.push(`<link rel="canonical" href="${escapeHtml(meta.canonical)}" />`);
     tags.push(`<meta property="og:url" content="${escapeHtml(meta.canonical)}" />`);
+  }
+  if (meta.markdown) {
+    tags.push(
+      `<link rel="alternate" type="text/markdown" href="${escapeHtml(meta.markdown)}" />`
+    );
   }
   tags.push(
     `<meta property="og:type" content="${meta.ogType}" />`,
@@ -319,6 +329,21 @@ export function applyRouteMeta(meta: RouteMeta): void {
   } else {
     canonical?.remove();
     removeTags('meta[property="og:url"]');
+  }
+
+  let markdown = document.head.querySelector<HTMLLinkElement>(
+    'link[rel="alternate"][type="text/markdown"]'
+  );
+  if (meta.markdown) {
+    if (!markdown) {
+      markdown = document.createElement("link");
+      markdown.setAttribute("rel", "alternate");
+      markdown.setAttribute("type", "text/markdown");
+      document.head.appendChild(markdown);
+    }
+    markdown.setAttribute("href", meta.markdown);
+  } else {
+    markdown?.remove();
   }
 
   setPropertyMeta("og:type", meta.ogType);

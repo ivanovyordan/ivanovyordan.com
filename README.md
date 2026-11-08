@@ -13,6 +13,11 @@ AI assistant on the coaching page.
   HTML file with its head tags and content, then hydrated in the browser.
   The build also generates `sitemap.xml`, `feed.xml`, `atom.xml`, `llms.txt`
   and a real `404.html`
+- **Markdown variants for AI agents**: every page and post is also written as
+  `<path>.md` (`/about.md`, `/blog/<slug>.md`, `/index.md`, `/blog.md`) by
+  `utils/markdown.ts`. Each HTML page links to its twin with
+  `rel="alternate" type="text/markdown"`, `llms.txt` points at the `.md` URLs,
+  and `public/_headers` serves them as `text/markdown`
 - **Newsletter signup** is the Substack embed for [Data Gibberish](https://www.datagibberish.com)
 - **Booking** is TidyCal: the free discovery call is embedded on `/coaching` and
   `/contact`, the paid packages live at [book.ivanovyordan.com](https://book.ivanovyordan.com/)
