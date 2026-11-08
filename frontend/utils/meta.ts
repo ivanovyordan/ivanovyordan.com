@@ -222,9 +222,20 @@ function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
-/** JSON-LD goes inside a <script>, where "</" would end it early. */
+/**
+ * JSON-LD goes inside a <script>, where "</" would end it early. It is a
+ * single object, never a top-level array: some injected scripts read
+ * `["@context"]` straight off the parsed block and throw on an array.
+ */
 function serializeJsonLd(jsonLd: Schema[]): string {
-  return JSON.stringify(jsonLd).replace(/</g, "\\u003c");
+  const doc =
+    jsonLd.length === 1
+      ? jsonLd[0]
+      : {
+          "@context": SCHEMA_CONTEXT,
+          "@graph": jsonLd.map(({ "@context": _context, ...node }) => node),
+        };
+  return JSON.stringify(doc).replace(/</g, "\\u003c");
 }
 
 /** The <head> tags for a route, as HTML. Used by the build-time pre-render. */
