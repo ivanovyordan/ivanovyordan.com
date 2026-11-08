@@ -11,4 +11,7 @@ export interface Env {
   BOOKING_URL: string;
   /** Question logging, and the per-IP MCP rate limit count. */
   DB: D1Database;
+  /** Worker secret; Sentry stays off when it is unset. */
+  SENTRY_DSN?: string;
+  CF_VERSION_METADATA: WorkerVersionMetadata;
 }

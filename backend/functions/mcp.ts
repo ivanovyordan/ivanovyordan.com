@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/cloudflare";
 import { McpServer } from "@modelcontextprotocol/server";
 import { createMcpHandler } from "agents/mcp/server";
 import { z } from "zod";
@@ -110,6 +111,7 @@ function createServer(env: Env, ctx: ExecutionContext, clientIp?: string) {
             source: "mcp",
           }).catch((err) => {
             console.error("Database save failed:", err);
+            Sentry.captureException(err);
           })
         );
 
@@ -123,6 +125,7 @@ function createServer(env: Env, ctx: ExecutionContext, clientIp?: string) {
             true
           );
         }
+        Sentry.captureException(error);
         return textResult(
           "The digital twin could not answer that right now. Try again later.",
           true

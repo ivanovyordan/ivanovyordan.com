@@ -4,6 +4,11 @@ main = "functions/worker.ts"
 # The MCP handler uses node:async_hooks (AsyncLocalStorage) internally.
 compatibility_flags = ["nodejs_compat"]
 
+upload_source_maps = true
+
+[version_metadata]
+binding = "CF_VERSION_METADATA"
+
 [observability]
 [observability.logs]
 enabled = true

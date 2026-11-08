@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/cloudflare";
 import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import PROMPT_TEMPLATE from "../data/prompt.md";
 import type { Env } from "./types";
@@ -374,6 +375,7 @@ export async function runAIPipeline(
     relevantMatches = getRelevantMatches(queryData);
   } catch (err) {
     console.error("Error querying Pinecone:", err);
+    Sentry.captureException(err);
   }
 
   const knowledgeContent = getKnowledgeContent(

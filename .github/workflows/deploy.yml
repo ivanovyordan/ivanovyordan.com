@@ -30,6 +30,11 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.CLOUDFLARE_WORKER_URL }}
           VITE_SITE_URL: ${{ secrets.SITE_URL || 'https://www.ivanovyordan.com' }}
+          VITE_SENTRY_RELEASE: ${{ github.sha }}
+          SENTRY_URL: ${{ secrets.SENTRY_URL }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3

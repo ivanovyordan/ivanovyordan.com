@@ -1,8 +1,9 @@
+import * as Sentry from "@sentry/cloudflare";
 import type { Env } from "./types";
 import { handleAIRequest } from "./ai";
 import { MCP_ROUTE, handleMcpRequest } from "./mcp";
 
-export default {
+const handler = {
   async fetch(
     request: Request,
     env: Env,
@@ -36,3 +37,12 @@ export default {
     });
   },
 };
+
+export default Sentry.withSentry(
+  (env: Env) => ({
+    dsn: env.SENTRY_DSN,
+    release: env.CF_VERSION_METADATA?.id,
+    tracesSampleRate: 0.1,
+  }),
+  handler
+);

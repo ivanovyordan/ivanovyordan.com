@@ -18,9 +18,8 @@ if (sentryDsn) {
   Sentry.init({
     dsn: sentryDsn,
     environment,
-    // Setting this option to true will send default PII data to Sentry.
-    // For example, automatic IP address collection on events
-    sendDefaultPii: true,
+    sendDefaultPii: false,
+    release: import.meta.env.VITE_SENTRY_RELEASE,
     tracesSampleRate: 0.1, // 10% of transactions
   });
 }
@@ -40,7 +39,9 @@ const app = (
 // the root already holds the page: hydrate it. The dev server ships an empty
 // root and renders from scratch.
 if (rootElement.children.length > 0) {
-  ReactDOM.hydrateRoot(rootElement, app);
+  ReactDOM.hydrateRoot(rootElement, app, {
+    onRecoverableError: Sentry.reactErrorHandler(),
+  });
 } else {
   ReactDOM.createRoot(rootElement).render(app);
 }

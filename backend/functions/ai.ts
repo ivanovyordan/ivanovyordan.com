@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/cloudflare";
 import type { Env } from "./types";
 import { getClientIP, getCountryCode } from "./http";
 import {
@@ -51,6 +52,10 @@ function handleAIError(
       }
     );
   }
+
+  Sentry.captureException(error, {
+    tags: { stage: error instanceof AIStageError ? error.stage : "unknown" },
+  });
 
   // Generic error. The stage is safe to expose - it names which step failed
   // without echoing provider messages, which can contain request details.
@@ -123,6 +128,7 @@ export async function handleAIRequest(
         source: "web",
       }).catch((err) => {
         console.error("Database save failed:", err);
+        Sentry.captureException(err);
       })
     );
 
