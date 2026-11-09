@@ -24,6 +24,13 @@ if (sentryDsn) {
   });
 }
 
+// A page opened as its own file (/about.html, a static preview) is the same page as /about.
+const { pathname } = window.location;
+if (pathname.endsWith('.html')) {
+  const clean = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+  window.history.replaceState(null, '', clean + window.location.search + window.location.hash);
+}
+
 const rootElement = document.getElementById('root');
 if (!rootElement) {
   throw new Error("Could not find root element to mount to");
@@ -44,4 +51,18 @@ if (rootElement.children.length > 0) {
   });
 } else {
   ReactDOM.createRoot(rootElement).render(app);
+  // Dev only: the kit's scripts start once the page has rendered (see vite.config.ts).
+  requestAnimationFrame(() => {
+    // Script tags, not import(): Vite refuses to import files from /public.
+    const load = (srcs: string[]) => {
+      const [src, ...rest] = srcs;
+      if (!src) return;
+      const tag = document.createElement('script');
+      tag.type = 'module';
+      tag.src = src;
+      tag.onload = () => load(rest);
+      document.body.appendChild(tag);
+    };
+    load(['/kit/system.js', '/kit/motion/motion.js', '/kit/layout/layout.js']);
+  });
 }

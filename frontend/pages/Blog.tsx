@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { marked } from 'marked';
-import Container from '../components/Container';
+import { stripMarkdown } from '../utils/meta';
+import Section, { FlowContext } from '../components/Section';
 import { getAllPosts } from '../utils/posts';
 import { getSiteConfig } from '../utils/site';
 import SEO from '../components/SEO';
@@ -22,102 +21,43 @@ const Blog: React.FC = () => {
   };
 
   return (
-    <Container size="md" className="py-16">
+    <FlowContext.Provider value>
       <SEO meta={buildBlogMeta()} />
-      <div className="mb-20">
-        <h1 className="text-4xl font-serif font-bold mb-4 dark:text-white">
-          {siteConfig.blog.title}
-        </h1>
-        <p className="text-gray-700 dark:text-zinc-300 text-lg">
-          {siteConfig.blog.description}
-        </p>
-      </div>
-
-      <div className="space-y-20">
-        {visiblePosts.map((post) => (
-          <article key={post.id} className="group relative">
-            <header className="mb-3">
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-xs font-bold text-gray-600 dark:text-zinc-400 uppercase tracking-widest">
-                  {post.date}
-                </span>
-                <span
-                  className="text-gray-400 dark:text-zinc-600 text-xs"
-                  aria-hidden="true"
-                >
-                  |
-                </span>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white px-2 py-0.5 border border-black/40 dark:border-white/40 rounded">
-                  {post.category}
-                </span>
-              </div>
-              <Link
-                to={`/blog/${post.id}`}
-                className="focus:outline-none group-focus:underline"
-              >
-                <h2 className="text-3xl font-serif font-bold group-hover:text-gray-700 dark:group-hover:text-zinc-300 transition-colors leading-tight dark:text-white">
-                  {post.title}
-                </h2>
-              </Link>
-            </header>
-
-            <div
-              className="text-gray-700 dark:text-zinc-300 leading-relaxed text-lg mb-6 max-w-2xl prose prose-lg dark:prose-invert"
-              dangerouslySetInnerHTML={{ __html: marked.parse(post.excerpt) as string }}
-            />
-
-            <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest">
-              <span className="text-gray-600 dark:text-zinc-400">
-                {post.readTime}
-              </span>
-              <Link
-                to={`/blog/${post.id}`}
-                className="inline-flex items-center gap-2 group-hover:gap-3 transition-all text-black hover:text-gray-700 dark:text-white dark:hover:text-zinc-300 focus:outline-none focus:underline"
-              >
-                Read Article
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 12 12"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M1 6H11M11 6L6 1M11 6L6 11"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </Link>
-            </div>
-
-            <div
-              className="mt-16 border-b border-gray-100 dark:border-zinc-900"
-              aria-hidden="true"
-            ></div>
-          </article>
-        ))}
-      </div>
-
-      {hasMore ? (
-        <div className="mt-20 text-center">
-          <button
-            onClick={handleLoadMore}
-            className="text-xs font-bold uppercase tracking-[0.2em] text-gray-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-colors border-b-2 border-gray-300 dark:border-zinc-700 hover:border-black dark:hover:border-white pb-2 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white p-2"
-          >
-            Older Posts
-          </button>
+      <Section className="page-head">
+        <div className="section-head">
+          <h1>{siteConfig.blog.title}</h1>
+          <p>{siteConfig.blog.description}</p>
         </div>
-      ) : (
-        <div className="mt-20 text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-gray-600 dark:text-zinc-500">
-            End of the line
-          </p>
+      </Section>
+      <Section labelledBy="posts-h">
+        <h2 id="posts-h" className="sr-only">All articles</h2>
+        <div className="grid">
+          {visiblePosts.map((post) => (
+            <article className="card post-card span-6" key={post.id}>
+              {post.image && (
+                <a className="m-zoom frame frame--photo post-card__photo" href={`/blog/${post.id}`} tabIndex={-1} aria-hidden="true">
+                  <img className="frame__img" src={post.image} alt="" loading="lazy" />
+                </a>
+              )}
+              <p className="t-small muted">
+                {post.date} &middot; {post.category} &middot; {post.readTime}
+              </p>
+              <h3>
+                <a href={`/blog/${post.id}`}>{post.title}</a>
+              </h3>
+              <p className="post-card__excerpt">{stripMarkdown(post.excerpt)}</p>
+            </article>
+          ))}
         </div>
-      )}
-    </Container>
+        {hasMore && (
+          <div className="btn-row">
+            <button className="btn btn--secondary" type="button" onClick={handleLoadMore}>
+              Show older posts
+            </button>
+          </div>
+        )}
+      </Section>
+    </FlowContext.Provider>
   );
 };
 

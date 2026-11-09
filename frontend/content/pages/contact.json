@@ -10,17 +10,14 @@
     {
       "_block": "hero",
       "title": "Tell me what you're stuck on",
-      "subtitle": "The discovery call is 30 minutes and free. Bring the fourth urgent request you can't say no to, the promotion case you're drafting or the data roadmap nobody above you reads, and I'll tell you whether I can help. Pick a slot below, or email me for anything else."
+      "subtitle": "The discovery call is 30 minutes and free. Bring the fourth urgent request you can't say no to, the promotion case you're drafting or the data roadmap nobody above you reads, and I'll tell you whether I can help."
     },
     {
       "_block": "booking-embed",
       "id": "book",
       "path": "ivanovyordan/discovery-call",
       "title": "Pick a slot",
-      "description": "No pitch and no commitment. If I can help, I'll tell you how and share my rates on the call, so pick a slot."
-    },
-    {
-      "_block": "contact-info"
+      "description": "No pitch and no commitment. If I can help, I'll tell you how and share my rates on the call."
     }
   ]
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { BookingEmbedBlock as BookingEmbedBlockType } from '../../types';
 import { getSiteConfig } from '../../utils/site';
 import { trackBookingClick } from '../../utils/analytics';
@@ -31,6 +31,8 @@ const BookingEmbedBlock: React.FC<BookingEmbedBlockProps> = ({ block }) => {
   const hostRef = useRef<HTMLDivElement>(null);
   const targetRef = useRef<HTMLDivElement>(null);
   const anchor = block.id || 'book';
+  // The plain link shows only when the calendar has not appeared after a while.
+  const [stalled, setStalled] = useState(false);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -58,11 +60,14 @@ const BookingEmbedBlock: React.FC<BookingEmbedBlockProps> = ({ block }) => {
       script.addEventListener('load', init);
     }
 
+    const timer = window.setTimeout(() => setStalled(!host.querySelector('iframe')), 8000);
+
     if (window.location.hash === `#${anchor}`) {
       sectionRef.current?.scrollIntoView();
     }
 
     return () => {
+      window.clearTimeout(timer);
       script?.removeEventListener('load', init);
       host.querySelectorAll('iframe').forEach((iframe) => iframe.remove());
       if (!target.isConnected) host.appendChild(target);
@@ -70,36 +75,32 @@ const BookingEmbedBlock: React.FC<BookingEmbedBlockProps> = ({ block }) => {
   }, [block.path, anchor]);
 
   return (
-    <section ref={sectionRef} id={anchor} className="mb-24 scroll-mt-8">
-      {(block.title || block.description) && (
-        <div className="max-w-2xl mx-auto text-center mb-8">
-          {block.title && (
-            <h2 className="text-2xl md:text-3xl font-serif font-bold mb-4 dark:text-white">
-              {block.title}
-            </h2>
-          )}
-          {block.description && (
-            <p className="text-lg text-gray-700 dark:text-zinc-300">{block.description}</p>
-          )}
+    <section ref={sectionRef} id={anchor} className="section section--flow" aria-labelledby={`${anchor}-h`}>
+      <div className="wrap">
+        {(block.title || block.description) && (
+          <div className="section-head">
+            {block.title && <h2 id={`${anchor}-h`}>{block.title}</h2>}
+            {block.description && <p>{block.description}</p>}
+          </div>
+        )}
+        <div ref={hostRef} className="booking-host">
+          <div ref={targetRef} className="tidycal-embed" data-path={block.path} />
         </div>
-      )}
-      <div ref={hostRef} className="min-h-[700px]">
-        <div ref={targetRef} className="tidycal-embed" data-path={block.path} />
+        {stalled && siteConfig.discoveryCallUrl && (
+          <p className="t-small muted booking-fallback">
+            Calendar not loading?{' '}
+            <a
+              className="link"
+              href={siteConfig.discoveryCallUrl}
+              onClick={() => trackBookingClick('embed_fallback')}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open it at book.ivanovyordan.com
+            </a>
+          </p>
+        )}
       </div>
-      {siteConfig.discoveryCallUrl && (
-        <p className="mt-4 text-center text-sm text-gray-600 dark:text-zinc-400">
-          Calendar not loading?{' '}
-          <a
-            href={siteConfig.discoveryCallUrl}
-            onClick={() => trackBookingClick('embed_fallback')}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:text-black dark:hover:text-white"
-          >
-            Open it at book.ivanovyordan.com
-          </a>
-        </p>
-      )}
     </section>
   );
 };

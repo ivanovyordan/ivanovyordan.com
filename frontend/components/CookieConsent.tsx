@@ -99,46 +99,15 @@ const CookieConsent: React.FC = () => {
   }
 
   return (
-    <div
-      className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-zinc-900 border-t border-gray-200 dark:border-zinc-800 shadow-lg p-4 md:p-6"
-      role="dialog"
-      aria-labelledby="cookie-consent-title"
-      aria-describedby="cookie-consent-description"
-    >
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex-1">
-          <h3
-            id="cookie-consent-title"
-            className="text-lg font-bold mb-2 dark:text-white"
-          >
-            Cookie Consent
-          </h3>
-          <p
-            id="cookie-consent-description"
-            className="text-sm text-gray-700 dark:text-zinc-300"
-          >
-            We use cookies and similar technologies to analyse site usage and
-            improve your experience. By clicking "Accept", you consent to our
-            use of analytics cookies. You can change your preferences at any
-            time.
-          </p>
-        </div>
-        <div className="flex gap-3 flex-shrink-0">
-          <button
-            onClick={handleDecline}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-zinc-300 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
-            aria-label="Decline cookies"
-          >
-            Decline
-          </button>
-          <button
-            onClick={handleAccept}
-            className="px-4 py-2 text-sm font-medium text-white bg-black dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-zinc-200 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black dark:focus:ring-white transition-colors"
-            aria-label="Accept cookies"
-          >
-            Accept
-          </button>
-        </div>
+    <div className="consent" role="region" aria-label="Analytics cookies">
+      <p>I use analytics cookies to see which articles help. Okay to turn them on?</p>
+      <div className="consent__actions">
+        <button type="button" className="btn btn--primary btn--sm" onClick={handleAccept}>
+          Allow analytics
+        </button>
+        <button type="button" className="btn btn--secondary btn--sm" onClick={handleDecline}>
+          No thanks
+        </button>
       </div>
     </div>
   );

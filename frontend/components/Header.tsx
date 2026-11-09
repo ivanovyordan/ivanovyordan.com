@@ -1,61 +1,57 @@
-
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { navigation } from '../collections';
-import { getHeaderConfig } from '../utils/site';
-import Container from './Container';
-import { handleExternalLinkClick } from '../utils/analytics';
+import { getSiteConfig } from '../utils/site';
+import { handleExternalLinkClick, trackBookingClick } from '../utils/analytics';
 
 const Header: React.FC = () => {
   const location = useLocation();
-  const headerConfig = getHeaderConfig();
+  const site = getSiteConfig();
+  // Pages are pre-rendered, so every link is a plain one: each page loads with
+  // the kit's scripts (menu, motion) running on its own markup.
+  const links = navigation;
 
   return (
-    <header className="py-8 border-b border-gray-100 dark:border-zinc-900">
-      <Container size="lg" className="flex flex-col md:flex-row justify-between items-center gap-4">
-        <Link
-          to={headerConfig.branding.link}
-          className="text-xl font-bold tracking-tight hover:opacity-70 dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
-        >
-          {headerConfig.branding.text}{' '}
-          <span className="text-gray-500 dark:text-zinc-400">{headerConfig.branding.suffix}</span>
-        </Link>
-        <nav className="flex gap-6 items-center">
-          {navigation.map((item) => {
-            const isExternal = item.path.startsWith('http://') || item.path.startsWith('https://');
-            const isActive = !isExternal && location.pathname === item.path;
-
-            if (isExternal) {
-              return (
+    <header className="nav nav--split">
+      <div className="wrap nav__bar">
+        <a className="skip-link" href="#top">Skip to content</a>
+        <nav className="nav__links" aria-label="Main">
+          {links.map((item) => {
+            const external = /^https?:\/\//.test(item.path);
+            const current = !external && location.pathname === item.path;
+            return (
+              <div className="nav__item" key={item.path}>
                 <a
-                  key={item.path}
+                  className="nav__link"
                   href={item.path}
-                  onClick={() => handleExternalLinkClick(item.path, item.label)}
-                  className="text-sm font-medium transition-colors focus:outline-none focus:underline text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  aria-current={current ? 'page' : undefined}
+                  onClick={external ? () => handleExternalLinkClick(item.path, item.label) : undefined}
+                  {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                 >
                   {item.label}
                 </a>
-              );
-            }
-
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`text-sm font-medium transition-colors focus:outline-none focus:underline ${
-                  isActive
-                    ? 'text-black dark:text-white'
-                    : 'text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white'
-                }`}
-              >
-                {item.label}
-              </Link>
+              </div>
             );
           })}
         </nav>
-      </Container>
+        <a className="nav__logo" href="/">
+          {site.name}
+        </a>
+        <div className="nav__actions">
+          <a
+            className="btn btn--primary"
+            href={site.discoveryCallPage}
+            onClick={() => trackBookingClick('header')}
+          >
+            Book a discovery call
+          </a>
+        </div>
+        <button className="nav__toggle" type="button" aria-expanded="false" aria-label="Menu">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+            <path d="M2 5h14M2 13h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          </svg>
+        </button>
+      </div>
     </header>
   );
 };

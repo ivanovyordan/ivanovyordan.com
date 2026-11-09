@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Marked, type Tokens } from 'marked';
 import type { TextBlock as TextBlockType } from '../../types';
+import Section from '../Section';
 
 interface TextBlockProps {
   block: TextBlockType;
@@ -44,12 +45,9 @@ const TextBlock: React.FC<TextBlockProps> = ({ block }) => {
   }, [block.content]);
 
   return (
-    <div className="text-lg md:text-xl text-gray-800 dark:text-zinc-200 space-y-8 leading-relaxed max-w-3xl">
-      <div
-        className="prose prose-lg dark:prose-invert max-w-none"
-        dangerouslySetInnerHTML={{ __html: htmlContent }}
-      />
-    </div>
+    <Section>
+      <div className="prose" dangerouslySetInnerHTML={{ __html: htmlContent }} />
+    </Section>
   );
 };
 

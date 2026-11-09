@@ -1,5 +1,7 @@
 import React from 'react';
 import type { PageBlock } from '../../types';
+import { BareContext } from '../Section';
+import StatementBlock from './StatementBlock';
 import HeroBlock from './HeroBlock';
 import AboutHeroBlock from './AboutHeroBlock';
 import TextBlock from './TextBlock';
@@ -23,12 +25,16 @@ import BookingEmbedBlock from './BookingEmbedBlock';
 
 interface BlockRendererProps {
   block: PageBlock;
+  /** Inside a column or sidebar: no section of its own. */
+  bare?: boolean;
 }
 
-const BlockRenderer: React.FC<BlockRendererProps> = ({ block }) => {
+const RenderBlock: React.FC<{ block: PageBlock }> = ({ block }) => {
   switch (block._block) {
     case 'hero':
       return <HeroBlock block={block} />;
+    case 'statement':
+      return <StatementBlock block={block} />;
     case 'about-hero':
       return <AboutHeroBlock block={block} />;
     case 'text':
@@ -71,5 +77,14 @@ const BlockRenderer: React.FC<BlockRendererProps> = ({ block }) => {
       return null;
   }
 };
+
+const BlockRenderer: React.FC<BlockRendererProps> = ({ block, bare }) =>
+  bare ? (
+    <BareContext.Provider value>
+      <RenderBlock block={block} />
+    </BareContext.Provider>
+  ) : (
+    <RenderBlock block={block} />
+  );
 
 export default BlockRenderer;

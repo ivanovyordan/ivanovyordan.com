@@ -1,7 +1,7 @@
 import React, { useMemo, useEffect } from 'react';
-import { useParams, Link, Navigate } from 'react-router-dom';
+import { useParams, Navigate } from 'react-router-dom';
 import { marked } from 'marked';
-import Container from '../components/Container';
+import Section, { FlowContext } from '../components/Section';
 import SocialShare from '../components/SocialShare';
 import NewsletterBlock from '../components/blocks/NewsletterBlock';
 import { getPostById } from '../utils/posts';
@@ -30,76 +30,36 @@ const PostDetail: React.FC = () => {
   }
 
   return (
-    <Container size="sm" className="py-12 md:py-20">
+    <FlowContext.Provider value>
       <SEO meta={buildPostMeta(post)} />
-      <Link
-        to="/blog"
-        className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white mb-12 inline-flex items-center gap-2 group focus:outline-none focus:underline"
-      >
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 12 12"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="group-hover:-translate-x-1 transition-transform"
-        >
-          <path
-            d="M11 6H1M1 6L6 1M1 6L6 11"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-        Back to Blog
-      </Link>
-
-      <article>
-        <header className="mb-12">
-          <div className="flex items-center gap-3 mb-6">
-            <span className="text-xs font-bold text-gray-600 dark:text-zinc-400 uppercase tracking-widest">
-              {post.date}
-            </span>
-            <span
-              className="text-gray-300 dark:text-zinc-700 text-xs"
-              aria-hidden="true"
-            >
-              |
-            </span>
-            <span className="text-xs font-bold text-gray-600 dark:text-zinc-400 uppercase tracking-widest">
-              {post.category}
-            </span>
-          </div>
-          <h1 className="text-3xl md:text-5xl font-serif font-bold leading-tight mb-6 tracking-tight dark:text-white">
-            {post.title}
-          </h1>
-        </header>
-
-        <div
-          className="prose prose-lg md:prose-xl dark:prose-invert max-w-none"
-          dangerouslySetInnerHTML={{ __html: htmlContent }}
-        />
-
-        <div className="mt-12 pt-8 border-t border-gray-100 dark:border-zinc-900">
-          <SocialShare
-            url={getCanonicalUrl(`/blog/${post.id}`)}
-            title={post.title}
-            description={post.excerpt}
-          />
+      <Section className="page-head post-head" labelledBy="post-h">
+        <a className="link" href="/blog">
+          All articles
+        </a>
+        <div className="section-head">
+          <p className="t-small muted">
+            {post.date} &middot; {post.category} &middot; {post.readTime}
+          </p>
+          <h1 id="post-h">{post.title}</h1>
         </div>
-
-        <footer className="mt-16 pt-12 border-t border-gray-100 dark:border-zinc-900">
-          <NewsletterBlock
-            block={{
-              _block: 'newsletter',
-              title: 'Enjoyed this article?',
-              description: 'Subscribe to the newsletter for more insights on engineering leadership, data, and career growth.',
-            }}
-          />
-        </footer>
-      </article>
-    </Container>
+      </Section>
+      <Section className="post-body">
+        <article className="prose prose--post" dangerouslySetInnerHTML={{ __html: htmlContent }} />
+        <SocialShare
+          url={getCanonicalUrl(`/blog/${post.id}`)}
+          title={post.title}
+          description={post.excerpt}
+        />
+      </Section>
+      <NewsletterBlock
+        centered
+        block={{
+          _block: 'newsletter',
+          title: 'Enjoyed this article?',
+          description: 'Subscribe to the newsletter for more on engineering leadership, data and career growth.',
+        }}
+      />
+    </FlowContext.Provider>
   );
 };
 

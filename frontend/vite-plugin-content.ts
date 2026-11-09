@@ -20,16 +20,29 @@ export function publishedPagesOnly(): Plugin {
 
   return {
     name: "vite-plugin-published-pages",
+    // A page added or removed in dev rebuilds the list.
+    configureServer(server) {
+      const refresh = (file: string) => {
+        if (!file.startsWith(pagesDir)) return;
+        const mod = server.moduleGraph.getModuleById(RESOLVED_ID);
+        if (mod) server.moduleGraph.invalidateModule(mod);
+        server.ws.send({ type: "full-reload" });
+      };
+      server.watcher.on("add", refresh);
+      server.watcher.on("unlink", refresh);
+    },
     resolveId(id) {
       return id === VIRTUAL_ID ? RESOLVED_ID : null;
     },
     load(id) {
       if (id !== RESOLVED_ID) return null;
-      this.addWatchFile(pagesDir);
-
-      const published = readdirSync(pagesDir)
+      const files = readdirSync(pagesDir)
         .filter((file) => file.endsWith(".json"))
-        .sort()
+        .sort();
+      // Each file, never the folder: dev's import analysis tries to resolve a watched folder as a module.
+      files.forEach((file) => this.addWatchFile(join(pagesDir, file)));
+
+      const published = files
         .filter((file) => {
           const page = JSON.parse(readFileSync(join(pagesDir, file), "utf-8")) as {
             published?: boolean;

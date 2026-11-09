@@ -36,6 +36,7 @@ export interface PageContent {
 
 export type PageBlock =
   | HeroBlock
+  | StatementBlock
   | AboutHeroBlock
   | TextBlock
   | HeadingBlock
@@ -61,6 +62,21 @@ export interface HeroBlock {
   title: string;
   subtitle?: string;
   badge?: string;
+  /** With a picture the hero is the split hero: words left, the picture right. */
+  image?: string;
+  imageAlt?: string;
+  buttonText?: string;
+  secondaryText?: string;
+  secondaryUrl?: string;
+  facts?: Array<{ label: string; value: string }>;
+}
+
+export interface StatementBlock {
+  _block: "statement";
+  label?: string;
+  text: string;
+  /** The one word the moment turns to ink last. Must appear in text. */
+  highlight?: string;
 }
 
 export interface AboutHeroBlock {
@@ -114,12 +130,24 @@ export interface CTASectionBlock {
     label: string;
     price: string;
   };
+  image?: string;
+  imageAlt?: string;
+  /** Turns the title into a statement that fills with ink word by word; this word takes the accent. */
+  highlight?: string;
+  /** A testimonial beside the words, in place of an image. */
+  quote?: string;
+  quoteAuthor?: string;
+  quoteLinkText?: string;
+  quoteLinkUrl?: string;
 }
 
 export interface NewsletterBlock {
   _block: "newsletter";
   title: string;
   description: string;
+  /** The testimonial that closes the section on the home page. */
+  quote?: string;
+  quoteAuthor?: string;
 }
 
 export interface TestimonialBlock {

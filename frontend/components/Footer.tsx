@@ -1,57 +1,88 @@
-
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { navigation } from '../collections';
 import { getFooterConfig, getSiteConfig } from '../utils/site';
-import Container from './Container';
-import { handleExternalLinkClick } from '../utils/analytics';
+import { handleExternalLinkClick, trackBookingClick } from '../utils/analytics';
 
 const Footer: React.FC = () => {
-  const footerConfig = getFooterConfig();
-  const siteConfig = getSiteConfig();
-  const currentYear = new Date().getFullYear();
-
-  // Use site.json social links as single source of truth
-  const socialLinks = siteConfig.social || [];
+  const footer = getFooterConfig();
+  const site = getSiteConfig();
+  const year = new Date().getFullYear();
+  const pages = navigation.filter((item) => !/^https?:\/\//.test(item.path) && item.path !== '/');
+  const elsewhere = [
+    ...(site.newsletter ? [{ label: site.newsletter.name, url: site.newsletter.url }] : []),
+    ...(site.social || []).map((item) => ({ label: item.label, url: item.url })),
+  ];
 
   return (
-    <footer className="py-12 mt-20 border-t border-gray-100 dark:border-zinc-900 bg-gray-50/30 dark:bg-zinc-900/10">
-      <Container size="lg" className="text-center">
-        <p className="text-gray-600 dark:text-zinc-400 text-sm">
-          &copy; {currentYear} {footerConfig.copyright.name}
-          {footerConfig.copyright.tagline && `. ${footerConfig.copyright.tagline}`}
-        </p>
-        {socialLinks.length > 0 && (
-          <div className="mt-4 flex justify-center gap-6">
-            {socialLinks.map((item, idx) => (
-              <a
-                key={idx}
-                href={item.url}
-                onClick={() => handleExternalLinkClick(item.url, item.label)}
-                className="text-xs text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white uppercase tracking-widest font-bold focus:outline-none focus:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {item.label}
-              </a>
-            ))}
+    <footer className="footer closing g2m" id="contact" aria-labelledby="close-h" style={{ '--h': 1 } as React.CSSProperties}>
+      <div className="wrap">
+        <div className="closing__cta close--type">
+          <div className="section-head">
+            <h2 id="close-h">Book a discovery call</h2>
+            <p>Thirty minutes, free. Tell me what you're stuck on and I'll tell you if I can help.</p>
           </div>
-        )}
-        <div className="mt-3 flex justify-center items-center gap-4">
-          <Link
-            to="/privacy"
-            className="text-[10px] text-gray-500 dark:text-zinc-500 hover:text-gray-700 dark:hover:text-zinc-300 uppercase tracking-widest font-bold focus:outline-none focus:underline"
+          <a
+            className="btn btn--primary btn--xl"
+            href={site.discoveryCallPage}
+            onClick={() => trackBookingClick('footer')}
           >
-            Privacy Policy
-          </Link>
-          <span className="text-gray-400 dark:text-zinc-600 text-[10px]" aria-hidden="true">|</span>
-          <Link
-            to="/tos"
-            className="text-[10px] text-gray-500 dark:text-zinc-500 hover:text-gray-700 dark:hover:text-zinc-300 uppercase tracking-widest font-bold focus:outline-none focus:underline"
-          >
-            Terms of Service
-          </Link>
+            Book a discovery call
+            <svg className="m-arrow" viewBox="0 0 12 12" aria-hidden="true">
+              <path className="m-arrow__stem" d="M1 6h8" />
+              <path className="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5" />
+            </svg>
+          </a>
         </div>
-      </Container>
+        <div className="closing__links">
+          <div className="grid">
+            <div className="span-6 stack-4">
+              <a className="nav__logo" href="/">
+                {site.name}
+              </a>
+              <p className="footer__lede">{footer.copyright.tagline}</p>
+            </div>
+            <div className="span-3 start-7 footer__col">
+              <h3>Pages</h3>
+              <ul>
+                {pages.map((item) => (
+                  <li key={item.path}>
+                    <a href={item.path}>{item.label}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="span-3 footer__col">
+              <h3>Elsewhere</h3>
+              <ul>
+                {site.email && (
+                  <li>
+                    <a href={`mailto:${site.email}`}>Email</a>
+                  </li>
+                )}
+                {elsewhere.map((item) => (
+                  <li key={item.url}>
+                    <a
+                      href={item.url}
+                      onClick={() => handleExternalLinkClick(item.url, item.label)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          <div className="footer__legal">
+            <span>&copy; {year} {footer.copyright.name}</span>
+            <span className="footer__links">
+              <a href="/privacy">Privacy</a>
+              <a href="/tos">Terms</a>
+            </span>
+          </div>
+        </div>
+      </div>
     </footer>
   );
 };

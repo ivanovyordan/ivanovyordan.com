@@ -3,6 +3,7 @@ import { config } from '../../config';
 import { getSiteConfig } from '../../utils/site';
 import type { GeminiAssistantBlock as GeminiAssistantBlockType } from '../../types';
 import { trackAIQuestionAsked, trackBookingClick } from '../../utils/analytics';
+import Section from '../Section';
 
 interface GeminiAssistantBlockProps {
   block: GeminiAssistantBlockType;
@@ -215,23 +216,22 @@ const GeminiAssistantBlock: React.FC<GeminiAssistantBlockProps> = () => {
   if (!isClient) return null;
 
   return (
-    <div className="my-12 p-8 border border-black dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-sm relative overflow-hidden">
-      <div className="flex justify-between items-start mb-6">
-        <div>
-          <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] mb-2 dark:text-white">
-            Ask my digital twin
-          </h4>
-          <p className="text-sm text-gray-700 dark:text-zinc-300 leading-relaxed">
-            It answers the way I would.{' '}
-            <span className="font-bold text-black dark:text-white">
-              ({remainingCredits} free questions remaining)
-            </span>
-          </p>
-        </div>
+    <Section id="twin" labelledBy="twin-h">
+      <div className="section-head">
+        <h2 id="twin-h">Ask my digital twin</h2>
+        <p>
+          It answers the way I would. {remainingCredits} free {remainingCredits === 1 ? 'question' : 'questions'} left.
+        </p>
       </div>
 
       {!isLimitReachedValue ? (
-        <div className="space-y-4">
+        <form
+          className="form twin-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleAsk();
+          }}
+        >
           {/* Honeypot field - hidden from users, catches bots */}
           <input
             type="text"
@@ -241,40 +241,29 @@ const GeminiAssistantBlock: React.FC<GeminiAssistantBlockProps> = () => {
             autoComplete="off"
             tabIndex={-1}
             aria-hidden="true"
-            className="absolute -left-[9999px] opacity-0 h-0 w-0 pointer-events-none"
+            className="twin-form__trap"
           />
-          <div className="flex flex-col sm:flex-row gap-2">
+          <div className="field">
+            <label htmlFor="twin-question">Your question</label>
             <input
+              id="twin-question"
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleAsk()}
-              placeholder="e.g., How do I log and share my wins?"
-              className="flex-grow bg-transparent border border-gray-300 dark:border-zinc-700 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white dark:text-white placeholder:text-gray-500 dark:placeholder:text-zinc-500 transition-all"
+              placeholder="For example, how do I log and share my wins?"
             />
-            <button
-              onClick={handleAsk}
-              disabled={loading || !query.trim()}
-              className="bg-black dark:bg-white text-white dark:text-black px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-w-[100px] cursor-pointer"
-            >
-              {loading ? '...' : 'Ask'}
-            </button>
           </div>
-        </div>
+          <button className="btn btn--primary" type="submit" disabled={loading || !query.trim()}>
+            {loading ? 'Asking' : 'Ask my digital twin'}
+          </button>
+        </form>
       ) : (
-        <div className="bg-gray-100 dark:bg-zinc-800 p-8 text-center border border-gray-200 dark:border-zinc-700">
-          <p className="text-lg font-serif font-bold mb-2 dark:text-white">
-            That's your {MAX_QUESTIONS} questions
-          </p>
-          <p className="text-sm text-gray-700 dark:text-zinc-300 mb-6">
+        <div className="stack-4">
+          <p className="t-lead">That's your {MAX_QUESTIONS} questions.</p>
+          <p>
             Full access comes with the annual{' '}
             {siteConfig.newsletter ? (
-              <a
-                href={siteConfig.newsletter.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline font-bold text-black dark:text-white"
-              >
+              <a className="link" href={siteConfig.newsletter.url} target="_blank" rel="noopener noreferrer">
                 {siteConfig.newsletter.name}
               </a>
             ) : (
@@ -283,45 +272,26 @@ const GeminiAssistantBlock: React.FC<GeminiAssistantBlockProps> = () => {
             subscription. If you'd rather work on your case with me, book a discovery call.
           </p>
           <a
+            className="btn btn--primary"
             href={siteConfig.discoveryCallPage || siteConfig.discoveryCallUrl || siteConfig.bookingUrl || '#'}
             onClick={() => trackBookingClick('ai_assistant_limit')}
-            className="inline-block bg-black dark:bg-white text-white dark:text-black px-8 py-4 text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform shadow-lg cursor-pointer"
           >
-            book a discovery call
+            Book a discovery call
           </a>
         </div>
       )}
 
-      {error && (
-        <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs font-bold border border-red-200 dark:border-red-800">
-          {error}
-        </div>
-      )}
-
-      {thinking && !response && (
-        <div className="mt-8 p-6 bg-gray-50 dark:bg-black/50 border-l-4 border-black dark:border-white text-gray-800 dark:text-zinc-200 text-sm leading-relaxed">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-            <span className="font-bold uppercase text-[10px] tracking-widest text-gray-500 dark:text-zinc-400">
-              {siteConfig.name}&apos;s digital twin
-            </span>
-          </div>
-          <p className="text-gray-600 dark:text-zinc-400 italic">Thinking...</p>
-        </div>
-      )}
-
-      {response && !isLimitReachedValue && (
-        <div className="mt-8 p-6 bg-gray-50 dark:bg-black/50 border-l-4 border-black dark:border-white text-gray-800 dark:text-zinc-200 text-sm leading-relaxed animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="font-bold uppercase text-[10px] tracking-widest text-gray-500 dark:text-zinc-400">
-              {siteConfig.name}&apos;s digital twin
-            </span>
-          </div>
-          <p>{response}</p>
-        </div>
-      )}
-    </div>
+      <div role="status" aria-live="polite" className="twin-answer">
+        {error && <p className="twin-answer__error">{error}</p>}
+        {thinking && !response && <p className="muted">Thinking...</p>}
+        {response && !isLimitReachedValue && (
+          <>
+            <p className="t-label muted">{siteConfig.name}&apos;s digital twin</p>
+            <p>{response}</p>
+          </>
+        )}
+      </div>
+    </Section>
   );
 };
 

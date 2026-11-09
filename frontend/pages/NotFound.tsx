@@ -1,27 +1,27 @@
-
 import React from 'react';
-import { Link } from 'react-router-dom';
-import Container from '../components/Container';
+import Section from '../components/Section';
 import SEO from '../components/SEO';
 import { buildNotFoundMeta } from '../utils/meta';
 
 const NotFound: React.FC = () => {
   return (
     <>
-    <SEO meta={buildNotFoundMeta()} />
-    <Container className="py-32 text-center">
-      <h1 className="text-8xl font-serif font-bold text-gray-100 dark:text-zinc-900 mb-4">404</h1>
-      <h2 className="text-2xl font-bold mb-6 dark:text-white">Page Not Found</h2>
-      <p className="text-gray-500 dark:text-zinc-500 mb-12 max-w-sm mx-auto">
-        The page you are looking for doesn't exist or has been moved to a new location.
-      </p>
-      <Link 
-        to="/" 
-        className="inline-block bg-black dark:bg-white text-white dark:text-black px-10 py-4 font-bold hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors uppercase tracking-widest text-xs"
-      >
-        Return Home
-      </Link>
-    </Container>
+      <SEO meta={buildNotFoundMeta()} />
+      <Section flow className="page-head">
+        <div className="section-head">
+          <p className="t-label muted">404</p>
+          <h1>This page doesn't exist</h1>
+          <p>It may have moved, or the link is wrong. The home page and the blog are the places to start.</p>
+        </div>
+        <div className="btn-row">
+          <a className="btn btn--primary" href="/">
+            Go to the home page
+          </a>
+          <a className="btn btn--secondary" href="/blog">
+            Read the blog
+          </a>
+        </div>
+      </Section>
     </>
   );
 };

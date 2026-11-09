@@ -2,6 +2,7 @@ import React from 'react';
 import type { ContactInfoBlock as ContactInfoBlockType } from '../../types';
 import { getSiteConfig } from '../../utils/site';
 import { trackBookingClick, handleExternalLinkClick } from '../../utils/analytics';
+import Section from '../Section';
 
 interface ContactInfoBlockProps {
   block: ContactInfoBlockType;
@@ -13,37 +14,37 @@ const ContactInfoBlock: React.FC<ContactInfoBlockProps> = ({ block }) => {
   const email = siteConfig.email || block.email;
   const socialLinks = siteConfig.social || block.social || [];
 
-  return (
-    <div className="space-y-12">
-      {email && (
-        <div className="group">
-          <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-600 dark:text-zinc-400 mb-2">
-            Direct Inquiry
-          </h3>
-          <a
-            href={`mailto:${email}`}
-            className="text-2xl md:text-3xl font-serif font-bold hover:text-gray-600 dark:text-white dark:hover:text-zinc-400 transition-colors border-b-2 border-black dark:border-white group-hover:border-gray-400 dark:group-hover:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
-          >
-            {email}
-          </a>
-        </div>
-      )}
+  const bookHref = block.officeHours?.url || siteConfig.discoveryCallPage || siteConfig.discoveryCallUrl || '#';
+  const external = /^https?:\/\//i.test(bookHref);
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+  return (
+    <Section id="reach" labelledBy="reach-h">
+      <div className="section-head">
+        <h2 id="reach-h">Other ways to reach me</h2>
+      </div>
+      <div className="grid grid--top">
+        {email && (
+          <div className="span-4 stack-4">
+            <h3 className="t-label muted">Email</h3>
+            <p>
+              <a className="link" href={`mailto:${email}`}>
+                Email me
+              </a>
+            </p>
+          </div>
+        )}
         {socialLinks.length > 0 && (
-          <div>
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-600 dark:text-zinc-400 mb-2">
-              Social Path
-            </h3>
-            <ul className="space-y-3">
-              {socialLinks.map((item, idx) => (
-                <li key={idx}>
+          <div className="span-4 stack-4">
+            <h3 className="t-label muted">Find me online</h3>
+            <ul className="stack-2">
+              {socialLinks.map((item) => (
+                <li key={item.url}>
                   <a
+                    className="link"
                     href={item.url}
                     onClick={() => handleExternalLinkClick(item.url, item.label)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-lg font-bold hover:underline dark:text-white focus:outline-none focus:ring-1 focus:ring-white"
                   >
                     {item.label}
                   </a>
@@ -52,36 +53,25 @@ const ContactInfoBlock: React.FC<ContactInfoBlockProps> = ({ block }) => {
             </ul>
           </div>
         )}
-
         {block.officeHours && (
-          <div>
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-600 dark:text-zinc-400 mb-2">
-              Office Hours
-            </h3>
-            {block.officeHours.description && (
-              <p className="text-gray-700 dark:text-zinc-300 mb-4 text-sm leading-relaxed">
-                {block.officeHours.description}
-              </p>
-            )}
-            {block.officeHours.buttonText && (() => {
-              const href = block.officeHours.url || siteConfig.discoveryCallPage || siteConfig.discoveryCallUrl || '#';
-              const external = /^https?:\/\//i.test(href);
-              return (
+          <div className="span-4 stack-4">
+            <h3 className="t-label muted">Discovery call</h3>
+            {block.officeHours.description && <p>{block.officeHours.description}</p>}
+            {block.officeHours.buttonText && (
               <a
-                href={href}
+                href={bookHref}
                 onClick={() => trackBookingClick('contact_info')}
                 target={external ? '_blank' : undefined}
                 rel={external ? 'noopener noreferrer' : undefined}
-                className="inline-block bg-black dark:bg-white text-white dark:text-black px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black dark:focus:ring-offset-zinc-950 cursor-pointer"
+                className="btn btn--secondary"
               >
                 {block.officeHours.buttonText}
               </a>
-              );
-            })()}
+            )}
           </div>
         )}
       </div>
-    </div>
+    </Section>
   );
 };
 

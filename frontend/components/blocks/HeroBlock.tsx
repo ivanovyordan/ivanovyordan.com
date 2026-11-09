@@ -1,36 +1,91 @@
 import React from 'react';
 import type { HeroBlock as HeroBlockType } from '../../types';
+import { getSiteConfig } from '../../utils/site';
+import { trackBookingClick } from '../../utils/analytics';
+import Section from '../Section';
 
 interface HeroBlockProps {
   block: HeroBlockType;
 }
 
-const HeroBlock: React.FC<HeroBlockProps> = ({ block }) => {
-  // Check if this is a centered hero (like coaching page)
-  const isCentered = block.badge !== undefined;
+const Arrow: React.FC = () => (
+  <svg className="m-arrow" viewBox="0 0 12 12" aria-hidden="true">
+    <path className="m-arrow__stem" d="M1 6h8" />
+    <path className="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5" />
+  </svg>
+);
 
+const HeroBlock: React.FC<HeroBlockProps> = ({ block }) => {
+  const site = getSiteConfig();
+
+  // The split hero: exactly the first screen, words left, the portrait right.
+  if (block.image) {
+    return (
+      <section className="hero hero--split" aria-labelledby="hero-h">
+        <div className="wrap">
+          <div className="hero-text grid hero-split">
+            <div className="hero-copy span-6">
+              <h1 id="hero-h">{block.title}</h1>
+              {block.subtitle && <p className="t-lead">{block.subtitle}</p>}
+              <div className="btn-row">
+                {block.buttonText && (
+                  <a
+                    className="btn btn--primary"
+                    href={site.discoveryCallPage}
+                    onClick={() => trackBookingClick('hero')}
+                  >
+                    {block.buttonText}
+                    <Arrow />
+                  </a>
+                )}
+                {block.secondaryText && block.secondaryUrl && (
+                  <a className="btn btn--secondary" href={block.secondaryUrl}>
+                    {block.secondaryText}
+                  </a>
+                )}
+              </div>
+              {block.facts && block.facts.length > 0 && (
+                <dl className="hero-facts">
+                  {block.facts.map((fact) => (
+                    <div key={fact.label}>
+                      <dt>{fact.label}</dt>
+                      <dd>{fact.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+            </div>
+            <div className="hero-visual frame frame--photo span-6 start-7">
+              <img
+                className="frame__img"
+                src={block.image}
+                alt={block.imageAlt || ''}
+                fetchPriority="high"
+                style={{ objectPosition: '50% 30%' }}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // An inner page's head: the h1 and its line, as long as they are.
   return (
-    <section className={isCentered ? "text-center mb-24" : "mb-24"}>
-      {block.badge && (
-        <span className="text-xs font-bold uppercase tracking-[0.3em] text-gray-600 dark:text-zinc-400 mb-6 block">
-          {block.badge}
-        </span>
-      )}
-      <h1 className={isCentered
-        ? "text-5xl md:text-7xl font-serif font-bold mb-10 leading-tight tracking-tight dark:text-white"
-        : "text-4xl md:text-6xl font-serif font-bold mb-8 leading-tight tracking-tight dark:text-white whitespace-pre-line"
-      }>
-        {block.title}
-      </h1>
-      {block.subtitle && (
-        <p className={isCentered
-          ? "text-2xl md:text-3xl text-gray-700 dark:text-zinc-300 max-w-2xl mx-auto leading-relaxed"
-          : "text-xl md:text-2xl text-gray-700 dark:text-zinc-300 leading-relaxed max-w-3xl"
-        }>
-          {block.subtitle}
-        </p>
-      )}
-    </section>
+    <Section className="page-head">
+      <div className="section-head">
+        {block.badge && <p className="t-label muted">{block.badge}</p>}
+        <h1>{block.title}</h1>
+        {block.subtitle && <p>{block.subtitle}</p>}
+        {block.buttonText && (
+          <div className="btn-row">
+            <a className="btn btn--primary" href={getSiteConfig().discoveryCallPage || '/coaching#book'}>
+              {block.buttonText}
+            </a>
+          </div>
+        )}
+      </div>
+    </Section>
   );
 };
 

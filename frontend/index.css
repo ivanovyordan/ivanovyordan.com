@@ -1,26 +1,140 @@
-@import "tailwindcss";
-@plugin "@tailwindcss/typography";
+/* Page CSS for the pieces the kit (public/kit) has no class for. Tokens, grid, type, buttons, nav
+   and footer all come from system.css; nothing here sets a colour, size or spacing of its own. */
 
-/* Screen reader only utility */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
+/* React's root adds no box: the page's children are header.nav, main, footer.closing and the action bar. */
+#root { display: contents; }
+
+/* Inner pages, posts and legal text run as long as their content instead of whole screens. */
+main > .section.section--flow { height: auto !important; min-height: 0 !important; }
+main > .section.section--flow:not(.page-head) { padding-top: var(--s-8); padding-bottom: var(--s-8); scroll-margin-top: var(--nav); }
+main > .section.page-head { padding-top: calc(var(--nav) + var(--s-8)); padding-bottom: var(--s-6); }
+.page-head .section-head { max-width: 860px; }
+.page-head h1 { font: var(--display-weight) var(--t-h1)/1.05 var(--font-display); letter-spacing: var(--display-tracking-xl); }
+.post-head .link { display: inline-block; margin-bottom: var(--s-6); }
+/* A post is one centred column: the title and the text share an axis. */
+.post-head .wrap, .post-body .wrap { display: flex; flex-direction: column; align-items: center; }
+.post-head .section-head { max-width: 72ch; width: 100%; text-align: center; justify-items: center; }
+.post-head h1 { width: 100%; font-size: var(--t-h2); line-height: 1.12; text-wrap: balance; }
+.post-body .prose--post, .post-body .share { width: 100%; max-width: 72ch; }
+
+/* Text from the CMS (markdown): the long-form reading style. */
+.prose { max-width: 68ch; font-size: var(--t-body); line-height: 1.7; color: var(--ink); }
+.prose > * + * { margin-top: var(--s-5); }
+.prose h1, .prose h2, .prose h3, .prose h4 { font-family: var(--font-display); font-weight: var(--display-weight); letter-spacing: var(--display-tracking); line-height: 1.2; margin-top: var(--s-7); }
+.prose h1 { font-size: var(--t-h2); }
+.prose h2 { font-size: var(--t-h3); }
+.prose h3, .prose h4 { font-size: var(--t-card); }
+.prose a { text-decoration: underline; text-underline-offset: 3px; }
+.prose a:hover { text-decoration-thickness: 2px; }
+.prose ul, .prose ol { padding-left: var(--s-5); }
+.prose ul { list-style: disc; }
+.prose ol { list-style: decimal; }
+.prose li + li { margin-top: var(--s-2); }
+.prose blockquote { padding-left: var(--s-5); border-left: 2px solid var(--line); font-family: var(--font-display); font-size: var(--t-lead); line-height: 1.5; }
+.prose img { width: 100%; height: auto; border-radius: var(--r-lg); }
+.prose pre { overflow-x: auto; padding: var(--s-5); background: var(--surface); border-radius: var(--r-md); font-size: var(--t-small); }
+.prose code { font-size: .92em; }
+.prose :not(pre) > code { padding: 2px 6px; background: var(--surface); border-radius: var(--r-sm); }
+.prose table { width: 100%; border-collapse: collapse; font-size: var(--t-small); }
+.prose th, .prose td { padding: var(--s-3); text-align: left; border-bottom: 1px solid var(--line); }
+.prose--lead { font-size: var(--t-lead); }
+.prose--post { max-width: 72ch; font-size: 18px; }
+.post-body .share { margin-top: var(--s-8); }
+.faq .prose { font-size: var(--t-body); }
+
+/* A split's words and its picture. */
+.cta-words > * + * { margin-top: var(--s-5); }
+.cta-photo { min-height: 500px; background: var(--surface); }
+@media (max-width: 639px) { .cta-photo { min-height: 0; aspect-ratio: 16 / 9; } }
+.cta-photo .frame__img { object-fit: contain; }
+.checks { display: grid; gap: var(--s-3); }
+.price { display: grid; gap: var(--s-2); }
+.substack-embed { display: block; width: 100%; max-width: 380px; height: 150px; border: 0; background: transparent; }
+.proof { margin-top: var(--s-7); max-width: 62ch; }
+.proof .link { margin-top: var(--s-3); font: 500 var(--t-body)/1.4 var(--font-text); justify-self: start; }
+.proof--panel { margin-top: 0; max-width: none; padding: var(--s-7); background: var(--surface); border-radius: var(--r-lg); align-content: center; }
+.proof--panel blockquote { font-size: var(--t-card); line-height: 1.4; }
+.grid > .proof--panel { align-self: start; }
+.cta-words .section-head { margin-bottom: 0; }
+#course .section-head { margin-bottom: var(--s-6); }
+.statement-title { margin-bottom: var(--s-6); }
+/* Whole-screen sections: content sits in the middle of its screen, not at the top. */
+main > .section:not(.section--flow) > .wrap:not(.grid) { justify-content: center; }
+.quote.proof blockquote { font-size: var(--t-h3); line-height: 1.35; }
+@media (max-width: 639px) { #course .section-head { margin-bottom: 0; } #course .grid { row-gap: var(--s-4); } .proof { margin-top: var(--s-5); } .statement-title { margin-bottom: var(--s-6); } .quote.proof blockquote { font-size: var(--t-body); line-height: 1.5; } .substack-embed { height: 140px; } }
+.quotes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-7) var(--gutter, 24px); }
+.quotes .quote { display: grid; gap: var(--s-4); align-content: start; }
+.quotes .quote blockquote { font-size: var(--t-lead); line-height: 1.5; }
+@media (max-width: 1023px) { .quotes { grid-template-columns: 1fr; } }
+
+/* A post as a card: its picture, date, title and first paragraph. */
+.post-card { display: grid; gap: var(--s-3); align-content: start; }
+.post-card h3 { font: var(--display-weight) var(--t-h3)/1.2 var(--font-display); letter-spacing: var(--display-tracking); }
+.post-card h3 a { text-decoration: none; }
+.post-card h3 a::after { content: ''; position: absolute; inset: 0; }
+.post-card { position: relative; }
+.post-card__photo { display: block; position: relative; z-index: 1; width: 100%; aspect-ratio: 21 / 9; overflow: hidden; border-radius: var(--r-lg); background: var(--surface); margin-bottom: var(--s-3); }
+.post-card__photo img { width: 100%; height: 100%; object-fit: cover; }
+.post-card__excerpt { color: var(--ink); max-width: 56ch; }
+
+/* About: the portrait and its three facts. */
+@media (min-width: 768px) { .about-side { position: sticky; top: calc(var(--nav) + var(--s-6)); } }
+.about-side__photo { aspect-ratio: 4 / 5; }
+.about-side__facts { display: grid; gap: var(--s-4); }
+.about-side__facts dt { font: 500 var(--t-label)/1.3 var(--font-text); color: var(--muted); }
+.about-side__facts dd { margin: 0; font-size: var(--t-body); }
+@media (min-width: 768px) { .about-head__title, .sidebar-content { order: 2; } }
+.sidebar-content > * + * { margin-top: var(--s-7); }
+.sidebar-content h1 { font: var(--display-weight) var(--t-h1)/1.05 var(--font-display); letter-spacing: var(--display-tracking-xl); }
+.image-block { aspect-ratio: auto; }
+.image-block img { width: 100%; height: auto; }
+
+/* Embeds, forms. */
+.booking-host { min-height: 700px; }
+.booking-fallback { margin-top: var(--s-4); }
+.video-frame { position: relative; aspect-ratio: 16 / 9; display: grid; place-items: center; background: var(--surface); border-radius: var(--r-lg); overflow: hidden; }
+.video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.twin-form { display: grid; gap: var(--s-4); max-width: 560px; }
+.twin-form__trap { position: absolute; left: -9999px; width: 0; height: 0; opacity: 0; pointer-events: none; }
+.twin-answer { margin-top: var(--s-6); max-width: 62ch; display: grid; gap: var(--s-3); }
+.twin-answer__error { color: var(--ink); }
+.share { display: flex; align-items: center; gap: var(--s-4); }
+.share__row { display: flex; gap: var(--s-2); }
+.share__btn { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; appearance: none; background: transparent; border: 1px solid var(--line-strong); border-radius: var(--r-sm); box-shadow: none; color: var(--ink); cursor: pointer; transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease); }
+.share__btn:hover { background: var(--surface); border-color: var(--ink); }
+.post-body .share { justify-content: center; }
+/* Below a post, the newsletter and the close share the article's centred axis. */
+.newsletter--centered .wrap { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.newsletter--centered .section-head { justify-items: center; max-width: 60ch; }
+.newsletter--centered .substack-embed { margin-inline: auto; }
+main:has(.post-body) ~ footer .closing__cta { align-items: center; text-align: center; }
+main:has(.post-body) ~ footer .closing__cta h2 { max-width: none; }
+main:has(.post-body) ~ footer .closing__cta .section-head { justify-items: center; }
+main:has(.post-body) ~ footer .closing__cta > .btn--xl { align-self: center; }
+
+/* The analytics choice: a bar fixed to the bottom until the visitor makes it. */
+.footer__links { display: flex; gap: var(--s-4); }
+.consent { position: fixed; left: 0; right: 0; bottom: 0; z-index: 100; background: var(--ink); color: var(--bg); padding: var(--s-4) var(--gut); display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--s-3) var(--s-6); }
+.consent p { margin: 0; max-width: 60ch; }
+.consent__actions { display: flex; gap: var(--s-3); }
+.consent .btn.btn--primary { background: var(--bg); color: var(--ink); }
+.consent .btn.btn--secondary { background: transparent; color: var(--bg); border-color: color-mix(in oklab, var(--bg) 40%, transparent); }
+@media (max-width: 639px) { .consent__actions { width: 100%; } .consent__actions .btn { flex: 1; } }
+
+/* The email course and the latest posts in one section. */
+.pair { display: grid; gap: var(--s-9, 96px); align-content: center; }
+@media (max-width: 639px) {
+  .pair { gap: var(--s-6); }
+  .proof--panel { padding: var(--s-5); }
+  .proof--panel blockquote { font-size: var(--t-body); line-height: 1.5; }
+  .post-card__excerpt { display: none; }
+  .post-card__photo { aspect-ratio: 21 / 9; }
+  #blog .grid { row-gap: var(--s-4); }
+  #blog .section-head { margin-bottom: var(--s-4); }
+  #course .substack-embed { height: 120px; }
 }
-
-.focus\:not-sr-only:focus {
-  position: static;
-  width: auto;
-  height: auto;
-  padding: inherit;
-  margin: inherit;
-  overflow: visible;
-  clip: auto;
-  white-space: normal;
+/* Wide screens: the course and the posts follow each other closely, the section as tall as they are. */
+main > .section.pair-section { height: auto; min-height: 100svh; }
+@media (min-width: 1280px) {
+  .pair { gap: var(--s-8); }
 }

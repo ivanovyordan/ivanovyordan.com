@@ -116,6 +116,49 @@ content:
                 label: Badge
                 type: string
                 description: "Optional badge text above title"
+              - name: image
+                label: Picture
+                type: image
+                description: "With a picture the hero is the split hero: words left, picture right. Use on the home page only."
+              - name: imageAlt
+                label: Picture description
+                type: string
+              - name: buttonText
+                label: Main button text
+                type: string
+                description: "Goes to the discovery-call page"
+              - name: secondaryText
+                label: Second button text
+                type: string
+              - name: secondaryUrl
+                label: Second button URL
+                type: string
+              - name: facts
+                label: Facts under the buttons
+                type: object
+                list: true
+                fields:
+                  - name: label
+                    label: Label
+                    type: string
+                  - name: value
+                    label: Fact
+                    type: string
+          - name: statement
+            label: Statement
+            fields:
+              - name: label
+                label: Small label
+                type: string
+              - name: text
+                label: Statement
+                type: text
+                required: true
+                description: "12 to 40 words. It turns to ink word by word as the visitor scrolls."
+              - name: highlight
+                label: Word to stress
+                type: string
+                description: "One word from the statement"
           - name: about-hero
             label: About Hero
             fields:
@@ -231,6 +274,28 @@ content:
                   - name: price
                     label: Price
                     type: string
+              - name: image
+                label: Picture
+                type: image
+              - name: imageAlt
+                label: Picture description
+                type: string
+              - name: highlight
+                label: Highlighted word
+                type: string
+                description: "Turns the title into a statement that fills with ink as you scroll; this word takes the accent colour."
+              - name: quote
+                label: Testimonial beside the words
+                type: text
+              - name: quoteAuthor
+                label: Testimonial author
+                type: string
+              - name: quoteLinkText
+                label: Testimonial link text
+                type: string
+              - name: quoteLinkUrl
+                label: Testimonial link URL
+                type: string
           - name: booking-embed
             label: Booking Calendar (TidyCal)
             fields:
@@ -262,6 +327,12 @@ content:
                 label: Description
                 type: text
                 required: true
+              - name: quote
+                label: Quote under the signup
+                type: text
+              - name: quoteAuthor
+                label: Quote author
+                type: string
           - name: testimonial
             label: Testimonial
             fields:

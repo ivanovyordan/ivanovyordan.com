@@ -5,7 +5,6 @@ import Footer from './components/Footer';
 import Analytics from './components/Analytics';
 import CookieConsent from './components/CookieConsent';
 import ErrorBoundary from './components/ErrorBoundary';
-import SkipLink from './components/SkipLink';
 import Blog from './pages/Blog';
 import PostDetail from './pages/PostDetail';
 import Page from './pages/Page';
@@ -19,11 +18,9 @@ import NotFound from './pages/NotFound';
 export const AppShell: React.FC = () => (
   <ErrorBoundary>
     <Analytics />
-    <CookieConsent />
-    <SkipLink />
-    <div className="flex flex-col min-h-screen">
+    <>
       <Header />
-      <main id="main-content" className="flex-grow" tabIndex={-1}>
+      <main id="top">
         <Routes>
           <Route path="/" element={<Page />} />
           <Route path="/blog" element={<Blog />} />
@@ -36,7 +33,8 @@ export const AppShell: React.FC = () => (
         </Routes>
       </main>
       <Footer />
-    </div>
+      <CookieConsent />
+    </>
   </ErrorBoundary>
 );
 

@@ -9,25 +9,45 @@
   "sections": [
     {
       "_block": "hero",
-      "title": "You're already doing a lead's job without the title",
-      "subtitle": "If you're an experienced data professional in that spot, I coach you on getting your priorities agreed, your work seen and the title to match."
+      "title": "Coaching for data leads without the title",
+      "subtitle": "If you're an experienced data professional already doing a lead's job, I coach you 1-on-1 on getting your priorities agreed, your work seen and the title to match.",
+      "image": "/images/profile.jpg",
+      "imageAlt": "Yordan Ivanov, smiling, with the rooftops of Veliko Tarnovo behind him",
+      "buttonText": "Book a discovery call",
+      "secondaryText": "Get the free email course",
+      "secondaryUrl": "#course",
+      "facts": [
+        {
+          "label": "Day job",
+          "value": "Head of Data Engineering"
+        },
+        {
+          "label": "Reads Data Gibberish",
+          "value": "5,000+ subscribers"
+        },
+        {
+          "label": "First call",
+          "value": "30 minutes, free"
+        }
+      ]
     },
     {
       "_block": "cta-section",
-      "title": "Coaching on your own case",
+      "title": "I help experienced data professionals who already do a lead's job get their priorities agreed, their work seen and the title to match.",
       "description": "If you want help with the promotion case you're writing or the stakeholder who keeps saying no, we work on it 1-on-1. I coach alongside my day job as Head of Data Engineering, and it starts with a free 30-minute discovery call where I don't pitch. Book it and tell me what you're stuck on.",
-      "buttonText": "book a discovery call"
+      "buttonText": "Book a discovery call",
+      "highlight": "title",
+      "quote": "I found very helpful one of the communication playbooks that I applied and successfully delivered at work: first the benefits of the solution, next the pain the said solution mitigated or eliminated, and only then the solution details. It builds a nice narrative and really levels up!",
+      "quoteAuthor": "Thiago Olivera, Principal Data Engineer",
+      "quoteLinkText": "More on the wall of love",
+      "quoteLinkUrl": "https://datagibberish.notion.site/30001b01052c8023b49ff09f7bc11f71"
     },
     {
       "_block": "newsletter",
-      "title": "My free email course",
-      "description": "If you want your \"not now\" to hold and a yes from the people above you, start here. Over your first 10 days it covers how I rank requests and how I get buy-in for my most ambitious projects, among other things. After that, Data Gibberish comes twice a week. Join 5,000+ subscribers."
-    },
-    {
-      "_block": "testimonial",
-      "heading": "What readers say",
+      "title": "Free 10-day email course",
+      "description": "If you want your \"not now\" to hold and a yes from the people above you, start here. Over your first 10 days it covers how I rank requests and how I get buy-in for my most ambitious projects. After that, Data Gibberish comes twice a week. Join 5,000+ subscribers.",
       "quote": "This is why I follow Yordan's posts, it comes from experience, its valuable, and its real. Because its clearly written a bit hastily by a senior engineer and not by an AI.",
-      "author": "Andreas Ährlund-Richter, Data Engineer"
+      "quoteAuthor": "Andreas Ährlund-Richter, Data Engineer"
     },
     {
       "_block": "latest-posts",

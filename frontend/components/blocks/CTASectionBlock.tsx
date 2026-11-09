@@ -2,6 +2,7 @@ import React from 'react';
 import type { CTASectionBlock as CTASectionBlockType } from '../../types';
 import { getSiteConfig } from '../../utils/site';
 import { isBookingHref, trackBookingClick } from '../../utils/analytics';
+import Section from '../Section';
 
 interface CTASectionBlockProps {
   block: CTASectionBlockType;
@@ -40,56 +41,124 @@ const CtaLink: React.FC<CtaLinkProps> = ({ href, className, trackingLocation, ch
 const CTASectionBlock: React.FC<CTASectionBlockProps> = ({ block }) => {
   const siteConfig = getSiteConfig();
   const href = block.buttonUrl || siteConfig.discoveryCallPage || siteConfig.discoveryCallUrl || '#';
-  const buttonClassName = block.pricing
-    ? 'w-full bg-black dark:bg-white text-white dark:text-black py-4 font-bold hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors uppercase tracking-widest text-xs focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black dark:focus:ring-white cursor-pointer inline-block max-w-xs text-center'
-    : 'inline-block bg-black dark:bg-white text-white dark:text-black px-12 py-5 text-lg font-bold hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors uppercase tracking-[0.2em] focus:outline-none focus:ring-4 focus:ring-black/20 dark:focus:ring-white/20 cursor-pointer text-center';
+  const id = block.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-  return (
-    <section className="bg-gray-50 dark:bg-zinc-900 p-10 md:p-16 border border-gray-100 dark:border-zinc-800 mb-24">
-      <div className="max-w-2xl mx-auto text-center">
-        <h2 className="text-2xl md:text-3xl font-serif font-bold mb-4 dark:text-white">
-          {block.title}
-        </h2>
-        {block.description && (
-          <p className="text-lg text-gray-700 dark:text-zinc-300 mb-8">
-            {block.description}
-          </p>
-        )}
-        {block.items && block.items.length > 0 && (
-          <ul className="text-left max-w-md mx-auto mb-8 space-y-3 text-lg text-gray-700 dark:text-zinc-300 list-disc pl-6">
-            {block.items.map((item, idx) => (
-              <li key={idx}>{item}</li>
-            ))}
-          </ul>
-        )}
-        {block.pricing && (
-          <div className="max-w-xs mx-auto mb-8">
-            <div className="p-8 border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800">
-              <p className="text-sm uppercase tracking-widest text-gray-600 dark:text-zinc-400 font-bold mb-2">
-                {block.pricing.label}
-              </p>
-              <p className="text-5xl font-bold text-black dark:text-white">{block.pricing.price}</p>
-            </div>
-          </div>
-        )}
+  const at = block.highlight ? block.title.indexOf(block.highlight) : -1;
+  const heading =
+    at < 0 ? (
+      block.title
+    ) : (
+      <>
+        {block.title.slice(0, at)}
+        <strong>{block.highlight}</strong>
+        {block.title.slice(at + (block.highlight as string).length)}
+      </>
+    );
+
+  const intro = (
+    <div className="section-head">
+      {!block.highlight && <h2 id={`${id}-h`}>{heading}</h2>}
+      {block.description && <p>{block.description}</p>}
+    </div>
+  );
+
+  const body = (
+    <>
+      {block.items && block.items.length > 0 && (
+        <ul className="checks">
+          {block.items.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      )}
+      {block.pricing && (
+        <p className="price">
+          <span className="t-label muted">{block.pricing.label}</span>
+          <span className="t-stat">{block.pricing.price}</span>
+        </p>
+      )}
+      <div className="btn-row">
         {block.buttonText && (
-          <CtaLink href={href} className={buttonClassName} trackingLocation="cta_section">
+          <CtaLink href={href} className="btn btn--primary" trackingLocation="cta_section">
             {block.buttonText}
           </CtaLink>
         )}
         {block.secondaryButtonText && block.secondaryButtonUrl && (
-          <p className="mt-6">
-            <CtaLink
-              href={block.secondaryButtonUrl}
-              className="underline underline-offset-4 text-xs font-bold uppercase tracking-widest text-gray-700 dark:text-zinc-300 hover:text-black dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
-              trackingLocation="cta_section_secondary"
-            >
-              {block.secondaryButtonText}
-            </CtaLink>
-          </p>
+          <CtaLink
+            href={block.secondaryButtonUrl}
+            className="btn btn--secondary"
+            trackingLocation="cta_section_secondary"
+          >
+            {block.secondaryButtonText}
+          </CtaLink>
         )}
       </div>
-    </section>
+    </>
+  );
+
+  const words = (
+    <>
+      {intro}
+      {body}
+    </>
+  );
+  const rest = (
+    <>
+      {block.description && <p>{block.description}</p>}
+      {body}
+    </>
+  );
+
+  if (block.quote) {
+    return (
+      <Section id={block.highlight ? 'approach' : id} labelledBy={`${id}-h`}>
+        {block.highlight && (
+          <h2 id={`${id}-h`} className="statement-title">
+            {heading}
+          </h2>
+        )}
+        <div className="grid grid--top">
+          <div className="span-6 cta-words">{words}</div>
+          <figure className="quote proof proof--panel span-6 start-7">
+            <blockquote>{block.quote}</blockquote>
+            <figcaption className="person">
+              <span>
+                <span className="person__name">{block.quoteAuthor}</span>
+              </span>
+            </figcaption>
+            {block.quoteLinkUrl && (
+              <a className="link" href={block.quoteLinkUrl} target="_blank" rel="noopener noreferrer">
+                {block.quoteLinkText}
+              </a>
+            )}
+          </figure>
+        </div>
+      </Section>
+    );
+  }
+
+  if (block.image) {
+    return (
+      <Section id={id} labelledBy={`${id}-h`}>
+        <div className="grid grid--top">
+          <div className="span-6 cta-words">{words}</div>
+          <div className="frame frame--photo cta-photo span-6 start-7">
+            <img className="frame__img" src={block.image} alt={block.imageAlt || ''} loading="lazy" />
+          </div>
+        </div>
+      </Section>
+    );
+  }
+
+  return (
+    <Section id={id} labelledBy={`${id}-h`}>
+      <div className="grid grid--top">
+        <div className="span-5 section-head">
+          <h2 id={`${id}-h`}>{block.title}</h2>
+        </div>
+        <div className="span-7 start-6 cta-words">{rest}</div>
+      </div>
+    </Section>
   );
 };
 

@@ -1,32 +1,25 @@
 import React from 'react';
 import BlockRenderer from './BlockRenderer';
 import type { ColumnsBlock as ColumnsBlockType } from '../../types';
+import Section from '../Section';
 
 interface ColumnsBlockProps {
   block: ColumnsBlockType;
 }
 
 const ColumnsBlock: React.FC<ColumnsBlockProps> = ({ block }) => {
-  const gapClasses = {
-    sm: 'gap-4',
-    md: 'gap-8',
-    lg: 'gap-12',
-  };
-
-  const gap = gapClasses[block.gap || 'md'];
-  const gridCols =
-    block.columns === 2
-      ? 'grid-cols-1 md:grid-cols-2'
-      : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
+  const span = block.columns === 2 ? 'span-6' : 'span-4';
 
   return (
-    <div className={`grid ${gridCols} ${gap} my-8 items-center`}>
-      {block.items.map((item, idx) => (
-        <div key={idx}>
-          <BlockRenderer block={item} />
-        </div>
-      ))}
-    </div>
+    <Section>
+      <div className="grid grid--top">
+        {block.items.map((item, idx) => (
+          <div className={span} key={idx}>
+            <BlockRenderer block={item} bare />
+          </div>
+        ))}
+      </div>
+    </Section>
   );
 };
 
