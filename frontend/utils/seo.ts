@@ -71,8 +71,6 @@ export function generateRSSFeed(): string {
       const postDate = new Date(post.date || now);
       const postUrl = `${baseUrl}/blog/${post.id}`;
       const excerpt = escapeXml(stripMarkdown(post.excerpt || ""));
-      const siteConfig = getSiteConfig();
-      const authorEmail = siteConfig.email || "";
       const mediaContent = mediaContentTag(post.image, baseUrl);
 
       return `    <item>
@@ -83,7 +81,6 @@ export function generateRSSFeed(): string {
       <pubDate>${formatRssDate(postDate)}</pubDate>
       <category>${escapeXml(post.category)}</category>
       ${mediaContent}
-      ${authorEmail ? `<author>${escapeXml(authorEmail)} (${escapeXml(siteConfig.name)})</author>` : ""}
     </item>`;
     })
     .join("\n");
@@ -117,7 +114,6 @@ export function generateAtomFeed(): string {
       const postDate = new Date(post.date || now);
       const postUrl = `${baseUrl}/blog/${post.id}`;
       const excerpt = escapeXml(stripMarkdown(post.excerpt || ""));
-      const authorEmail = siteConfig.email || "";
 
       return `    <entry>
       <title>${escapeXml(post.title)}</title>
@@ -129,7 +125,6 @@ export function generateAtomFeed(): string {
       <category term="${escapeXml(post.category)}"/>
       <author>
         <name>${escapeXml(siteConfig.name)}</name>
-        ${authorEmail ? `<email>${escapeXml(authorEmail)}</email>` : ""}
       </author>
     </entry>`;
     })
@@ -146,7 +141,6 @@ export function generateAtomFeed(): string {
   <updated>${now.toISOString()}</updated>
   <author>
     <name>${escapeXml(siteConfig.name)}</name>
-    ${siteConfig.email ? `<email>${escapeXml(siteConfig.email)}</email>` : ""}
   </author>
   ${entries}
 </feed>`;
@@ -249,7 +243,6 @@ export function generateLlmsTxt(): string {
   if (siteConfig.bookingUrl) facts.push(`- Booking: ${siteConfig.bookingUrl}`);
   if (siteConfig.discoveryCallUrl) facts.push(`- Free discovery call: ${siteConfig.discoveryCallUrl}`);
   if (siteConfig.flagshipUrl) facts.push(`- Flagship (6 private coaching calls): ${siteConfig.flagshipUrl}`);
-  if (siteConfig.email) facts.push(`- Email: ${siteConfig.email}`);
   for (const item of siteConfig.social || []) {
     facts.push(`- ${item.label}: ${item.url}`);
   }

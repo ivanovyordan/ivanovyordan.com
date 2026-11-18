@@ -15,6 +15,17 @@ function absolute(url: string): string {
   return `${getBaseUrl()}${url.startsWith("/") ? url : `/${url}`}`;
 }
 
+/**
+ * Cloudflare only obfuscates addresses in HTML responses, so the raw .md files
+ * would hand them to scrapers. Point to the contact page instead.
+ */
+export function redactEmails(markdown: string): string {
+  const contact = `${getBaseUrl()}/coaching#book`;
+  return markdown
+    .replace(/mailto:[^\s)>"']+/gi, contact)
+    .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+/g, `the contact page (${contact})`);
+}
+
 /** Root-relative links and images become absolute, since the file is read out of context. */
 function absolutizeMarkdown(markdown: string): string {
   return markdown.replace(

@@ -13,7 +13,7 @@ import {
   type RouteMeta,
 } from './utils/meta';
 import { getMarkdownPath } from './utils/routes';
-import { blogIndexToMarkdown, pageToMarkdown, postToMarkdown } from './utils/markdown';
+import { blogIndexToMarkdown, pageToMarkdown, postToMarkdown, redactEmails } from './utils/markdown';
 import {
   generateAtomFeed,
   generateLlmsTxt,
@@ -84,13 +84,13 @@ export function generateFiles(): Record<string, string> {
     'feed.xml': generateRSSFeed(),
     'atom.xml': generateAtomFeed(),
     'llms.txt': generateLlmsTxt(),
-    'blog.md': blogIndexToMarkdown(posts),
+    'blog.md': redactEmails(blogIndexToMarkdown(posts)),
   };
   for (const page of getAllPages()) {
-    files[getMarkdownPath(getPagePath(page)).slice(1)] = pageToMarkdown(page);
+    files[getMarkdownPath(getPagePath(page)).slice(1)] = redactEmails(pageToMarkdown(page));
   }
   for (const post of posts) {
-    files[getMarkdownPath(`/blog/${post.id}`).slice(1)] = postToMarkdown(post);
+    files[getMarkdownPath(`/blog/${post.id}`).slice(1)] = redactEmails(postToMarkdown(post));
   }
   return files;
 }
