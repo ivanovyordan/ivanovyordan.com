@@ -269,7 +269,9 @@ function film(btn) {
 function init() {
   document.querySelectorAll('[data-ly-word]').forEach(liveWord);
   document.querySelectorAll('h1[data-ly-letters]').forEach(letters);
-  document.querySelectorAll('h1[data-ly-letters], h1:has(.ly-word)').forEach(lockLines);
+  [...document.querySelectorAll('h1')]
+    .filter(h => h.hasAttribute('data-ly-letters') || h.querySelector('.ly-word'))
+    .forEach(lockLines);
   document.querySelectorAll('.ly-collage').forEach(collage);
   document.querySelectorAll('[data-ly-steps]').forEach(steps);
   document.querySelectorAll('.ly-spot').forEach(spot);
