@@ -2,7 +2,6 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { navigation } from '../collections';
 import { getSiteConfig } from '../utils/site';
-import { handleExternalLinkClick, trackBookingClick } from '../utils/analytics';
 
 const Header: React.FC = () => {
   const location = useLocation();
@@ -25,8 +24,9 @@ const Header: React.FC = () => {
                   className="nav__link"
                   href={item.path}
                   aria-current={current ? 'page' : undefined}
-                  onClick={external ? () => handleExternalLinkClick(item.path, item.label) : undefined}
-                  {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  {...(external
+                    ? { target: '_blank', rel: 'noopener noreferrer', 'data-track': 'external', 'data-track-label': item.label }
+                    : {})}
                 >
                   {item.label}
                 </a>
@@ -41,7 +41,8 @@ const Header: React.FC = () => {
           <a
             className="btn btn--primary"
             href={site.discoveryCallPage}
-            onClick={() => trackBookingClick('header')}
+            data-track="booking"
+            data-track-loc="header"
           >
             Book a discovery call
           </a>

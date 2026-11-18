@@ -5,14 +5,14 @@ import { seoPlugin } from "./vite-plugin-seo";
 import { publishedPagesOnly } from "./vite-plugin-content";
 
 /**
- * The kit's scripts (menu, motion, the scroll moment) read the DOM once at load. In the pre-rendered
- * build the page is already there; in dev the root is empty until React renders, so dev leaves the tags
- * out and index.tsx loads the scripts after the first render.
+ * The production pages are the pre-rendered HTML and ship no React. client.ts reads that DOM once at
+ * load; in dev the root is empty until React renders, so dev swaps the script for dev.tsx, which
+ * renders the app and then starts client.ts.
  */
-const kitAfterRender = (): Plugin => ({
-  name: "kit-after-render",
+const devRender = (): Plugin => ({
+  name: "dev-render",
   apply: "serve",
-  transformIndexHtml: (html) => html.replace(/<script type="module" src="\/kit\/[^"]+"><\/script>\s*/g, ""),
+  transformIndexHtml: (html) => html.replace('src="/client.ts"', 'src="/dev.tsx"'),
 });
 
 export default defineConfig(({ isSsrBuild }) => ({
@@ -20,7 +20,7 @@ export default defineConfig(({ isSsrBuild }) => ({
     react(),
     publishedPagesOnly(),
     seoPlugin(),
-    kitAfterRender(),
+    devRender(),
     // Client build only, and only where CI provides a token. The maps are
     // deleted after upload so Pages never publishes them.
     !isSsrBuild && process.env.SENTRY_AUTH_TOKEN

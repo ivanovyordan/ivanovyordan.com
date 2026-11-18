@@ -1,7 +1,6 @@
 import React from 'react';
 import type { ContactInfoBlock as ContactInfoBlockType } from '../../types';
 import { getSiteConfig } from '../../utils/site';
-import { trackBookingClick, handleExternalLinkClick } from '../../utils/analytics';
 import Section from '../Section';
 
 interface ContactInfoBlockProps {
@@ -42,7 +41,8 @@ const ContactInfoBlock: React.FC<ContactInfoBlockProps> = ({ block }) => {
                   <a
                     className="link"
                     href={item.url}
-                    onClick={() => handleExternalLinkClick(item.url, item.label)}
+                    data-track="external"
+                    data-track-label={item.label}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -60,7 +60,8 @@ const ContactInfoBlock: React.FC<ContactInfoBlockProps> = ({ block }) => {
             {block.officeHours.buttonText && (
               <a
                 href={bookHref}
-                onClick={() => trackBookingClick('contact_info')}
+                data-track="booking"
+                data-track-loc="contact_info"
                 target={external ? '_blank' : undefined}
                 rel={external ? 'noopener noreferrer' : undefined}
                 className="btn btn--secondary"

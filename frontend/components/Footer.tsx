@@ -1,7 +1,6 @@
 import React from 'react';
 import { navigation } from '../collections';
 import { getFooterConfig, getSiteConfig } from '../utils/site';
-import { handleExternalLinkClick, trackBookingClick } from '../utils/analytics';
 
 const Footer: React.FC = () => {
   const footer = getFooterConfig();
@@ -24,7 +23,8 @@ const Footer: React.FC = () => {
           <a
             className="btn btn--primary btn--xl"
             href={site.discoveryCallPage}
-            onClick={() => trackBookingClick('footer')}
+            data-track="booking"
+            data-track-loc="footer"
           >
             Book a discovery call
             <svg className="m-arrow" viewBox="0 0 12 12" aria-hidden="true">
@@ -63,7 +63,8 @@ const Footer: React.FC = () => {
                   <li key={item.url}>
                     <a
                       href={item.url}
-                      onClick={() => handleExternalLinkClick(item.url, item.label)}
+                      data-track="external"
+                      data-track-label={item.label}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

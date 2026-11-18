@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { marked } from 'marked';
 import Section, { FlowContext } from '../components/Section';
@@ -6,7 +6,6 @@ import SocialShare from '../components/SocialShare';
 import NewsletterBlock from '../components/blocks/NewsletterBlock';
 import { getPostById } from '../utils/posts';
 import { getCanonicalUrl } from '../utils/routes';
-import { trackBlogPostView } from '../utils/analytics';
 import SEO from '../components/SEO';
 import { buildPostMeta } from '../utils/meta';
 
@@ -19,11 +18,6 @@ const PostDetail: React.FC = () => {
     if (!post?.body) return '';
     return marked(post.body);
   }, [post?.body]);
-
-  useEffect(() => {
-    if (!post) return;
-    trackBlogPostView(post.id, post.title);
-  }, [post]);
 
   if (!post) {
     return <Navigate to="/404" replace />;
@@ -44,7 +38,11 @@ const PostDetail: React.FC = () => {
         </div>
       </Section>
       <Section className="post-body">
-        <article className="prose prose--post" dangerouslySetInnerHTML={{ __html: htmlContent }} />
+        <article
+          className="prose prose--post"
+          data-post-id={post.id}
+          data-post-title={post.title}
+          dangerouslySetInnerHTML={{ __html: htmlContent }} />
         <SocialShare
           url={getCanonicalUrl(`/blog/${post.id}`)}
           title={post.title}

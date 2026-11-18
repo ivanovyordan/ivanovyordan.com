@@ -1,7 +1,6 @@
 import React from 'react';
 import type { HeroBlock as HeroBlockType } from '../../types';
 import { getSiteConfig } from '../../utils/site';
-import { trackBookingClick } from '../../utils/analytics';
 import Section from '../Section';
 
 interface HeroBlockProps {
@@ -32,7 +31,8 @@ const HeroBlock: React.FC<HeroBlockProps> = ({ block }) => {
                   <a
                     className="btn btn--primary"
                     href={site.discoveryCallPage}
-                    onClick={() => trackBookingClick('hero')}
+                    data-track="booking"
+                    data-track-loc="hero"
                   >
                     {block.buttonText}
                     <Arrow />

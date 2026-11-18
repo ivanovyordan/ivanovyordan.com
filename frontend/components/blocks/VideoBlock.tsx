@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { VideoBlock as VideoBlockType } from '../../types';
 import Section from '../Section';
 
@@ -6,10 +6,8 @@ interface VideoBlockProps {
   block: VideoBlockType;
 }
 
-/** A play button that swaps for the YouTube player in place: no modal. */
+/** A play button that swaps for the YouTube player in place: no modal (client.ts swaps it on click). */
 const VideoBlock: React.FC<VideoBlockProps> = ({ block }) => {
-  const [playing, setPlaying] = useState(false);
-
   // The whole block is the video, so render nothing until there is one.
   if (!block.videoId) {
     return null;
@@ -20,18 +18,14 @@ const VideoBlock: React.FC<VideoBlockProps> = ({ block }) => {
   return (
     <Section>
       <div className="video-frame">
-        {playing ? (
-          <iframe
-            src={embedUrl}
-            title={block.title || 'Video'}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        ) : (
-          <button className="btn btn--primary" type="button" onClick={() => setPlaying(true)}>
-            {block.buttonText || 'Watch the trailer'}
-          </button>
-        )}
+        <button
+          className="btn btn--primary"
+          type="button"
+          data-video={embedUrl}
+          data-video-title={block.title || 'Video'}
+        >
+          {block.buttonText || 'Watch the trailer'}
+        </button>
       </div>
     </Section>
   );

@@ -1,7 +1,7 @@
 import React from 'react';
 import type { CTASectionBlock as CTASectionBlockType } from '../../types';
 import { getSiteConfig } from '../../utils/site';
-import { isBookingHref, trackBookingClick } from '../../utils/analytics';
+import { isBookingHref } from '../../utils/analytics';
 import Section from '../Section';
 
 interface CTASectionBlockProps {
@@ -28,7 +28,8 @@ const CtaLink: React.FC<CtaLinkProps> = ({ href, className, trackingLocation, ch
   return (
     <a
       href={href}
-      onClick={booking ? () => trackBookingClick(trackingLocation) : undefined}
+      data-track={booking ? 'booking' : undefined}
+      data-track-loc={booking ? trackingLocation : undefined}
       target={external ? '_blank' : undefined}
       rel={external ? 'noopener noreferrer' : undefined}
       className={className}

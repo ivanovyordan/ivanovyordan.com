@@ -6,9 +6,9 @@ interface SEOProps {
 }
 
 /**
- * Keeps <head> in step with the route after hydration and on client-side
- * navigation. The build-time pre-render writes the same tags into the HTML,
- * so a crawler without JavaScript sees them too.
+ * Keeps <head> in step with the route in the dev server, which renders in the
+ * browser. The build-time pre-render writes the same tags into the HTML, and the
+ * production site ships no client React, so this does nothing there.
  */
 const SEO: React.FC<SEOProps> = ({ meta }) => {
   const key = JSON.stringify(meta);

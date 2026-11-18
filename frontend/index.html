@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="/kit/ui/cards.css" />
     <link rel="stylesheet" href="/kit/motion/motion.css" />
     <link rel="stylesheet" href="/kit/layout/layout.css" />
+    <link rel="stylesheet" href="/kit/moments/word-highlight/moment.css" />
     <link rel="stylesheet" href="/kit/icons/icon.css" />
     <style>
       :root {
@@ -38,13 +39,10 @@
   </head>
   <body>
     <div id="root"><!--app-html--></div>
-    <!-- the phone action bar must be a child of body (system.css, system.js); it stays outside React -->
-    <nav class="actionbar" aria-label="Quick actions">
+    <!-- the phone action bar must be a child of body (system.css); data-bar="always" keeps it on screen without script -->
+    <nav class="actionbar" data-bar="always" aria-label="Quick actions">
       <a class="btn btn--primary" href="/coaching#book">Book a discovery call</a>
     </nav>
-    <script type="module" src="/index.tsx"></script>
-    <script type="module" src="/kit/system.js"></script>
-    <script type="module" src="/kit/motion/motion.js"></script>
-    <script type="module" src="/kit/layout/layout.js"></script>
+    <script type="module" src="/client.ts"></script>
   </body>
 </html>

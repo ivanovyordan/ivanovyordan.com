@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { HeroWithVideoBlock as HeroWithVideoBlockType } from '../../types';
 import Section from '../Section';
 
@@ -7,7 +7,6 @@ interface HeroWithVideoBlockProps {
 }
 
 const HeroWithVideoBlock: React.FC<HeroWithVideoBlockProps> = ({ block }) => {
-  const [playing, setPlaying] = useState(false);
   // No video yet? Show the copy full-width rather than a play button that
   // opens an empty YouTube embed.
   const hasVideo = Boolean(block.video?.videoId);
@@ -38,18 +37,14 @@ const HeroWithVideoBlock: React.FC<HeroWithVideoBlockProps> = ({ block }) => {
         </div>
         {hasVideo && (
           <div className="span-6 start-7 video-frame">
-            {playing ? (
-              <iframe
-                src={embedUrl}
-                title={block.video.title || 'Video'}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            ) : (
-              <button className="btn btn--primary" type="button" onClick={() => setPlaying(true)}>
-                {block.video.buttonText || 'Watch the trailer'}
-              </button>
-            )}
+            <button
+              className="btn btn--primary"
+              type="button"
+              data-video={embedUrl}
+              data-video-title={block.video.title || 'Video'}
+            >
+              {block.video.buttonText || 'Watch the trailer'}
+            </button>
           </div>
         )}
       </div>

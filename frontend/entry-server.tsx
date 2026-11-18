@@ -24,7 +24,7 @@ import {
 /**
  * Build-time entry. `vite build --ssr entry-server.tsx` bundles it, and
  * scripts/prerender.mjs calls it once per route to write static HTML with
- * the route's own <head> and body, which the client then hydrates.
+ * the route's own <head> and body. The pages ship as that HTML: nothing hydrates.
  */
 
 export interface PrerenderRoute {

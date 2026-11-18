@@ -17,7 +17,7 @@ interface CookieConsent {
 /**
  * Check if user has given consent for analytics
  */
-function hasAnalyticsConsent(): boolean {
+export function hasAnalyticsConsent(): boolean {
   try {
     const consent = localStorage.getItem('cookieConsent');
     if (!consent) {
